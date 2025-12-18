@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import HeroSection from "@/components/HeroSection";
 import MatchCenter from "@/components/MatchCenter";
 import StandingsTable from "@/components/StandingsTable";
+import TeamSection from "@/components/TeamSection";
 import NewsSection from "@/components/NewsSection";
 import ActivitiesSection from "@/components/ActivitiesSection";
 import Footer from "@/components/Footer";
@@ -14,6 +15,7 @@ const Index = () => {
         <HeroSection />
         <MatchCenter />
         <StandingsTable />
+        <TeamSection />
         <NewsSection />
         <ActivitiesSection />
       </main>
