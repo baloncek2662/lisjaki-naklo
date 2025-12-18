@@ -9,7 +9,7 @@ const Novice = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <main className="pt-16 md:pt-20">
         {/* Header */}
         <section className="bg-secondary py-12 md:py-16">

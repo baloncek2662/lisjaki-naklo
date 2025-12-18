@@ -1,4 +1,4 @@
-import { Instagram, Mail, MapPin } from "lucide-react";
+import { Facebook, Instagram, Mail, MapPin } from "lucide-react";
 import logo from "@/assets/lisjaki-logo.jpg";
 
 const Footer = () => {
@@ -22,6 +22,14 @@ const Footer = () => {
             </p>
             <div className="flex gap-4">
               <a
+                href="https://www.facebook.com/lisjakinaklo"
+                className="w-10 h-10 rounded-full bg-primary-foreground/10 hover:bg-primary hover:text-primary-foreground flex items-center justify-center transition-colors"
+                aria-label="Facebook"
+              >
+                <Facebook size={20} />
+              </a>
+
+              <a
                 href="https://www.instagram.com/lisjakinaklo/"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -31,23 +39,6 @@ const Footer = () => {
                 <Instagram size={20} />
               </a>
             </div>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h4 className="font-semibold text-lg mb-4">Hitre povezave</h4>
-            <ul className="space-y-2">
-              {["Domov", "Lestvica", "Tekme", "Novice", "Ekipa"].map((link) => (
-                <li key={link}>
-                  <a
-                    href={`#${link.toLowerCase()}`}
-                    className="text-primary-foreground/70 hover:text-primary transition-colors text-sm"
-                  >
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
           </div>
 
           {/* Contact */}
