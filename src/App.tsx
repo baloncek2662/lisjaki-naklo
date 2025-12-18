@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import Tekme from "./pages/Tekme";
 import Novice from "./pages/Novice";
 import NovicaDetail from "./pages/NovicaDetail";
+import Galerija from "./pages/Galerija";
+import GalerijaEvent from "./pages/GalerijaEvent";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +26,8 @@ const App = () => (
           <Route path="/tekme" element={<Tekme />} />
           <Route path="/novice" element={<Novice />} />
           <Route path="/novice/:slug" element={<NovicaDetail />} />
+          <Route path="/galerija" element={<Galerija />} />
+          <Route path="/galerija/:slug" element={<GalerijaEvent />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
