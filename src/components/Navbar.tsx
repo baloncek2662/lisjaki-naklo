@@ -5,13 +5,9 @@ import { Link, useLocation } from "react-router-dom";
 import logo from "@/assets/lisjaki-logo.jpg";
 
 const navLinks = [
-  { name: "Domov", href: "/#home", isAnchor: true },
-  { name: "Lestvica", href: "/#standings", isAnchor: true },
+  { name: "Domov", href: "/", isAnchor: true },
   { name: "Tekme", href: "/tekme", isAnchor: false },
-  { name: "Ekipa", href: "/#team", isAnchor: true },
-  { name: "Aktivnosti", href: "/#activities", isAnchor: true },
   { name: "Novice", href: "/novice", isAnchor: false },
-  { name: "Kontakt", href: "/#contact", isAnchor: true },
 ];
 
 const Navbar = () => {
