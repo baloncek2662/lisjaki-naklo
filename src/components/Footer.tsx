@@ -17,7 +17,7 @@ const Footer = () => {
               <span className="font-bold text-xl">NK Lisjaki Naklo</span>
             </div>
             <p className="text-primary-foreground/70 text-sm mb-4 max-w-md">
-              Nogometni klub Lisjaki Naklo — srce naše skupnosti od leta 2016.
+              Nogometni klub Lisjaki Naklo, srce naše skupnosti od leta 2016.
               Pridruži se nam in postani del družine!
             </p>
             <div className="flex gap-4">

@@ -25,7 +25,7 @@ const HeroSection = () => {
             Srce na igrišču, ponos Nakla
           </h1>
           <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 animate-fade-in" style={{ animationDelay: "0.2s" }}>
-            Uradna stran kluba Lisjaki Naklo — Divja liga 2025/26
+            Uradna stran kluba Lisjaki Naklo
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style={{ animationDelay: "0.4s" }}>
             <a href="/tekme">

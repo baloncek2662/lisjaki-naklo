@@ -27,6 +27,6 @@ Zabava je potekala v lokalu **Pri Lisjaku**, kjer smo imeli:
 Posebna zahvala gre vsem, ki so pomagali pri organizaciji:
 
 > "Brez vas ta večer ne bi bil mogoč. Hvala za vašo predanost klubu!"
-> — Predsednik kluba
+> - Predsednik kluba
 
 *Srečno novo leto vsem članom in navijačem NK Lisjaki Naklo!*

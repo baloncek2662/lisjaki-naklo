@@ -24,7 +24,7 @@ const StandingsTable = () => {
         <Card className="max-w-4xl mx-auto shadow-elevated border-0 overflow-hidden">
           <CardHeader className="bg-charcoal text-primary-foreground">
             <CardTitle className="text-lg md:text-xl">
-              Divja Liga — Skupina A
+              Divja Liga - Skupina A
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
