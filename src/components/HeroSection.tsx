@@ -28,10 +28,12 @@ const HeroSection = () => {
             Uradna stran kluba Lisjaki Naklo — Divja liga 2025/26
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            <Button variant="default" size="xl" className="gap-2">
-              <Trophy size={20} />
-              Zadnji Rezultati
-            </Button>
+            <a href="/tekme">
+              <Button variant="default" size="xl" className="gap-2">
+                <Trophy size={20} />
+                Zadnji Rezultati
+              </Button>
+            </a>
             <Button variant="hero" size="xl" className="gap-2">
               <Users size={20} />
               Postani Član
