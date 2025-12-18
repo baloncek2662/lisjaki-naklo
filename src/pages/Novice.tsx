@@ -10,7 +10,7 @@ const Novice = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main className="pt-20 md:pt-24">
+      <main className="pt-16 md:pt-20">
         {/* Header */}
         <section className="bg-secondary py-12 md:py-16">
           <div className="container mx-auto px-4">
