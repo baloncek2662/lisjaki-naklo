@@ -5,6 +5,7 @@ import StandingsTable from "@/components/StandingsTable";
 import TeamSection from "@/components/TeamSection";
 import NewsSection from "@/components/NewsSection";
 import ActivitiesSection from "@/components/ActivitiesSection";
+import SponsorsSection from "@/components/SponsorsSection";
 import Footer from "@/components/Footer";
 
 const Index = () => {
@@ -18,6 +19,7 @@ const Index = () => {
         <TeamSection />
         <NewsSection />
         <ActivitiesSection />
+        <SponsorsSection />
       </main>
       <Footer />
     </div>
