@@ -96,11 +96,19 @@ const Tekme = () => {
                 Prihajajoče Tekme
               </h2>
             </div>
-            <div className="grid gap-4">
-              {upcomingMatches.map((match) => (
-                <MatchCard key={match.id} match={match} isPlayed={false} />
-              ))}
-            </div>
+            {upcomingMatches.length > 0 ? (
+              <div className="grid gap-4">
+                {upcomingMatches.map((match) => (
+                  <MatchCard key={match.id} match={match} isPlayed={false} />
+                ))}
+              </div>
+            ) : (
+              <Card className="border-border">
+                <CardContent className="p-8 text-center text-muted-foreground">
+                  Trenutno ni načrtovanih tekem
+                </CardContent>
+              </Card>
+            )}
           </div>
         </section>
 

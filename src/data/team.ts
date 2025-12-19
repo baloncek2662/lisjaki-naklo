@@ -1,40 +1,26 @@
 export interface Player {
   name: string;
-  number: number;
+  number?: number;
 }
 
-export interface PositionGroup {
-  title: string;
-  players: Player[];
-}
-
-export const teamData: PositionGroup[] = [
-  {
-    title: "Vratar",
-    players: [
-      { name: "Matic Kovač", number: 1 },
-      { name: "Luka Zupan", number: 12 },
-    ],
-  },
-  {
-    title: "Obramba",
-    players: [
-      { name: "Jan Novak", number: 2 },
-      { name: "Anže Horvat", number: 3 },
-      { name: "Rok Krajnc", number: 4 },
-      { name: "Žiga Mlakar", number: 5 },
-      { name: "Miha Vidmar", number: 13 },
-    ],
-  },
-  {
-    title: "Napad",
-    players: [
-      { name: "Nejc Potočnik", number: 7 },
-      { name: "Blaž Hribar", number: 8 },
-      { name: "Tim Korošec", number: 9 },
-      { name: "David Ahlin", number: 10 },
-      { name: "Gašper Breznik", number: 11 },
-      { name: "Jure Košir", number: 14 },
-    ],
-  },
+export const teamData: Player[] = [
+  { name: "Grega Aljančič", number: 1 },
+  { name: "Žan Vrtač", number: 2 },
+  { name: "Urban Martič", number: 3 },
+  { name: "Tim Kalan", number: 3 },
+  { name: "Mark Porenta", number: 4 },
+  { name: "Tomaž Hribernik", number: 5 },
+  { name: "Gaber Petrovič", number: 6 },
+  { name: "Blaž Logonder", number: 7 },
+  { name: "Gašper Martič", number: 21 },
+  { name: "Aljaž Roglej", number: 31 },
+  { name: "David Naglič", number: 71 },
+  { name: "Blaž Žerovnik" },
+  { name: "Domen Porenta" },
+  { name: "Erik Petrovič" },
+  { name: "Husein Hasanagić" },
+  { name: "Jaka Jerala" },
+  { name: "Janez Osterman" },
+  { name: "Matej Krt" },
+  { name: "Matic Potočnik" },
 ];
