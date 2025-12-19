@@ -83,11 +83,6 @@ const StandingsTable = () => {
                         }`}
                       >
                         {row.team}
-                        {row.isHighlighted && (
-                          <span className="ml-2 text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
-                            Mi
-                          </span>
-                        )}
                       </TableCell>
                       <TableCell className="text-center text-muted-foreground">
                         {row.played}
