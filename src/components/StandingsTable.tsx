@@ -50,6 +50,15 @@ const StandingsTable = () => {
                     <TableHead className="w-12 text-center font-semibold text-foreground">
                       P
                     </TableHead>
+                    <TableHead className="w-12 text-center font-semibold text-foreground">
+                      DZ
+                    </TableHead>
+                    <TableHead className="w-12 text-center font-semibold text-foreground">
+                      PZ
+                    </TableHead>
+                    <TableHead className="w-12 text-center font-semibold text-foreground">
+                      GR
+                    </TableHead>
                     <TableHead className="w-16 text-center font-semibold text-foreground">
                       Točke
                     </TableHead>
@@ -91,6 +100,15 @@ const StandingsTable = () => {
                       </TableCell>
                       <TableCell className="text-center text-muted-foreground">
                         {row.lost}
+                      </TableCell>
+                      <TableCell className="text-center text-muted-foreground">
+                        {row.goalsFor}
+                      </TableCell>
+                      <TableCell className="text-center text-muted-foreground">
+                        {row.goalsAgainst}
+                      </TableCell>
+                      <TableCell className={`text-center ${row.goalDiff > 0 ? "text-green-600" : row.goalDiff < 0 ? "text-red-600" : "text-muted-foreground"}`}>
+                        {row.goalDiff > 0 ? `+${row.goalDiff}` : row.goalDiff}
                       </TableCell>
                       <TableCell
                         className={`text-center font-bold ${
