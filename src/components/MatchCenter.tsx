@@ -1,26 +1,14 @@
 import { Calendar, MapPin, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import logo from "@/assets/lisjaki-logo.jpg";
+import { playedMatches, upcomingMatches } from "@/data/matches";
 
 const MatchCenter = () => {
-  // Mock data for next match
-  const nextMatch = {
-    homeTeam: "Lisjaki Naklo",
-    awayTeam: "ŠD Podnart",
-    date: "22. december 2024",
-    time: "18:00",
-    location: "Športni Park Radovljica",
-    isUpcoming: true,
-  };
+  const nextMatch = upcomingMatches[0];
+  const lastResult = playedMatches[0];
 
-  // Mock data for last result
-  const lastResult = {
-    homeTeam: "Smola",
-    awayTeam: "Lisjaki Naklo",
-    homeScore: 3,
-    awayScore: 1,
-    date: "15. december 2024",
-  };
+  // Determine if Lisjaki is home or away for display purposes
+  const isLisjakiHome = lastResult?.home === "Lisjaki Naklo";
 
   return (
     <section id="matches" className="py-16 md:py-24 bg-secondary">
@@ -38,52 +26,74 @@ const MatchCenter = () => {
               </span>
             </div>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="text-center flex-1">
-                  <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-secondary flex items-center justify-center">
-                    <img
-                      src={logo}
-                      alt={nextMatch.homeTeam}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
+              {nextMatch ? (
+                <>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="text-center flex-1">
+                      <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-secondary flex items-center justify-center">
+                        {nextMatch.home === "Lisjaki Naklo" ? (
+                          <img
+                            src={logo}
+                            alt={nextMatch.home}
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-lg font-bold text-muted-foreground">
+                            {nextMatch.home.substring(0, 2).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-semibold text-foreground text-sm">
+                        {nextMatch.home}
+                      </p>
+                    </div>
+
+                    <div className="px-4">
+                      <span className="text-2xl font-bold text-muted-foreground">
+                        VS
+                      </span>
+                    </div>
+
+                    <div className="text-center flex-1">
+                      <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-secondary flex items-center justify-center">
+                        {nextMatch.away === "Lisjaki Naklo" ? (
+                          <img
+                            src={logo}
+                            alt={nextMatch.away}
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-lg font-bold text-muted-foreground">
+                            {nextMatch.away.substring(0, 2).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-semibold text-foreground text-sm">
+                        {nextMatch.away}
+                      </p>
+                    </div>
                   </div>
-                  <p className="font-semibold text-foreground text-sm">
-                    {nextMatch.homeTeam}
-                  </p>
-                </div>
 
-                <div className="px-4">
-                  <span className="text-2xl font-bold text-muted-foreground">
-                    VS
-                  </span>
-                </div>
-
-                <div className="text-center flex-1">
-                  <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-secondary flex items-center justify-center">
-                    <span className="text-2xl font-bold text-muted-foreground">
-                      ŠD
-                    </span>
+                  <div className="space-y-3 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-2">
+                      <Calendar size={16} className="text-primary" />
+                      <span>{nextMatch.date}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock size={16} className="text-primary" />
+                      <span>{nextMatch.time}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <MapPin size={16} className="text-primary" />
+                      <span>{nextMatch.location}</span>
+                    </div>
                   </div>
-                  <p className="font-semibold text-foreground text-sm">
-                    {nextMatch.awayTeam}
-                  </p>
+                </>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Trenutno ni načrtovanih tekem</p>
                 </div>
-              </div>
-
-              <div className="space-y-3 text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Calendar size={16} className="text-primary" />
-                  <span>{nextMatch.date}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock size={16} className="text-primary" />
-                  <span>{nextMatch.time}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin size={16} className="text-primary" />
-                  <span>{nextMatch.location}</span>
-                </div>
-              </div>
+              )}
             </CardContent>
           </Card>
 
@@ -95,49 +105,71 @@ const MatchCenter = () => {
               </span>
             </div>
             <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div className="text-center flex-1">
-                  <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-secondary flex items-center justify-center">
-                    <span className="text-2xl font-bold text-muted-foreground">
-                      SM
-                    </span>
-                  </div>
-                  <p className="font-semibold text-foreground text-sm">
-                    {lastResult.homeTeam}
-                  </p>
-                </div>
+              {lastResult ? (
+                <>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="text-center flex-1">
+                      <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-secondary flex items-center justify-center">
+                        {lastResult.home === "Lisjaki Naklo" ? (
+                          <img
+                            src={logo}
+                            alt={lastResult.home}
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-lg font-bold text-muted-foreground">
+                            {lastResult.home.substring(0, 2).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-semibold text-foreground text-sm">
+                        {lastResult.home}
+                      </p>
+                    </div>
 
-                <div className="px-4 text-center">
-                  <div className="text-4xl font-extrabold text-foreground">
-                    {lastResult.homeScore}{" "}
-                    <span className="text-muted-foreground">:</span>{" "}
-                    {lastResult.awayScore}
-                  </div>
-                  <span className="text-xs text-muted-foreground uppercase">
-                    Končni rezultat
-                  </span>
-                </div>
+                    <div className="px-4 text-center">
+                      <div className="text-4xl font-extrabold text-foreground">
+                        {lastResult.homeScore}{" "}
+                        <span className="text-muted-foreground">:</span>{" "}
+                        {lastResult.awayScore}
+                      </div>
+                      <span className="text-xs text-muted-foreground uppercase">
+                        Končni rezultat
+                      </span>
+                    </div>
 
-                <div className="text-center flex-1">
-                  <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-secondary flex items-center justify-center">
-                    <img
-                      src={logo}
-                      alt={lastResult.awayTeam}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
+                    <div className="text-center flex-1">
+                      <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-secondary flex items-center justify-center">
+                        {lastResult.away === "Lisjaki Naklo" ? (
+                          <img
+                            src={logo}
+                            alt={lastResult.away}
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-lg font-bold text-muted-foreground">
+                            {lastResult.away.substring(0, 2).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      <p className="font-semibold text-foreground text-sm">
+                        {lastResult.away}
+                      </p>
+                    </div>
                   </div>
-                  <p className="font-semibold text-foreground text-sm">
-                    {lastResult.awayTeam}
-                  </p>
-                </div>
-              </div>
 
-              <div className="text-center text-sm text-muted-foreground">
-                <div className="flex items-center justify-center gap-2">
-                  <Calendar size={16} className="text-primary" />
-                  <span>{lastResult.date}</span>
+                  <div className="text-center text-sm text-muted-foreground">
+                    <div className="flex items-center justify-center gap-2">
+                      <Calendar size={16} className="text-primary" />
+                      <span>{lastResult.date}</span>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Ni preteklih tekem</p>
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>

@@ -5,19 +5,20 @@ export interface StandingRow {
   won: number;
   draw: number;
   lost: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  goalDiff: number;
   points: number;
   isHighlighted?: boolean;
 }
 
 export const standingsData: StandingRow[] = [
-  { pos: 1, team: "Smola", played: 10, won: 8, draw: 1, lost: 1, points: 25 },
-  { pos: 2, team: "ŠD Podnart", played: 10, won: 7, draw: 2, lost: 1, points: 23 },
-  { pos: 3, team: "Vrbnje", played: 10, won: 6, draw: 2, lost: 2, points: 20 },
-  { pos: 4, team: "Elmont Bled", played: 10, won: 5, draw: 3, lost: 2, points: 18 },
-  { pos: 5, team: "NK Kropa", played: 10, won: 4, draw: 3, lost: 3, points: 15 },
-  { pos: 6, team: "Radovljica B", played: 10, won: 3, draw: 3, lost: 4, points: 12 },
-  { pos: 7, team: "Gorje United", played: 10, won: 2, draw: 2, lost: 6, points: 8 },
-  { pos: 8, team: "Lisjaki Naklo", played: 10, won: 2, draw: 1, lost: 7, points: 7, isHighlighted: true },
-  { pos: 9, team: "Škofja Loka B", played: 10, won: 1, draw: 2, lost: 7, points: 5 },
-  { pos: 10, team: "Tržič", played: 10, won: 0, draw: 3, lost: 7, points: 3 },
+  { pos: 1, team: "Smola", played: 7, won: 6, draw: 1, lost: 0, goalsFor: 40, goalsAgainst: 14, goalDiff: 26, points: 19 },
+  { pos: 2, team: "ŠD Podnart", played: 7, won: 5, draw: 1, lost: 1, goalsFor: 35, goalsAgainst: 22, goalDiff: 13, points: 16 },
+  { pos: 3, team: "Vrbnje", played: 7, won: 4, draw: 0, lost: 3, goalsFor: 20, goalsAgainst: 16, goalDiff: 4, points: 12 },
+  { pos: 4, team: "Elmont Bled", played: 7, won: 4, draw: 0, lost: 3, goalsFor: 28, goalsAgainst: 29, goalDiff: -1, points: 12 },
+  { pos: 5, team: "Baffi Brezje", played: 7, won: 3, draw: 0, lost: 4, goalsFor: 22, goalsAgainst: 24, goalDiff: -2, points: 9 },
+  { pos: 6, team: "KMN Utrip", played: 7, won: 2, draw: 1, lost: 4, goalsFor: 25, goalsAgainst: 30, goalDiff: -5, points: 7 },
+  { pos: 7, team: "MST-Activity", played: 7, won: 2, draw: 0, lost: 5, goalsFor: 33, goalsAgainst: 46, goalDiff: -13, points: 6 },
+  { pos: 8, team: "Lisjaki Naklo", played: 7, won: 0, draw: 1, lost: 6, goalsFor: 16, goalsAgainst: 38, goalDiff: -22, points: 1, isHighlighted: true },
 ];
