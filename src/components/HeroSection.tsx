@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Trophy, Users } from "lucide-react";
+import { Trophy, Instagram } from "lucide-react";
 import heroPitch from "@/assets/hero-pitch.jpg";
 
 const HeroSection = () => {
@@ -34,10 +34,12 @@ const HeroSection = () => {
                 Zadnji Rezultati
               </Button>
             </a>
-            <Button variant="hero" size="xl" className="gap-2">
-              <Users size={20} />
-              Postani Član
-            </Button>
+            <a href="https://www.instagram.com/lisjakinaklo/" target="_blank" rel="noopener noreferrer">
+              <Button variant="hero" size="xl" className="gap-2">
+                <Instagram size={20} />
+                Spremljaj nas
+              </Button>
+            </a>
           </div>
         </div>
       </div>

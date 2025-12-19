@@ -18,7 +18,7 @@ const Footer = () => {
             </div>
             <p className="text-primary-foreground/70 text-sm mb-4 max-w-md">
               Nogometni klub Lisjaki Naklo, srce naše skupnosti od leta 2016.
-              Pridruži se nam in postani del družine!
+              Spremljaj nas na družbenih omrežjih!
             </p>
             <div className="flex gap-4">
               <a
