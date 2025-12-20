@@ -1,8 +1,12 @@
 import { Card, CardContent } from "@/components/ui/card";
 
-const sponsors = [
+const platinumSponsors = [
   { name: "PORENTA TRADE d.o.o." },
   { name: "BLAŽ LOGONDER S.P." },
+];
+
+const goldSponsors = [
+  { name: "Brivnica Rogelj" },
 ];
 
 const SponsorsSection = () => {
@@ -18,19 +22,46 @@ const SponsorsSection = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-6">
-          {sponsors.map((sponsor, index) => (
-            <Card
-              key={index}
-              className="bg-card hover:shadow-lg transition-shadow duration-300 border-primary/20"
-            >
-              <CardContent className="flex items-center justify-center p-8 min-w-[250px]">
-                <span className="text-lg font-semibold text-foreground">
-                  {sponsor.name}
-                </span>
-              </CardContent>
-            </Card>
-          ))}
+        {/* Platinasti sponzorji */}
+        <div className="mb-10">
+          <h3 className="text-xl font-semibold text-foreground text-center mb-6">
+            Platinasti sponzorji
+          </h3>
+          <div className="flex flex-wrap justify-center gap-6">
+            {platinumSponsors.map((sponsor, index) => (
+              <Card
+                key={index}
+                className="bg-card hover:shadow-lg transition-shadow duration-300 border-primary/30"
+              >
+                <CardContent className="flex items-center justify-center p-8 min-w-[250px]">
+                  <span className="text-lg font-semibold text-foreground">
+                    {sponsor.name}
+                  </span>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Zlati sponzorji */}
+        <div>
+          <h3 className="text-xl font-semibold text-foreground text-center mb-6">
+            Zlati sponzorji
+          </h3>
+          <div className="flex flex-wrap justify-center gap-6">
+            {goldSponsors.map((sponsor, index) => (
+              <Card
+                key={index}
+                className="bg-card hover:shadow-md transition-shadow duration-300 border-primary/20"
+              >
+                <CardContent className="flex items-center justify-center p-6 min-w-[200px]">
+                  <span className="text-base font-medium text-foreground">
+                    {sponsor.name}
+                  </span>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </section>
