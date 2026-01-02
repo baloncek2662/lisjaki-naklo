@@ -13,7 +13,7 @@ export const teamData: Player[] = [
   { name: "Gaber Petrovič", number: 6 },
   { name: "Blaž Logonder", number: 7 },
   { name: "Gašper Martič", number: 21 },
-  { name: "Aljaž Roglej", number: 31 },
+  { name: "Aljaž Rogelj", number: 31 },
   { name: "David Naglič", number: 71 },
   { name: "Blaž Žerovnik" },
   { name: "Domen Porenta" },
