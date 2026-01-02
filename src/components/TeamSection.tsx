@@ -11,7 +11,7 @@ const TeamSection = () => {
             Ekipa
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Spoznajte igralce NK Lisjaki Naklo
+            Igralci NK Lisjaki Naklo v sezoni 2025/2026
           </p>
         </div>
 

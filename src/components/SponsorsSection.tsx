@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 const platinumSponsors = [
   { name: "PORENTA TRADE d.o.o." },
   { name: "BLAŽ LOGONDER S.P." },
+  { name: "BAR GOLDEN EYE NAKLO" },
 ];
 
 const goldSponsors = [

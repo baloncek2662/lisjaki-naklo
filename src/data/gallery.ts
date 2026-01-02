@@ -20,19 +20,13 @@ export const featuredImages: GalleryImage[] = [
     id: "featured-1",
     src: "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=800&q=80",
     alt: "Ekipna fotografija Lisjaki Naklo",
-    caption: "Ekipa sezone 2024/25",
+    caption: "Ekipa sezone 2025/26",
   },
   {
     id: "featured-2",
     src: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80",
     alt: "Akcija na igrišču",
     caption: "Derbi proti SD Podnart",
-  },
-  {
-    id: "featured-3",
-    src: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=800&q=80",
-    alt: "Proslava po zmagi",
-    caption: "Slavje po zmagi",
   },
   {
     id: "featured-4",
@@ -44,6 +38,80 @@ export const featuredImages: GalleryImage[] = [
 
 // Event galleries (folder-like sections)
 export const galleryEvents: GalleryEvent[] = [
+  {
+    id: "event-priprave-2025",
+    slug: "priprave-2025",
+    title: "Priprave 2025",
+    date: "2025-04-04",
+    coverImage: "/images/gallery/priprave-2025/PXL_20250406_080027286.MP.jpg",
+    images: [
+      {
+        id: "priprave-1",
+        src: "/images/gallery/priprave-2025/PXL_20250406_080027286.MP.jpg",
+        alt: "Priprave 2025",
+      },
+      {
+        id: "priprave-13",
+        src: "/images/gallery/priprave-2025/PXL_20250404_140154582.jpg",
+        alt: "Priprave 2025",
+      },
+      {
+        id: "priprave-2",
+        src: "/images/gallery/priprave-2025/PXL_20250404_140711364.jpg",
+        alt: "Priprave 2025",
+      },
+      {
+        id: "priprave-3",
+        src: "/images/gallery/priprave-2025/PXL_20250404_170755603.MP.jpg",
+        alt: "Priprave 2025",
+      },
+      {
+        id: "priprave-4",
+        src: "/images/gallery/priprave-2025/PXL_20250404_170802207.MP.jpg",
+        alt: "Priprave 2025",
+      },
+      {
+        id: "priprave-5",
+        src: "/images/gallery/priprave-2025/PXL_20250404_170804331.MP.jpg",
+        alt: "Priprave 2025",
+      },
+      {
+        id: "priprave-6",
+        src: "/images/gallery/priprave-2025/PXL_20250405_102941529.MP.jpg",
+        alt: "Priprave 2025",
+      },
+      {
+        id: "priprave-7",
+        src: "/images/gallery/priprave-2025/PXL_20250405_121524262.jpg",
+        alt: "Priprave 2025",
+      },
+      {
+        id: "priprave-8",
+        src: "/images/gallery/priprave-2025/PXL_20250405_121531743.jpg",
+        alt: "Priprave 2025",
+      },
+      {
+        id: "priprave-9",
+        src: "/images/gallery/priprave-2025/PXL_20250405_183644425.MP.jpg",
+        alt: "Priprave 2025",
+      },
+      {
+        id: "priprave-10",
+        src: "/images/gallery/priprave-2025/PXL_20250405_183704974.MP.jpg",
+        alt: "Priprave 2025",
+      },
+      {
+        id: "priprave-11",
+        src: "/images/gallery/priprave-2025/PXL_20250405_184817530.MP.jpg",
+        alt: "Priprave 2025",
+      },
+      {
+        id: "priprave-12",
+        src: "/images/gallery/priprave-2025/PXL_20250406_080009469.MP.jpg",
+        alt: "Priprave 2025",
+      },
+    ],
+  },
   {
     id: "event-1",
     slug: "novoletna-zabava-2024",
@@ -94,35 +162,6 @@ export const galleryEvents: GalleryEvent[] = [
         id: "st-3",
         src: "https://images.unsplash.com/photo-1459865264687-595d652de67e?w=800&q=80",
         alt: "Skupinska fotografija",
-      },
-    ],
-  },
-  {
-    id: "event-3",
-    slug: "zacetek-sezone-2024",
-    title: "Začetek sezone 2024/25",
-    date: "2024-09-01",
-    coverImage: "https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=800&q=80",
-    images: [
-      {
-        id: "zs-1",
-        src: "https://images.unsplash.com/photo-1529900748604-07564a03e7a6?w=800&q=80",
-        alt: "Prva tekma sezone",
-      },
-      {
-        id: "zs-2",
-        src: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=800&q=80",
-        alt: "Priprave na tekmo",
-      },
-      {
-        id: "zs-3",
-        src: "https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=800&q=80",
-        alt: "Ogrevanje",
-      },
-      {
-        id: "zs-4",
-        src: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800&q=80",
-        alt: "Akcija na tekmi",
       },
     ],
   },

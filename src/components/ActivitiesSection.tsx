@@ -1,9 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Circle, Volleyball, Bus } from "lucide-react";
+import { Dribbble, Volleyball, Bus } from "lucide-react";
 
 const activities = [
   {
-    icon: Circle,
+    icon: Dribbble,
     title: "Košarka",
     description:
       "Tedenski rekreacijski treningi košarke za vse člane. Zabava in gibanje v družbi prijateljev.",
