@@ -35,7 +35,7 @@ const Navbar = () => {
               className="h-10 w-10 md:h-12 md:w-12 rounded-full object-cover"
             />
             <span className="font-bold text-lg md:text-xl text-foreground">
-              NK Lisjaki Naklo
+              ŠD Lisjaki Naklo
             </span>
           </Link>
 

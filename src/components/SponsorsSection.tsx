@@ -16,7 +16,7 @@ const SponsorsSection = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-foreground mb-3">
-            Uradni sponzorji NK Lisjaki Naklo
+            Uradni sponzorji ŠD Lisjaki Naklo
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Delovanje našega kluba brez podpore naših zvestih sponzorjev ne bi bilo mogoče. Hvala vam za zaupanje!
