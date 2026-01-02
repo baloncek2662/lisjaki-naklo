@@ -42,7 +42,7 @@ export const featuredImages: GalleryImage[] = [
   },
 ];
 
-// Event galleries (folder-like sections)
+// Event galleries, folder-like sections
 export const galleryEvents: GalleryEvent[] = [
   {
     id: "event-priprave-2025",
