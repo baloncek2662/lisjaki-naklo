@@ -25,9 +25,6 @@ const SponsorsSection = () => {
 
         {/* Platinasti sponzorji */}
         <div className="mb-10">
-          <h3 className="text-xl font-semibold text-foreground text-center mb-6">
-            Platinasti sponzorji
-          </h3>
           <div className="flex flex-wrap justify-center gap-6">
             {platinumSponsors.map((sponsor, index) => (
               <Card
@@ -46,9 +43,6 @@ const SponsorsSection = () => {
 
         {/* Zlati sponzorji */}
         <div>
-          <h3 className="text-xl font-semibold text-foreground text-center mb-6">
-            Zlati sponzorji
-          </h3>
           <div className="flex flex-wrap justify-center gap-6">
             {goldSponsors.map((sponsor, index) => (
               <Card
