@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Trophy, Instagram } from "lucide-react";
-import heroPitch from "@/assets/hero-pitch.jpg";
+import heroPitch from "@/assets/hero-2.jpg";
 
 const HeroSection = () => {
   return (
@@ -12,7 +12,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 z-0">
         <img
           src={heroPitch}
-          alt="Football pitch at sunset"
+          alt="Lisjaki Naklo team photo"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-br from-charcoal/90 via-charcoal/80 to-primary/60" />
