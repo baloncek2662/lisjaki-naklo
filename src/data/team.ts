@@ -2,6 +2,7 @@ export interface Player {
   name: string;
   number?: number;
   initials: string;
+  opponent?: boolean;
 }
 
 export const teamData: Player[] = [
@@ -29,9 +30,11 @@ export const teamData: Player[] = [
   { initials: "DN", name: "David Naglič",      number: 71 },
 
   // Opponents
-  { initials: "O_ES", name: "Erazem Šluga",      number: 17 },
+  { initials: "O_ES", name: "Erazem Šluga",      number: 17, opponent: true },
 ];
 
 export const playerMap = new Map<string, Player>(
   teamData.map((p) => [p.initials, p])
 );
+
+export const ownPlayers = teamData.filter((p) => !p.opponent);

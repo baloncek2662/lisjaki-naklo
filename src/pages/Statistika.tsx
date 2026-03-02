@@ -30,7 +30,7 @@ function calculateStats(): PlayerStat[] {
 
     for (const initials of allPlayers) {
       const player = playerMap.get(initials);
-      if (!player) continue;
+      if (!player || player.opponent) continue;
       if (!stats.has(initials)) {
         stats.set(initials, { initials, name: player.name, number: player.number, appearances: 0, goals: 0 });
       }
@@ -39,7 +39,7 @@ function calculateStats(): PlayerStat[] {
 
     for (const goal of lisjakiDetails.goalscorers) {
       const player = playerMap.get(goal.player);
-      if (!player) continue;
+      if (!player || player.opponent) continue;
       if (!stats.has(goal.player)) {
         stats.set(goal.player, { initials: goal.player, name: player.name, number: player.number, appearances: 0, goals: 0 });
       }

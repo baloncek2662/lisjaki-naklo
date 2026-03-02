@@ -1,6 +1,6 @@
 import { User } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { teamData } from "@/data/team";
+import { ownPlayers } from "@/data/team";
 
 const TeamSection = () => {
   return (
@@ -16,7 +16,7 @@ const TeamSection = () => {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {teamData.map((player) => (
+          {ownPlayers.map((player) => (
             <Card
               key={player.name}
               className="border-border hover:shadow-elevated hover:border-primary/30 transition-all duration-300 group"
