@@ -45,6 +45,14 @@ export const featuredImages: GalleryImage[] = [
 // Event galleries, folder-like sections
 export const galleryEvents: GalleryEvent[] = [
   {
+    id: "event-naklani-2026",
+    slug: "pripravljalna-tekma-naklani-2026",
+    title: "Pripravljalna tekma z Na'Klani",
+    date: "2026-02-28",
+    coverImage: "",
+    images: [],
+  },
+  {
     id: "event-priprave-2025",
     slug: "priprave-2025",
     title: "Priprave 2025",

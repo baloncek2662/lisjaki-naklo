@@ -1,13 +1,15 @@
-import { Calendar, MapPin, Clock } from "lucide-react";
+import { useState } from "react";
+import { Calendar, MapPin, Clock, ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import logo from "@/assets/lisjaki-logo.jpg";
 import { playedMatches, upcomingMatches } from "@/data/matches";
+import MatchTeamDetails from "@/components/MatchTeamDetails";
 
 const MatchCenter = () => {
+  const [expanded, setExpanded] = useState(false);
+
   const nextMatch = upcomingMatches[0];
   const lastResult = playedMatches[0];
-
-  // Determine if Lisjaki is home or away for display purposes
   const isLisjakiHome = lastResult?.home === "Lisjaki Naklo";
 
   return (
@@ -32,45 +34,31 @@ const MatchCenter = () => {
                     <div className="text-center flex-1">
                       <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-secondary flex items-center justify-center">
                         {nextMatch.home === "Lisjaki Naklo" ? (
-                          <img
-                            src={logo}
-                            alt={nextMatch.home}
-                            className="w-12 h-12 rounded-full object-cover"
-                          />
+                          <img src={logo} alt={nextMatch.home} className="w-12 h-12 rounded-full object-cover" />
                         ) : (
                           <span className="text-lg font-bold text-muted-foreground">
                             {nextMatch.home.substring(0, 2).toUpperCase()}
                           </span>
                         )}
                       </div>
-                      <p className="font-semibold text-foreground text-sm">
-                        {nextMatch.home}
-                      </p>
+                      <p className="font-semibold text-foreground text-sm">{nextMatch.home}</p>
                     </div>
 
                     <div className="px-4">
-                      <span className="text-2xl font-bold text-muted-foreground">
-                        VS
-                      </span>
+                      <span className="text-2xl font-bold text-muted-foreground">VS</span>
                     </div>
 
                     <div className="text-center flex-1">
                       <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-secondary flex items-center justify-center">
                         {nextMatch.away === "Lisjaki Naklo" ? (
-                          <img
-                            src={logo}
-                            alt={nextMatch.away}
-                            className="w-12 h-12 rounded-full object-cover"
-                          />
+                          <img src={logo} alt={nextMatch.away} className="w-12 h-12 rounded-full object-cover" />
                         ) : (
                           <span className="text-lg font-bold text-muted-foreground">
                             {nextMatch.away.substring(0, 2).toUpperCase()}
                           </span>
                         )}
                       </div>
-                      <p className="font-semibold text-foreground text-sm">
-                        {nextMatch.away}
-                      </p>
+                      <p className="font-semibold text-foreground text-sm">{nextMatch.away}</p>
                     </div>
                   </div>
 
@@ -111,20 +99,14 @@ const MatchCenter = () => {
                     <div className="text-center flex-1">
                       <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-secondary flex items-center justify-center">
                         {lastResult.home === "Lisjaki Naklo" ? (
-                          <img
-                            src={logo}
-                            alt={lastResult.home}
-                            className="w-12 h-12 rounded-full object-cover"
-                          />
+                          <img src={logo} alt={lastResult.home} className="w-12 h-12 rounded-full object-cover" />
                         ) : (
                           <span className="text-lg font-bold text-muted-foreground">
                             {lastResult.home.substring(0, 2).toUpperCase()}
                           </span>
                         )}
                       </div>
-                      <p className="font-semibold text-foreground text-sm">
-                        {lastResult.home}
-                      </p>
+                      <p className="font-semibold text-foreground text-sm">{lastResult.home}</p>
                     </div>
 
                     <div className="px-4 text-center">
@@ -133,28 +115,20 @@ const MatchCenter = () => {
                         <span className="text-muted-foreground">:</span>{" "}
                         {lastResult.awayScore}
                       </div>
-                      <span className="text-xs text-muted-foreground uppercase">
-                        Končni rezultat
-                      </span>
+                      <span className="text-xs text-muted-foreground uppercase">Končni rezultat</span>
                     </div>
 
                     <div className="text-center flex-1">
                       <div className="w-16 h-16 mx-auto mb-2 rounded-full bg-secondary flex items-center justify-center">
                         {lastResult.away === "Lisjaki Naklo" ? (
-                          <img
-                            src={logo}
-                            alt={lastResult.away}
-                            className="w-12 h-12 rounded-full object-cover"
-                          />
+                          <img src={logo} alt={lastResult.away} className="w-12 h-12 rounded-full object-cover" />
                         ) : (
                           <span className="text-lg font-bold text-muted-foreground">
                             {lastResult.away.substring(0, 2).toUpperCase()}
                           </span>
                         )}
                       </div>
-                      <p className="font-semibold text-foreground text-sm">
-                        {lastResult.away}
-                      </p>
+                      <p className="font-semibold text-foreground text-sm">{lastResult.away}</p>
                     </div>
                   </div>
 
@@ -164,6 +138,38 @@ const MatchCenter = () => {
                       <span>{lastResult.date}</span>
                     </div>
                   </div>
+
+                  {/* Expandable details */}
+                  {lastResult.details && (
+                    <>
+                      <div className={expanded ? "mt-4" : "hidden"}>
+                        <div className="border-t border-border pt-4">
+                          <div className="flex gap-6">
+                            <MatchTeamDetails name={lastResult.home} details={lastResult.details.home} />
+                            <div className="w-px bg-border shrink-0" />
+                            <MatchTeamDetails name={lastResult.away} details={lastResult.details.away} />
+                          </div>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => setExpanded(!expanded)}
+                        className="mt-4 w-full flex items-center justify-center gap-1 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {expanded ? (
+                          <>
+                            <ChevronUp size={14} />
+                            Skrij podrobnosti
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown size={14} />
+                            Pokaži podrobnosti
+                          </>
+                        )}
+                      </button>
+                    </>
+                  )}
                 </>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">

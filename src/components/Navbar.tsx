@@ -7,6 +7,7 @@ import logo from "@/assets/lisjaki-logo.jpg";
 const navLinks = [
   { name: "Domov", href: "/", isAnchor: true },
   { name: "Tekme", href: "/tekme", isAnchor: false },
+  { name: "Statistika", href: "/statistika", isAnchor: false },
   { name: "Novice", href: "/novice", isAnchor: false },
   { name: "Galerija", href: "/galerija", isAnchor: false },
 ];

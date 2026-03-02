@@ -10,6 +10,7 @@ import Novice from "./pages/Novice";
 import NovicaDetail from "./pages/NovicaDetail";
 import Galerija from "./pages/Galerija";
 import GalerijaEvent from "./pages/GalerijaEvent";
+import Statistika from "./pages/Statistika";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/novice/:slug" element={<NovicaDetail />} />
           <Route path="/galerija" element={<Galerija />} />
           <Route path="/galerija/:slug" element={<GalerijaEvent />} />
+          <Route path="/statistika" element={<Statistika />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

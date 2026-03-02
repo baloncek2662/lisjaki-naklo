@@ -1,10 +1,14 @@
-import { Calendar, MapPin, Trophy } from "lucide-react";
+import { useState } from "react";
+import { Calendar, MapPin, Trophy, ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { playedMatches, upcomingMatches } from "@/data/matches";
+import MatchTeamDetails from "@/components/MatchTeamDetails";
 
 const MatchCard = ({ match, isPlayed }: { match: any; isPlayed: boolean }) => {
+  const [expanded, setExpanded] = useState(false);
+
   const isLisjakiHome = match.home === "Lisjaki Naklo";
   const lisjakiWon = isPlayed && (
     (isLisjakiHome && match.homeScore > match.awayScore) ||
@@ -36,7 +40,7 @@ const MatchCard = ({ match, isPlayed }: { match: any; isPlayed: boolean }) => {
               {match.home}
             </p>
           </div>
-          
+
           <div className="px-6">
             {isPlayed ? (
               <div className="flex items-center gap-2 text-2xl font-bold">
@@ -64,6 +68,31 @@ const MatchCard = ({ match, isPlayed }: { match: any; isPlayed: boolean }) => {
           <MapPin size={14} />
           {match.location}
         </div>
+
+        {match.details && (
+          <>
+            <div className={expanded ? "mt-4" : "hidden"}>
+              <div className="border-t border-border pt-4">
+                <div className="flex gap-6">
+                  <MatchTeamDetails name={match.home} details={match.details.home} />
+                  <div className="w-px bg-border shrink-0" />
+                  <MatchTeamDetails name={match.away} details={match.details.away} />
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="mt-4 w-full flex items-center justify-center gap-1 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+            >
+              {expanded ? (
+                <><ChevronUp size={14} /> Skrij podrobnosti</>
+              ) : (
+                <><ChevronDown size={14} /> Pokaži podrobnosti</>
+              )}
+            </button>
+          </>
+        )}
       </CardContent>
     </Card>
   );
@@ -73,9 +102,8 @@ const Tekme = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
+
       <main className="pt-16 md:pt-20">
-        {/* Header */}
         <section className="bg-secondary py-12 md:py-16">
           <div className="container mx-auto px-4">
             <h1 className="text-3xl md:text-4xl font-bold text-secondary-foreground mb-4">
@@ -87,7 +115,6 @@ const Tekme = () => {
           </div>
         </section>
 
-        {/* Upcoming Matches */}
         <section className="py-12 md:py-16">
           <div className="container mx-auto px-4">
             <div className="flex items-center gap-3 mb-8">
@@ -112,7 +139,6 @@ const Tekme = () => {
           </div>
         </section>
 
-        {/* Played Matches */}
         <section className="py-12 md:py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="flex items-center gap-3 mb-8">

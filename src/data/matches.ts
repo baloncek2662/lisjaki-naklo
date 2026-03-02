@@ -1,3 +1,19 @@
+export interface GoalEvent {
+  player: string;
+  minute?: number;
+}
+
+export interface TeamDetails {
+  goalscorers: GoalEvent[];
+  lineup: string[];
+  substitutions?: string[];
+}
+
+export interface MatchDetails {
+  home: TeamDetails;
+  away: TeamDetails;
+}
+
 export interface PlayedMatch {
   id: number;
   home: string;
@@ -6,6 +22,7 @@ export interface PlayedMatch {
   awayScore: number;
   date: string;
   location: string;
+  details?: MatchDetails;
 }
 
 export interface UpcomingMatch {
@@ -18,6 +35,36 @@ export interface UpcomingMatch {
 }
 
 export const playedMatches: PlayedMatch[] = [
+  {
+    id: 8,
+    home: "Lisjaki Naklo",
+    away: "Na'Klani",
+    homeScore: 3,
+    awayScore: 2,
+    date: "28. feb. 2026",
+    location: "Športni park Radovljica",
+    details: {
+      home: {
+        goalscorers: [
+          { player: "GM" },
+          { player: "GP" },
+          { player: "JJ" },
+        ],
+        lineup: ["GA", "UM", "BL", "MG", "EP", "GP", "JJ", "DP", "TC", "GM", "MP", "DN"],
+        substitutions: ["TP", "TH", "AŠ", "NŠ", "AL"],
+      },
+      away: {
+        goalscorers: [
+          {player: "O_ES"},
+          {player: "O_ES"},
+        ],
+        lineup: [
+          // TODO: "Ime Priimek",
+        ],
+        substitutions: [],
+      },
+    },
+  },
   { id: 1, home: "Baffi Brezje", away: "Lisjaki Naklo", homeScore: 2, awayScore: 0, date: "26. okt. 2025", location: "Črnivec" },
   { id: 2, home: "MST-Activity", away: "Lisjaki Naklo", homeScore: 9, awayScore: 6, date: "19. okt. 2025", location: "Hrušica" },
   { id: 3, home: "Lisjaki Naklo", away: "ŠD Podnart", homeScore: 4, awayScore: 4, date: "12. okt. 2025", location: "Športni park Radovljica" },
