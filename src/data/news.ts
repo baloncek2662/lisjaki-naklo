@@ -1,5 +1,6 @@
 // Import markdown files as raw text
 import article1 from "./articles/tezka-tekma-proti-ekipi-smola.md?raw";
+import article2 from "./articles/pripravljalna-tekma-naklani.md?raw";
 
 export interface NewsArticle {
   id: number;
@@ -12,6 +13,15 @@ export interface NewsArticle {
 }
 
 export const newsData: NewsArticle[] = [
+  {
+    id: 2,
+    slug: "pripravljalna-tekma-naklani",
+    title: "Pripravljalna tekma z Na'Klani: zmaga 3:2",
+    excerpt: "V pripravljalni tekmi smo se pomerili z domačimi tekmeci Na'Klani in zmagali z rezultatom 3:2. Gaber Petrovič, Gašper Martič in Jaka Jerala so zadeli za Lisjake.",
+    date: "28. feb. 2026",
+    image: "/images/gallery/pripravljalna-tekma-naklani-2026/IMG-3de65e6e3714cbee583f0f3e0a4ded46-V.jpg",
+    content: article2,
+  },
   {
     id: 1,
     slug: "tezka-tekma-proti-ekipi-baffi-brezje",

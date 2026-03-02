@@ -30,8 +30,8 @@ const renderMarkdown = (content: string): string => {
       }
       const isHeader = match.includes('---');
       const cellTag = isHeader ? 'th' : 'td';
-      const cellClass = isHeader 
-        ? 'border border-border px-4 py-2 bg-muted font-semibold text-foreground' 
+      const cellClass = isHeader
+        ? 'border border-border px-4 py-2 bg-muted font-semibold text-foreground'
         : 'border border-border px-4 py-2 text-muted-foreground';
       return `<tr>${cells.map(cell => `<${cellTag} class="${cellClass}">${cell.trim()}</${cellTag}>`).join('')}</tr>`;
     })
@@ -85,14 +85,14 @@ const NovicaDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
-      <main className="pt-16 md:pt-20">
+
+      <main>
         {/* Hero Image */}
-        <div className="relative h-64 md:h-96 overflow-hidden">
+        <div className="relative h-64 md:h-96 overflow-hidden mt-16 md:mt-20">
           <img
             src={article.image}
             alt={article.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-[center_42%]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         </div>
@@ -113,7 +113,7 @@ const NovicaDetail = () => {
             </div>
 
             {/* Article content */}
-            <div 
+            <div
               className="prose prose-lg max-w-none"
               dangerouslySetInnerHTML={{ __html: renderMarkdown(article.content) }}
             />

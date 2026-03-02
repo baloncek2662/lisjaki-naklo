@@ -1,13 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 
-const platinumSponsors = [
-  { name: "PORENTA TRADE d.o.o." },
-  { name: "BLAŽ LOGONDER S.P." },
-  { name: "BAR GOLDEN EYE NAKLO" },
-];
-
-const goldSponsors = [
-  { name: "Brivnica Rogelj" },
+const sponsors = [
+  { name: "Porenta Trade d.o.o.", logo: "/images/sponsors/PorentaTrade-B4.png" },
+  { name: "Blaž Logonder s.p.",   logo: "/images/sponsors/Logonder-B.png" },
+  { name: "Infogram",             logo: "/images/sponsors/Infogram-B.png" },
+  { name: "KTech",                logo: "/images/sponsors/KTech-B.png" },
+  { name: "Mital",                logo: "/images/sponsors/Mital-B4.png" },
+  { name: "Peric",                logo: "/images/sponsors/Peric-B.png" },
+  { name: "Brivnica Rogelj",      logo: "/images/sponsors/Rogelj-B.png" },
 ];
 
 const SponsorsSection = () => {
@@ -23,40 +23,27 @@ const SponsorsSection = () => {
           </p>
         </div>
 
-        {/* Platinasti sponzorji */}
-        <div className="mb-10">
-          <div className="flex flex-wrap justify-center gap-6">
-            {platinumSponsors.map((sponsor, index) => (
-              <Card
-                key={index}
-                className="bg-card hover:shadow-lg transition-shadow duration-300 border-primary/30"
-              >
-                <CardContent className="flex items-center justify-center p-8 min-w-[250px]">
-                  <span className="text-lg font-semibold text-foreground">
+        <div className="flex flex-wrap justify-center gap-6">
+          {sponsors.map((sponsor, index) => (
+            <Card
+              key={index}
+              className="bg-card hover:shadow-lg transition-shadow duration-300 border-primary/20"
+            >
+              <CardContent className="flex items-center justify-center p-6 w-[220px] h-[120px]">
+                {sponsor.logo ? (
+                  <img
+                    src={sponsor.logo}
+                    alt={sponsor.name}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <span className="text-base font-semibold text-foreground">
                     {sponsor.name}
                   </span>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Zlati sponzorji */}
-        <div>
-          <div className="flex flex-wrap justify-center gap-6">
-            {goldSponsors.map((sponsor, index) => (
-              <Card
-                key={index}
-                className="bg-card hover:shadow-md transition-shadow duration-300 border-primary/20"
-              >
-                <CardContent className="flex items-center justify-center p-6 min-w-[200px]">
-                  <span className="text-base font-medium text-foreground">
-                    {sponsor.name}
-                  </span>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     </section>

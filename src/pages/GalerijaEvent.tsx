@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Calendar, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowLeft, Calendar, X, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -110,7 +110,10 @@ const GalerijaEvent = () => {
                 })}
               </span>
               <span className="mx-2">•</span>
-              <span>{event.images.length} fotografij</span>
+              <span>
+                {event.images.filter(i => i.type !== "video").length} fotografij
+                {event.images.some(i => i.type === "video") && `, ${event.images.filter(i => i.type === "video").length} videoposnetkov`}
+              </span>
             </div>
           </div>
         </section>
@@ -125,13 +128,28 @@ const GalerijaEvent = () => {
                   className="group relative aspect-square overflow-hidden rounded-xl shadow-card cursor-pointer"
                   onClick={() => setSelectedImageIndex(index)}
                 >
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy"
-                  />
-
+                  {image.type === "video" ? (
+                    <>
+                      <video
+                        src={image.src}
+                        className="w-full h-full object-cover"
+                        preload="metadata"
+                        muted
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition-colors">
+                        <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                          <Play className="w-5 h-5 text-charcoal fill-charcoal ml-0.5" />
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <img
+                      src={image.src}
+                      alt={image.alt}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                  )}
                 </div>
               ))}
             </div>
@@ -177,16 +195,26 @@ const GalerijaEvent = () => {
               <ChevronRight className="w-8 h-8" />
             </button>
 
-            {/* Main Image */}
+            {/* Main Image / Video */}
             <div
               className="relative w-full h-full p-4 md:p-12 flex items-center justify-center"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
-                src={event.images[selectedImageIndex].src}
-                alt={event.images[selectedImageIndex].alt}
-                className="max-w-full max-h-full object-contain shadow-2xl rounded-sm animate-in fade-in zoom-in-95 duration-300"
-              />
+              {event.images[selectedImageIndex].type === "video" ? (
+                <video
+                  key={event.images[selectedImageIndex].src}
+                  src={event.images[selectedImageIndex].src}
+                  controls
+                  autoPlay
+                  className="max-w-full max-h-full shadow-2xl rounded-sm animate-in fade-in zoom-in-95 duration-300"
+                />
+              ) : (
+                <img
+                  src={event.images[selectedImageIndex].src}
+                  alt={event.images[selectedImageIndex].alt}
+                  className="max-w-full max-h-full object-contain shadow-2xl rounded-sm animate-in fade-in zoom-in-95 duration-300"
+                />
+              )}
 
               {/* Caption if available */}
               {event.images[selectedImageIndex].caption && (
