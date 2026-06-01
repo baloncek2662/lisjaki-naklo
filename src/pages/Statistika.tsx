@@ -105,7 +105,7 @@ const Statistika = () => {
               </h1>
             </div>
             <p className="text-muted-foreground text-lg">
-              Sezona 2025/2026 · {playedMatches.filter(m => m.details).length} tekma z evidenco
+              Sezona 2025/2026 · {playedMatches.filter(m => m.details).length} tekem z evidenco
             </p>
           </div>
         </section>
