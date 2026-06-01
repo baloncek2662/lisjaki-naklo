@@ -36,6 +36,79 @@ export interface UpcomingMatch {
 
 export const playedMatches: PlayedMatch[] = [
   {
+    id: 9,
+    home: "Lisjaki Naklo",
+    away: "Baffi Brezje",
+    homeScore: 4,
+    awayScore: 2,
+    date: "31. maj 2026",
+    location: "Športni park Radovljica",
+    details: {
+      home: {
+        goalscorers: [
+          { player: "UM" },
+          { player: "JJ" },
+          { player: "TH" },
+          { player: "BL" },
+        ],
+        lineup: ["GA", "UM", "JJ", "TH", "BL", "TK", "GM", "DN", "MP", "BŽ"],
+        substitutions: [],
+      },
+      away: {
+        goalscorers: [],
+        lineup: [],
+        substitutions: [],
+      },
+    },
+  },
+  {
+    id: 11,
+    home: "KMN Utrip",
+    away: "Lisjaki Naklo",
+    homeScore: 4,
+    awayScore: 2,
+    date: "17. maj 2026",
+    location: "Nomenj",
+    details: {
+      home: {
+        goalscorers: [],
+        lineup: [],
+        substitutions: [],
+      },
+      away: {
+        goalscorers: [
+          { player: "MP" },
+          { player: "DN" },
+        ],
+        lineup: ["GA", "UM", "TH", "EP", "MP", "DN", "TK", "BŽ"],
+        substitutions: [],
+      },
+    },
+  },
+  {
+    id: 10,
+    home: "Lisjaki Naklo",
+    away: "Smola",
+    homeScore: 1,
+    awayScore: 13,
+    date: "10. maj 2026",
+    location: "Športni park Radovljica",
+    details: {
+      home: {
+        goalscorers: [
+          { player: "GP" },
+        ],
+        lineup: ["GA", "UM", "BL", "TH", "GP", "DN", "BŽ", "GM"],
+        substitutions: [],
+      },
+      away: {
+        goalscorers: [],
+        lineup: [],
+        substitutions: [],
+      },
+    },
+  },
+  {
     id: 8,
     home: "Lisjaki Naklo",
     away: "Na'Klani",
