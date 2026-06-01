@@ -115,7 +115,7 @@ export const playedMatches: PlayedMatch[] = [
     homeScore: 3,
     awayScore: 2,
     date: "28. feb. 2026",
-    location: "Športni park Radovljica",
+    location: "Športni park Naklo",
     details: {
       home: {
         goalscorers: [

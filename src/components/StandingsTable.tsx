@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trophy } from "lucide-react";
+import { Trophy, Info } from "lucide-react";
 import { standingsData } from "@/data/standings";
 
 const StandingsTable = () => {
@@ -19,6 +19,11 @@ const StandingsTable = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
             Lestvica
           </h2>
+        </div>
+
+        <div className="max-w-4xl mx-auto mb-4 flex items-center gap-2 rounded-md border border-yellow-400/40 bg-yellow-400/10 px-4 py-3 text-sm text-yellow-700 dark:text-yellow-400">
+          <Info className="w-4 h-4 shrink-0" />
+          <span>Lestvica še ni posodobljena z zadnjimi rezultati.</span>
         </div>
 
         <Card className="max-w-4xl mx-auto shadow-elevated border-0 overflow-hidden">
