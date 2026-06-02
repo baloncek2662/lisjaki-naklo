@@ -20,7 +20,7 @@ export const newsData: NewsArticle[] = [
     title: "Prva zmaga v ligi A! Lisjaki premagali Baffi Brezje 4:2",
     excerpt: "Zgodovinski trenutek za Lisjake! Prvo zmago v najtežji ligi smo vknjižili proti Baffi Brezje z rezultatom 4:2. Posebni čestitki greta Urbanu Martiču za prvi gol in Tomažu Hriberniku za prvi strelski gol z glavo.",
     date: "31. maj 2026",
-    image: "https://images.unsplash.com/photo-1551958219-acbc608c6377?w=600&h=400&fit=crop",
+    image: "/images/gallery/lisjaki-baffi-maj-2026.jpeg",
     content: article3,
   },
   {
