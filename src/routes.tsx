@@ -11,6 +11,8 @@ import Novice from "@/pages/Novice";
 import NovicaDetail from "@/pages/NovicaDetail";
 import Galerija from "@/pages/Galerija";
 import GalerijaEvent from "@/pages/GalerijaEvent";
+import Turnir from "@/pages/Turnir";
+import TurnirAdmin from "@/pages/TurnirAdmin";
 import NotFound from "@/pages/NotFound";
 import { newsData } from "@/data/news";
 import { galleryEvents } from "@/data/gallery";
@@ -44,6 +46,8 @@ export const routes: RouteRecord[] = [
         getStaticPaths: () => newsData.map((n) => `/novice/${n.slug}`),
       },
       { path: "galerija", element: <Galerija /> },
+      { path: "turnir", element: <Turnir /> },
+      { path: "turnir/vodenje", element: <TurnirAdmin /> },
       {
         path: "galerija/:slug",
         element: <GalerijaEvent />,

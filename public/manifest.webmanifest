@@ -1,0 +1,17 @@
+{
+  "name": "Lisjaki Naklo – vodenje turnirja",
+  "short_name": "Lisjaki turnir",
+  "description": "Lokalno vodenje turnirja odbojke na mivki.",
+  "start_url": "/turnir/vodenje",
+  "display": "standalone",
+  "background_color": "#171717",
+  "theme_color": "#171717",
+  "lang": "sl",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}

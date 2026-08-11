@@ -1,14 +1,19 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /turnir/vodenje
 
 User-agent: Bingbot
 Allow: /
+Disallow: /turnir/vodenje
 
 User-agent: Twitterbot
 Allow: /
+Disallow: /turnir/vodenje
 
 User-agent: facebookexternalhit
 Allow: /
+Disallow: /turnir/vodenje
 
 User-agent: *
 Allow: /
+Disallow: /turnir/vodenje
