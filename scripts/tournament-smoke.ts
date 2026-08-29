@@ -6,10 +6,14 @@ import {
   TournamentRound,
   TournamentState,
 } from "../src/lib/tournament";
-import { isOrganizerHost } from "../src/hooks/use-organizer-access";
+import { parseTournament, tournamentEtag } from "../server/tournament-api";
 
-if (!isOrganizerHost("localhost") || !isOrganizerHost("127.0.0.1") || isOrganizerHost("lisjaki-naklo.si")) {
-  throw new Error("Omejitev organizatorskega dostopa ni pravilno nastavljena.");
+const defaultTournament = createDefaultTournament();
+if (!parseTournament(defaultTournament) || parseTournament({ ...defaultTournament, courts: 0 })) {
+  throw new Error("Strežniško preverjanje podatkov turnirja ni pravilno nastavljeno.");
+}
+if (tournamentEtag(12) !== '"tournament-12"') {
+  throw new Error("Revizijska oznaka turnirja ni pravilno ustvarjena.");
 }
 
 const createState = (playerCount: number): TournamentState => ({

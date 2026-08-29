@@ -1,13 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { CalendarDays, ChevronRight, CircleDot, Medal, Settings2, Trophy, Users } from "lucide-react";
+import { CalendarDays, ChevronRight, CircleDot, Medal, Trophy, Users } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTournament } from "@/hooks/use-tournament";
-import { useOrganizerAccess } from "@/hooks/use-organizer-access";
 import {
   calculateRankings,
   getPlayerName,
@@ -67,8 +65,7 @@ const winnerOf = (match?: TournamentMatch) => {
 };
 
 const Turnir = () => {
-  const { tournament, loaded, storageError } = useTournament();
-  const organizerAccess = useOrganizerAccess();
+  const { tournament, loaded, syncError } = useTournament();
   const [selectedView, setSelectedView] = useState<number | "finals" | null>(null);
   const rankings = calculateRankings(tournament);
   const progress = getTournamentProgress(tournament);
@@ -111,11 +108,6 @@ const Turnir = () => {
                 <Button asChild size="lg" className="shadow-orange">
                   <a href="#lestvica">Poglej lestvico <ChevronRight size={18} /></a>
                 </Button>
-                {organizerAccess === "allowed" && (
-                  <Button asChild variant="outline" size="lg" className="border-background/20 bg-transparent text-background hover:bg-background/10 hover:text-background">
-                    <Link to="/turnir/vodenje"><Settings2 size={18} /> Organizator</Link>
-                  </Button>
-                )}
               </div>
             </div>
           </div>
@@ -144,8 +136,8 @@ const Turnir = () => {
               </div>
             </section>
 
-            {storageError && (
-              <div className="container mx-auto px-4 pt-8 text-sm font-medium text-destructive">{storageError}</div>
+            {syncError && (
+              <div className="container mx-auto px-4 pt-8 text-sm font-medium text-destructive">{syncError}</div>
             )}
 
             <section className="container mx-auto px-4 py-12 md:py-16">

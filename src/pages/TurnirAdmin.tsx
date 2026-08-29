@@ -12,7 +12,6 @@ import {
   RotateCcw,
   Save,
   Settings2,
-  ShieldX,
   Shuffle,
   Trash2,
   Trophy,
@@ -30,7 +29,6 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useTournament } from "@/hooks/use-tournament";
-import { useOrganizerAccess } from "@/hooks/use-organizer-access";
 import {
   activePlayers,
   calculateRankings,
@@ -158,8 +156,7 @@ const MatchEditor = ({ match, state, onScore, onLock, onUnlock, editable = true 
 };
 
 const TurnirAdmin = () => {
-  const { tournament, setTournament, loaded, storageError, resetTournament } = useTournament();
-  const organizerAccess = useOrganizerAccess();
+  const { tournament, setTournament, loaded, syncError, syncStatus, resetTournament } = useTournament({ editable: true });
   const [newPlayerName, setNewPlayerName] = useState("");
   const [bulkNames, setBulkNames] = useState("");
   const [activeTab, setActiveTab] = useState("prijave");
@@ -349,36 +346,14 @@ const TurnirAdmin = () => {
   };
 
   const reset = async () => {
-    if (!window.confirm("Izbrisali boste ves lokalni turnir, igralce in rezultate. Imate varnostno kopijo?")) return;
+    if (!window.confirm("Izbrisali boste turnir, igralce in rezultate za vse obiskovalce. Imate varnostno kopijo?")) return;
     await resetTournament();
     setActiveTab("prijave");
     toast.success("Ustvarjen je nov prazen turnir.");
   };
 
-  if (!loaded || organizerAccess === "checking") {
-    return <div className="flex min-h-screen items-center justify-center bg-muted/30 text-muted-foreground">Preverjanje organizatorskega dostopa …</div>;
-  }
-
-  if (organizerAccess === "denied") {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-foreground px-4 text-background">
-        <Card className="w-full max-w-lg border-background/10 bg-background text-foreground shadow-2xl">
-          <CardContent className="p-8 text-center sm:p-10">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-              <ShieldX size={32} />
-            </div>
-            <p className="mt-6 text-sm font-bold uppercase tracking-widest text-destructive">Dostop omejen</p>
-            <h1 className="mt-2 text-3xl font-black">Samo za organizatorje</h1>
-            <p className="mt-4 leading-relaxed text-muted-foreground">
-              Vodenje turnirja je na voljo samo lokalno na organizatorskem računalniku. Javnosti so na voljo le razpored, rezultati in lestvica.
-            </p>
-            <Button asChild className="mt-7" size="lg">
-              <Link to="/turnir"><ArrowLeft size={18} /> Nazaj na rezultate</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  if (!loaded) {
+    return <div className="flex min-h-screen items-center justify-center bg-muted/30 text-muted-foreground">Nalaganje osrednjih podatkov turnirja …</div>;
   }
 
   return (
@@ -404,12 +379,12 @@ const TurnirAdmin = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {storageError && <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm font-medium text-destructive">{storageError}</div>}
+        {syncError && <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm font-medium text-destructive">{syncError}</div>}
 
         <div className="mb-8 grid gap-4 sm:grid-cols-3">
           <Card><CardContent className="flex items-center gap-4 p-5"><Users className="text-primary" /><div><p className="text-2xl font-black">{activeCount}</p><p className="text-sm text-muted-foreground">aktivnih igralcev</p></div></CardContent></Card>
           <Card><CardContent className="flex items-center gap-4 p-5"><ClipboardList className="text-primary" /><div><p className="text-2xl font-black">{completedRounds}</p><p className="text-sm text-muted-foreground">zaključenih krogov</p></div></CardContent></Card>
-          <Card><CardContent className="flex items-center gap-4 p-5"><Save className="text-primary" /><div><p className="text-2xl font-black">Lokalno</p><p className="text-sm text-muted-foreground">samodejno shranjevanje</p></div></CardContent></Card>
+          <Card><CardContent className="flex items-center gap-4 p-5"><Save className="text-primary" /><div><p className="text-2xl font-black">{syncStatus === "saving" ? "Objavljanje …" : syncStatus === "error" ? "Napaka" : "Objavljeno"}</p><p className="text-sm text-muted-foreground">osrednja baza rezultatov</p></div></CardContent></Card>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
