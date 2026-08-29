@@ -270,6 +270,9 @@ const TurnirAdmin = () => {
   };
 
   const createFinalStage = () => {
+    if (!window.confirm(
+      "Ali ste prepričani, da želite zaključiti predtekmovanje in izžrebati zaključne ekipe? Po tem ne bo več mogoče dodajati novih krogov.",
+    )) return;
     try {
       setTournament((state) => generateFinals(state));
       setActiveTab("finale");
@@ -335,6 +338,9 @@ const TurnirAdmin = () => {
     try {
       const parsed: unknown = JSON.parse(await file.text());
       if (!validateImportedTournament(parsed)) throw new Error("Datoteka ni veljavna varnostna kopija turnirja.");
+      if (!window.confirm(
+        "Ali ste prepričani, da želite obnoviti turnir iz izbrane varnostne kopije? Trenutni igralci, žrebi in rezultati bodo zamenjani s podatki iz kopije.",
+      )) return;
       setTournament(touchTournament(parsed));
       toast.success("Turnir je obnovljen iz varnostne kopije.");
     } catch (error) {
