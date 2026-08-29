@@ -6,7 +6,6 @@ import Footer from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { useTournament } from "@/hooks/use-tournament";
 import { useOrganizerAccess } from "@/hooks/use-organizer-access";
 import {
@@ -35,7 +34,7 @@ const TeamPlayers = ({ team, names }: { team: TournamentTeam; names: (id: string
   <div>
     <p className="font-bold text-foreground">{team.label}</p>
     <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-      {team.playerIds.map(names).join(" · ")}
+      {team.playerIds.map((id) => `${names(id)}${team.jokerPlayerIds?.includes(id) ? " (joker)" : ""}`).join(" · ")}
     </p>
   </div>
 );
@@ -100,13 +99,13 @@ const Turnir = () => {
                   <CircleDot size={14} className="text-primary" />
                   {phaseLabel[tournament.phase]}
                 </Badge>
-                <span className="text-sm text-background/60">30 igralcev · 2 igrišči · 15 skupnih točk</span>
+                <span className="text-sm text-background/60">{progress.activePlayerCount} igralcev · 2 igrišči · 15 skupnih točk</span>
               </div>
               <h1 className="max-w-3xl text-balance text-4xl font-black tracking-tight md:text-6xl">
                 Turnir odbojke <span className="text-primary">na mivki</span>
               </h1>
               <p className="mt-5 max-w-2xl text-lg leading-relaxed text-background/70">
-                Naključne trojke, šest predtekmovalnih krogov in osebna lestvica. Vsaka točka tvoje ekipe šteje tudi zate.
+                Naključne trojke, toliko predtekmovalnih krogov, kolikor dopušča čas, in osebna lestvica. Jokerjeva dodatna tekma se mu ne šteje v osebni rezultat.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button asChild size="lg" className="shadow-orange">
@@ -132,17 +131,16 @@ const Turnir = () => {
               <div className="container mx-auto grid gap-4 px-4 py-8 sm:grid-cols-3">
                 <div className="flex items-center gap-4 rounded-xl bg-background p-4 shadow-sm">
                   <div className="rounded-xl bg-primary/10 p-3 text-primary"><Users size={24} /></div>
-                  <div><p className="text-2xl font-black">{progress.activePlayerCount}/30</p><p className="text-sm text-muted-foreground">prijavljenih</p></div>
+                  <div><p className="text-2xl font-black">{progress.activePlayerCount}</p><p className="text-sm text-muted-foreground">aktivnih igralcev</p></div>
                 </div>
                 <div className="flex items-center gap-4 rounded-xl bg-background p-4 shadow-sm">
                   <div className="rounded-xl bg-primary/10 p-3 text-primary"><CalendarDays size={24} /></div>
-                  <div><p className="text-2xl font-black">{progress.completedRounds}/{progress.totalRounds}</p><p className="text-sm text-muted-foreground">zaključenih krogov</p></div>
+                  <div><p className="text-2xl font-black">{progress.completedRounds}</p><p className="text-sm text-muted-foreground">zaključenih krogov</p></div>
                 </div>
                 <div className="flex items-center gap-4 rounded-xl bg-background p-4 shadow-sm">
                   <div className="rounded-xl bg-primary/10 p-3 text-primary"><Trophy size={24} /></div>
                   <div><p className="text-2xl font-black">12</p><p className="text-sm text-muted-foreground">mest v polfinalu</p></div>
                 </div>
-                <Progress value={(progress.completedRounds / progress.totalRounds) * 100} className="sm:col-span-3" />
               </div>
             </section>
 
@@ -250,9 +248,9 @@ const Turnir = () => {
                   <CardContent className="p-0">
                     {rankings.length > 0 ? (
                       <div className="overflow-x-auto">
-                        <table className="w-full min-w-[620px] text-left">
+                        <table className="w-full min-w-[700px] text-left">
                           <thead className="bg-muted/50 text-xs uppercase tracking-wider text-muted-foreground">
-                            <tr><th className="px-5 py-3">Mesto</th><th className="px-5 py-3">Igralec</th><th className="px-5 py-3 text-center">Tekme</th><th className="px-5 py-3 text-center">Zmage</th><th className="px-5 py-3 text-right">Točke</th></tr>
+                            <tr><th className="px-5 py-3">Mesto</th><th className="px-5 py-3">Igralec</th><th className="px-5 py-3 text-center">Tekme</th><th className="px-5 py-3 text-center">Joker</th><th className="px-5 py-3 text-center">Zmage</th><th className="px-5 py-3 text-right">Točke</th></tr>
                           </thead>
                           <tbody className="divide-y">
                             {rankings.map((row) => (
@@ -260,6 +258,7 @@ const Turnir = () => {
                                 <td className="px-5 py-4"><span className={`inline-flex h-8 w-8 items-center justify-center rounded-full font-black ${row.rank <= 12 ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{row.rank}</span></td>
                                 <td className="px-5 py-4 font-bold">{row.name}{row.rank <= 12 && <span className="ml-2 text-xs font-semibold text-primary">POLFINALE</span>}</td>
                                 <td className="px-5 py-4 text-center text-muted-foreground">{row.matches}</td>
+                                <td className="px-5 py-4 text-center text-muted-foreground">{row.jokerAppearances}</td>
                                 <td className="px-5 py-4 text-center text-muted-foreground">{row.wins}</td>
                                 <td className="px-5 py-4 text-right text-xl font-black">{row.points}</td>
                               </tr>
