@@ -4,10 +4,22 @@ import "./index.css";
 
 export const createRoot = ViteReactSSG({ routes });
 
-if (typeof window !== "undefined" && import.meta.env.PROD && "serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => {
-      // The application remains fully usable when service workers are unavailable.
-    });
+if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+  window.addEventListener("load", async () => {
+    try {
+      const registration = await navigator.serviceWorker.getRegistration("/");
+      await registration?.unregister();
+
+      if ("caches" in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(
+          cacheNames
+            .filter((name) => name.startsWith("lisjaki-turnir-"))
+            .map((name) => caches.delete(name)),
+        );
+      }
+    } catch {
+      // Cleanup is best-effort; the application does not rely on a service worker.
+    }
   });
 }
