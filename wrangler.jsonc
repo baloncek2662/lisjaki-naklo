@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "lisjaki-naklo",
+  "compatibility_date": "2026-08-29",
+  "pages_build_output_dir": "./dist",
+  "d1_databases": [
+    {
+      "binding": "TOURNAMENT_DB",
+      "database_name": "lisjaki-tournament",
+      "database_id": "beb61278-a3e0-42a4-b48a-1b54a9ac08eb"
+    }
+  ],
+  "vars": {
+    "ACCESS_TEAM_DOMAIN": "https://green-star-fe14.cloudflareaccess.com",
+    "ACCESS_AUD": "f8d1fdf9e8f92ffa28a8fc70845d2c9fde17d2dc432850a5d0bd507ccedffdb9"
+  }
+}

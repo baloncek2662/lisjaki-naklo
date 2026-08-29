@@ -13,6 +13,7 @@ export interface TournamentTeam {
   id: string;
   label: string;
   playerIds: string[];
+  jokerPlayerIds?: string[];
 }
 
 export interface TournamentMatch {
@@ -50,8 +51,6 @@ export interface TournamentState {
   createdAt: string;
   updatedAt: string;
   phase: TournamentPhase;
-  maxPlayers: number;
-  plannedRounds: number;
   targetCombinedScore: number;
   courts: number;
   players: TournamentPlayer[];
@@ -68,6 +67,7 @@ export interface PlayerRanking {
   wins: number;
   average: number;
   scores: number[];
+  jokerAppearances: number;
 }
 
 const FINAL_TEAM_LABELS = ["Ekipa A", "Ekipa B", "Ekipa C", "Ekipa D"];
@@ -88,8 +88,6 @@ export const createDefaultTournament = (): TournamentState => {
     createdAt: now,
     updatedAt: now,
     phase: "registration",
-    maxPlayers: 30,
-    plannedRounds: 6,
     targetCombinedScore: 15,
     courts: 2,
     players: [],
@@ -209,6 +207,9 @@ const opponentPairingPenalty = (
   opponentCounts: Map<string, number>,
   previousOpponents: Set<string>,
 ) => {
+  if (firstTeam.some((playerId) => secondTeam.includes(playerId))) {
+    return Number.POSITIVE_INFINITY;
+  }
   let penalty = 0;
   for (const first of firstTeam) {
     for (const second of secondTeam) {
@@ -219,6 +220,113 @@ const opponentPairingPenalty = (
     }
   }
   return penalty;
+};
+
+interface PlayerAppearance {
+  playerId: string;
+  joker: boolean;
+}
+
+const getJokerHistory = (state: TournamentState) => {
+  const counts = new Map<string, number>();
+  const previous = new Set<string>();
+  const lastRound = state.rounds[state.rounds.length - 1];
+
+  for (const round of state.rounds) {
+    for (const match of round.matches) {
+      for (const team of [match.teamA, match.teamB]) {
+        for (const playerId of team.jokerPlayerIds ?? []) {
+          addCount(counts, playerId);
+          if (round.id === lastRound?.id) previous.add(playerId);
+        }
+      }
+    }
+  }
+
+  return { counts, previous };
+};
+
+const selectJokers = (
+  playerIds: string[],
+  count: number,
+  state: TournamentState,
+  rng: () => number,
+) => {
+  const history = getJokerHistory(state);
+  return shuffle(playerIds, rng)
+    .sort((first, second) => {
+      const countDifference = (history.counts.get(first) ?? 0) - (history.counts.get(second) ?? 0);
+      if (countDifference !== 0) return countDifference;
+      const previousDifference = Number(history.previous.has(first)) - Number(history.previous.has(second));
+      return previousDifference;
+    })
+    .slice(0, count);
+};
+
+const scheduleMatches = (
+  pairs: Array<[number, number]>,
+  teams: PlayerAppearance[][],
+  courts: number,
+  rng: () => number,
+) => {
+  let bestSchedule: Array<{ pair: [number, number]; wave: number; courtIndex: number }> = [];
+  let bestPenalty = Number.POSITIVE_INFINITY;
+  const attempts = Math.max(2_000, pairs.length * 1_000);
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const candidate = shuffle(pairs, rng);
+    const waves: Array<{ pairs: Array<[number, number]>; playerIds: Set<string> }> = [];
+
+    for (const pair of candidate) {
+      const pairPlayerIds = [...teams[pair[0]], ...teams[pair[1]]].map((appearance) => appearance.playerId);
+      const availableWaveIndexes = waves
+        .map((wave, index) => ({ wave, index }))
+        .filter(({ wave }) => wave.pairs.length < courts && pairPlayerIds.every((playerId) => !wave.playerIds.has(playerId)))
+        .map(({ index }) => index);
+      const selectedWaveIndex = availableWaveIndexes.length > 0
+        ? availableWaveIndexes[Math.floor(rng() * availableWaveIndexes.length)]
+        : waves.length;
+      if (!waves[selectedWaveIndex]) {
+        waves.push({ pairs: [], playerIds: new Set<string>() });
+      }
+      waves[selectedWaveIndex].pairs.push(pair);
+      pairPlayerIds.forEach((playerId) => waves[selectedWaveIndex].playerIds.add(playerId));
+    }
+
+    const appearances = new Map<string, Array<{ joker: boolean; wave: number }>>();
+    waves.forEach((wave, waveIndex) => {
+      for (const [first, second] of wave.pairs) {
+        for (const appearance of [...teams[first], ...teams[second]]) {
+          const entries = appearances.get(appearance.playerId) ?? [];
+          entries.push({ joker: appearance.joker, wave: waveIndex + 1 });
+          appearances.set(appearance.playerId, entries);
+        }
+      }
+    });
+    let orderingPenalty = 0;
+    for (const entries of appearances.values()) {
+      const official = entries.find((entry) => !entry.joker);
+      const joker = entries.find((entry) => entry.joker);
+      if (official && joker && joker.wave < official.wave) orderingPenalty += 1;
+    }
+    const penalty = waves.length * 1_000 + orderingPenalty;
+
+    if (penalty < bestPenalty) {
+      bestPenalty = penalty;
+      bestSchedule = waves.flatMap((wave, waveIndex) => wave.pairs.map((pair, courtIndex) => ({
+        pair,
+        wave: waveIndex + 1,
+        courtIndex,
+      })));
+      const minimumWaves = Math.ceil(pairs.length / courts);
+      if (waves.length === minimumWaves && orderingPenalty === 0) break;
+    }
+  }
+
+  if (bestSchedule.length === 0) {
+    throw new Error("Jokerjev ni bilo mogoče razporediti v različne termine.");
+  }
+  return bestSchedule;
 };
 
 const bestTeamPairing = (
@@ -265,31 +373,34 @@ const bestTeamPairing = (
 
 export const generatePreliminaryRound = (state: TournamentState, seed = makeId("zreb")) => {
   const players = activePlayers(state);
-  if (players.length < 6 || players.length % 6 !== 0) {
-    throw new Error("Število aktivnih igralcev mora biti deljivo s 6.");
+  if (players.length < 6) throw new Error("Za žreb potrebujete najmanj 6 aktivnih igralcev.");
+  if (state.rounds.some((round) => round.status !== "completed" || round.matches.some((match) => !match.locked))) {
+    throw new Error("Pred novim žrebom zaključite in potrdite vse rezultate prejšnjih krogov.");
   }
-  if (state.rounds.some((round) => round.status !== "completed")) {
-    throw new Error("Pred novim žrebom zaključite trenutni krog.");
-  }
-  if (state.rounds.length >= state.plannedRounds) {
-    throw new Error("Vsi načrtovani predtekmovalni krogi so že odigrani.");
-  }
+  if (state.finals) throw new Error("Po začetku zaključnega dela novih krogov ni mogoče dodati.");
 
   const rng = createRng(seed);
   const history = getInteractionHistory(state);
   const playerIds = players.map((player) => player.id);
-  const attempts = state.rounds.length === 0 ? 1 : 20_000;
+  const totalSlots = Math.ceil(playerIds.length / 6) * 6;
+  const jokerIds = selectJokers(playerIds, totalSlots - playerIds.length, state, rng);
+  const appearances: PlayerAppearance[] = [
+    ...playerIds.map((playerId) => ({ playerId, joker: false })),
+    ...jokerIds.map((playerId) => ({ playerId, joker: true })),
+  ];
+  const attempts = 20_000;
   let bestPenalty = Number.POSITIVE_INFINITY;
-  let bestTeams: string[][] = [];
+  let bestTeams: PlayerAppearance[][] = [];
 
   for (let attempt = 0; attempt < attempts; attempt += 1) {
-    const candidate = shuffle(playerIds, rng);
-    const teams: string[][] = [];
+    const candidate = shuffle(appearances, rng);
+    const teams: PlayerAppearance[][] = [];
     for (let index = 0; index < candidate.length; index += 3) {
       teams.push(candidate.slice(index, index + 3));
     }
+    if (teams.some((team) => new Set(team.map((appearance) => appearance.playerId)).size !== team.length)) continue;
     const penalty = teamPartitionPenalty(
-      teams,
+      teams.map((team) => team.map((appearance) => appearance.playerId)),
       history.teammateCounts,
       history.previousTeammates,
     );
@@ -300,29 +411,34 @@ export const generatePreliminaryRound = (state: TournamentState, seed = makeId("
     }
   }
 
-  const pairedTeamIndexes = shuffle(
+  if (bestTeams.length === 0) throw new Error("Veljavnega žreba z jokerji ni bilo mogoče sestaviti.");
+
+  const scheduledTeamPairs = scheduleMatches(
     bestTeamPairing(
-      bestTeams,
+      bestTeams.map((team) => team.map((appearance) => appearance.playerId)),
       history.opponentCounts,
       history.previousOpponents,
       rng,
     ),
+    bestTeams,
+    state.courts,
     rng,
   );
   const roundNumber = state.rounds.length + 1;
   const roundId = makeId(`krog-${roundNumber}`);
-  const teamObjects = bestTeams.map<TournamentTeam>((playerIdsForTeam, index) => ({
+  const teamObjects = bestTeams.map<TournamentTeam>((appearancesForTeam, index) => ({
     id: `${roundId}-ekipa-${index + 1}`,
     label: `Ekipa ${index + 1}`,
-    playerIds: playerIdsForTeam,
+    playerIds: appearancesForTeam.map((appearance) => appearance.playerId),
+    jokerPlayerIds: appearancesForTeam.filter((appearance) => appearance.joker).map((appearance) => appearance.playerId),
   }));
 
-  const matches = pairedTeamIndexes.map<TournamentMatch>(([first, second], index) => ({
+  const matches = scheduledTeamPairs.map<TournamentMatch>(({ pair: [first, second], wave, courtIndex }, index) => ({
     id: `${roundId}-tekma-${index + 1}`,
     phase: "preliminary",
     roundNumber,
-    wave: Math.floor(index / state.courts) + 1,
-    court: ((index % state.courts + roundNumber - 1) % state.courts) + 1,
+    wave,
+    court: ((courtIndex + roundNumber - 1) % state.courts) + 1,
     teamA: teamObjects[first],
     teamB: teamObjects[second],
     scoreA: null,
@@ -346,30 +462,6 @@ export const generatePreliminaryRound = (state: TournamentState, seed = makeId("
   });
 };
 
-export const generateAllPreliminaryRounds = (state: TournamentState) => {
-  if (state.rounds.length > 0) {
-    throw new Error("Predtekmovalni razpored je že izžreban.");
-  }
-
-  let workingState = state;
-  for (let roundNumber = 1; roundNumber <= state.plannedRounds; roundNumber += 1) {
-    workingState = generatePreliminaryRound(workingState);
-    workingState = {
-      ...workingState,
-      rounds: workingState.rounds.map((round) => ({ ...round, status: "completed" as const })),
-    };
-  }
-
-  return touchTournament({
-    ...workingState,
-    phase: "preliminary",
-    rounds: workingState.rounds.map((round, index) => ({
-      ...round,
-      status: index === 0 ? "active" : "scheduled",
-    })),
-  });
-};
-
 export const calculateRankings = (state: TournamentState): PlayerRanking[] => {
   const rows = new Map<string, Omit<PlayerRanking, "rank">>();
   for (const player of state.players) {
@@ -381,6 +473,7 @@ export const calculateRankings = (state: TournamentState): PlayerRanking[] => {
       wins: 0,
       average: 0,
       scores: [],
+      jokerAppearances: 0,
     });
   }
 
@@ -394,6 +487,10 @@ export const calculateRankings = (state: TournamentState): PlayerRanking[] => {
         for (const playerId of team.playerIds) {
           const row = rows.get(playerId);
           if (!row) continue;
+          if (team.jokerPlayerIds?.includes(playerId)) {
+            row.jokerAppearances += 1;
+            continue;
+          }
           row.matches += 1;
           row.points += score;
           row.wins += score > state.targetCombinedScore / 2 ? 1 : 0;
@@ -430,9 +527,10 @@ const permutations = <T,>(items: T[]): T[][] => {
 };
 
 export const generateFinals = (state: TournamentState, seed = makeId("finale")) => {
-  if (state.rounds.length !== state.plannedRounds || state.rounds.some((round) => round.status !== "completed")) {
-    throw new Error("Pred zaključnim delom odigrajte vse predtekmovalne kroge.");
+  if (state.rounds.length === 0 || state.rounds.some((round) => round.status !== "completed" || round.matches.some((match) => !match.locked))) {
+    throw new Error("Pred zaključnim delom odigrajte in zaključite najmanj en predtekmovalni krog.");
   }
+  if (state.finals) throw new Error("Zaključni del je že pripravljen.");
   const rankings = calculateRankings(state);
   if (rankings.length < 12) throw new Error("Za zaključni del je potrebnih najmanj 12 uvrščenih igralcev.");
 
@@ -550,7 +648,6 @@ export const getPlayerName = (state: TournamentState, playerId: string) =>
 
 export const getTournamentProgress = (state: TournamentState) => ({
   completedRounds: state.rounds.filter((round) => round.status === "completed").length,
-  totalRounds: state.plannedRounds,
   activePlayerCount: activePlayers(state).length,
 });
 

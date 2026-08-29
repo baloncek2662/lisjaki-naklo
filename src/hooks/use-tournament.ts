@@ -1,72 +1,112 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createDefaultTournament, TournamentState } from "@/lib/tournament";
-import { clearTournamentStorage, loadTournament, saveTournament } from "@/lib/tournament-storage";
+import { fetchTournament, publishTournament, TournamentApiError } from "@/lib/tournament-api";
 
-const CHANNEL_NAME = "lisjaki-turnir-posodobitve";
+const PUBLIC_REFRESH_INTERVAL = 15_000;
+const ADMIN_SAVE_DELAY = 750;
 
-export const useTournament = () => {
+interface UseTournamentOptions {
+  editable?: boolean;
+}
+
+export type TournamentSyncStatus = "loading" | "saved" | "saving" | "error";
+
+export const useTournament = ({ editable = false }: UseTournamentOptions = {}) => {
   const [tournament, setTournament] = useState<TournamentState>(() => createDefaultTournament());
   const [loaded, setLoaded] = useState(false);
-  const [storageError, setStorageError] = useState<string | null>(null);
+  const [syncError, setSyncError] = useState<string | null>(null);
+  const [syncStatus, setSyncStatus] = useState<TournamentSyncStatus>("loading");
+  const mounted = useRef(true);
+  const refreshing = useRef(false);
+  const canSave = useRef(false);
+  const revision = useRef(0);
+  const etag = useRef<string | null>(null);
   const lastSavedUpdate = useRef<string | null>(null);
-  const channelRef = useRef<BroadcastChannel | null>(null);
+  const latestTournament = useRef(tournament);
+  const saveChain = useRef(Promise.resolve());
 
-  useEffect(() => {
-    let active = true;
-    loadTournament()
-      .then((stored) => {
-        if (!active) return;
-        if (stored) {
-          lastSavedUpdate.current = stored.updatedAt;
-          setTournament(stored);
-        }
-        setLoaded(true);
-      })
-      .catch(() => {
-        if (!active) return;
-        setStorageError("Lokalne shrambe ni bilo mogoče odpreti.");
-        setLoaded(true);
-      });
-    return () => {
-      active = false;
-    };
+  latestTournament.current = tournament;
+
+  const refreshTournament = useCallback(async () => {
+    if (refreshing.current) return;
+    refreshing.current = true;
+    try {
+      const result = await fetchTournament(etag.current);
+      if (!mounted.current) return;
+      if (result.document) {
+        revision.current = result.document.revision;
+        etag.current = result.document.etag;
+        lastSavedUpdate.current = result.document.tournament.updatedAt;
+        setTournament(result.document.tournament);
+      }
+      canSave.current = true;
+      setSyncError(null);
+      setSyncStatus("saved");
+    } catch (error) {
+      if (!mounted.current) return;
+      const message = error instanceof Error ? error.message : "Turnirja ni bilo mogoče naložiti.";
+      setSyncError(message);
+      setSyncStatus("error");
+    } finally {
+      refreshing.current = false;
+      if (mounted.current) setLoaded(true);
+    }
   }, []);
 
   useEffect(() => {
-    if (typeof BroadcastChannel === "undefined") return undefined;
-    const channel = new BroadcastChannel(CHANNEL_NAME);
-    channelRef.current = channel;
-    channel.onmessage = (event: MessageEvent<TournamentState>) => {
-      if (!event.data || event.data.updatedAt === lastSavedUpdate.current) return;
-      lastSavedUpdate.current = event.data.updatedAt;
-      setTournament(event.data);
-    };
+    mounted.current = true;
+    void refreshTournament();
     return () => {
-      channel.close();
-      channelRef.current = null;
+      mounted.current = false;
     };
-  }, []);
+  }, [refreshTournament]);
 
   useEffect(() => {
-    if (!loaded || tournament.updatedAt === lastSavedUpdate.current) return;
+    if (editable) return undefined;
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") void refreshTournament();
+    };
+    const interval = window.setInterval(refreshWhenVisible, PUBLIC_REFRESH_INTERVAL);
+    window.addEventListener("focus", refreshWhenVisible);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener("focus", refreshWhenVisible);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
+    };
+  }, [editable, refreshTournament]);
+
+  useEffect(() => {
+    if (!editable || !loaded || !canSave.current || tournament.updatedAt === lastSavedUpdate.current) return;
     const timeout = window.setTimeout(() => {
-      saveTournament(tournament)
-        .then(() => {
-          lastSavedUpdate.current = tournament.updatedAt;
-          channelRef.current?.postMessage(tournament);
-          setStorageError(null);
-        })
-        .catch(() => setStorageError("Sprememb ni bilo mogoče shraniti lokalno."));
-    }, 150);
+      saveChain.current = saveChain.current.then(async () => {
+        const stateToSave = latestTournament.current;
+        if (stateToSave.updatedAt === lastSavedUpdate.current || !canSave.current) return;
+        if (mounted.current) setSyncStatus("saving");
+        try {
+          const saved = await publishTournament(stateToSave, revision.current);
+          revision.current = saved.revision;
+          etag.current = saved.etag;
+          lastSavedUpdate.current = stateToSave.updatedAt;
+          if (mounted.current) {
+            setSyncError(null);
+            setSyncStatus("saved");
+          }
+        } catch (error) {
+          if (!mounted.current) return;
+          if (error instanceof TournamentApiError && error.status === 409) canSave.current = false;
+          setSyncError(error instanceof Error ? error.message : "Sprememb ni bilo mogoče objaviti.");
+          setSyncStatus("error");
+        }
+      });
+    }, ADMIN_SAVE_DELAY);
     return () => window.clearTimeout(timeout);
-  }, [loaded, tournament]);
+  }, [editable, loaded, tournament]);
 
   const resetTournament = async () => {
-    await clearTournamentStorage();
-    const fresh = createDefaultTournament();
-    lastSavedUpdate.current = null;
-    setTournament(fresh);
+    setTournament(createDefaultTournament());
   };
 
-  return { tournament, setTournament, loaded, storageError, resetTournament };
+  return { tournament, setTournament, loaded, syncError, syncStatus, resetTournament };
 };

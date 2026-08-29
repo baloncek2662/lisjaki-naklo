@@ -12,7 +12,6 @@ import {
   RotateCcw,
   Save,
   Settings2,
-  ShieldX,
   Shuffle,
   Trash2,
   Trophy,
@@ -27,15 +26,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useTournament } from "@/hooks/use-tournament";
-import { useOrganizerAccess } from "@/hooks/use-organizer-access";
 import {
   activePlayers,
   calculateRankings,
-  generateAllPreliminaryRounds,
+  generatePreliminaryRound,
   generateFinals,
   getPlayerName,
   isValidCombinedScore,
@@ -92,7 +89,9 @@ interface MatchEditorProps {
 
 const MatchEditor = ({ match, state, onScore, onLock, onUnlock, editable = true }: MatchEditorProps) => {
   const valid = isValidCombinedScore(match.scoreA, match.scoreB, state.targetCombinedScore);
-  const teamNames = (ids: string[]) => ids.map((id) => getPlayerName(state, id)).join(" · ");
+  const teamNames = (team: TournamentMatch["teamA"]) => team.playerIds
+    .map((id) => `${getPlayerName(state, id)}${team.jokerPlayerIds?.includes(id) ? " (joker)" : ""}`)
+    .join(" · ");
 
   return (
     <Card className={match.locked ? "border-emerald-200 bg-emerald-50/40" : "border-border"}>
@@ -109,7 +108,7 @@ const MatchEditor = ({ match, state, onScore, onLock, onUnlock, editable = true 
         <div className="grid gap-5 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
           <div>
             <p className="font-black">{match.teamA.label}</p>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{teamNames(match.teamA.playerIds)}</p>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{teamNames(match.teamA)}</p>
           </div>
           <div className="flex items-center justify-center gap-2">
             <Input
@@ -136,7 +135,7 @@ const MatchEditor = ({ match, state, onScore, onLock, onUnlock, editable = true 
           </div>
           <div className="sm:text-right">
             <p className="font-black">{match.teamB.label}</p>
-            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{teamNames(match.teamB.playerIds)}</p>
+            <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{teamNames(match.teamB)}</p>
           </div>
         </div>
         <div className="mt-5 flex items-center justify-between gap-3 border-t pt-4">
@@ -157,8 +156,7 @@ const MatchEditor = ({ match, state, onScore, onLock, onUnlock, editable = true 
 };
 
 const TurnirAdmin = () => {
-  const { tournament, setTournament, loaded, storageError, resetTournament } = useTournament();
-  const organizerAccess = useOrganizerAccess();
+  const { tournament, setTournament, loaded, syncError, syncStatus, resetTournament } = useTournament({ editable: true });
   const [newPlayerName, setNewPlayerName] = useState("");
   const [bulkNames, setBulkNames] = useState("");
   const [activeTab, setActiveTab] = useState("prijave");
@@ -170,7 +168,8 @@ const TurnirAdmin = () => {
   const lastRound = tournament.rounds[tournament.rounds.length - 1];
   const displayedRound = tournament.rounds.find((round) => round.number === selectedRoundNumber) ?? currentRound ?? lastRound;
   const completedRounds = tournament.rounds.filter((round) => round.status === "completed").length;
-  const rosterLocked = tournament.rounds.length > 0;
+  const rosterHasHistory = tournament.rounds.length > 0;
+  const availabilityLocked = Boolean(currentRound || tournament.finals);
 
   const updateState = (updater: (state: TournamentState) => TournamentState) => {
     setTournament((previous) => touchTournament(updater(previous)));
@@ -179,10 +178,6 @@ const TurnirAdmin = () => {
   const addPlayer = () => {
     const name = newPlayerName.trim();
     if (!name) return;
-    if (tournament.players.length >= tournament.maxPlayers) {
-      toast.error("Seznam 30 igralcev je že poln.");
-      return;
-    }
     if (tournament.players.some((player) => player.name.toLocaleLowerCase("sl") === name.toLocaleLowerCase("sl"))) {
       toast.error("Igralec s tem imenom je že na seznamu.");
       return;
@@ -197,8 +192,7 @@ const TurnirAdmin = () => {
       .split(/\r?\n|,/)
       .map((name) => name.trim())
       .filter((name) => name && !existing.has(name.toLocaleLowerCase("sl")));
-    const available = tournament.maxPlayers - tournament.players.length;
-    const accepted = names.slice(0, available);
+    const accepted = names;
     if (accepted.length === 0) {
       toast.error("Ni novih imen za dodajanje.");
       return;
@@ -219,12 +213,12 @@ const TurnirAdmin = () => {
     updateState((state) => ({ ...state, players: state.players.filter((player) => player.id !== playerId) }));
   };
 
-  const drawAllRounds = () => {
+  const drawNextRound = () => {
     try {
-      setTournament((state) => generateAllPreliminaryRounds(state));
-      setSelectedRoundNumber(1);
+      setTournament((state) => generatePreliminaryRound(state));
+      setSelectedRoundNumber(tournament.rounds.length + 1);
       setActiveTab("krog");
-      toast.success("Vseh šest predtekmovalnih krogov je izžrebanih.");
+      toast.success(`${tournament.rounds.length + 1}. krog je izžreban.`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Žreb ni uspel.");
     }
@@ -255,27 +249,27 @@ const TurnirAdmin = () => {
 
   const completeCurrentRound = () => {
     if (!currentRound || currentRound.matches.some((match) => !match.locked)) {
-      toast.error("Najprej potrdite vseh pet rezultatov.");
+      toast.error("Najprej potrdite vse rezultate trenutnega kroga.");
       return;
     }
     updateState((state) => ({
       ...state,
       rounds: state.rounds.map((round) => {
         if (round.id === currentRound.id) return { ...round, status: "completed" };
+        // Backward compatibility for schedules created by the previous six-round version.
         if (round.number === currentRound.number + 1 && round.status === "scheduled") return { ...round, status: "active" };
         return round;
       }),
     }));
-    if (currentRound.number < tournament.plannedRounds) {
-      setSelectedRoundNumber(currentRound.number + 1);
-      setActiveTab("krog");
-    } else {
-      setActiveTab("lestvica");
-    }
+    setSelectedRoundNumber(currentRound.number);
+    setActiveTab("lestvica");
     toast.success(`${currentRound.number}. krog je zaključen in lestvica posodobljena.`);
   };
 
   const createFinalStage = () => {
+    if (!window.confirm(
+      "Ali ste prepričani, da želite zaključiti predtekmovanje in izžrebati zaključne ekipe? Po tem ne bo več mogoče dodajati novih krogov.",
+    )) return;
     try {
       setTournament((state) => generateFinals(state));
       setActiveTab("finale");
@@ -328,8 +322,8 @@ const TurnirAdmin = () => {
   };
 
   const exportCsv = () => {
-    const header = ["Mesto", "Igralec", "Tekme", "Zmage", "Točke", "Povprečje"];
-    const rows = rankings.map((row) => [row.rank, row.name, row.matches, row.wins, row.points, row.average.toFixed(2)]);
+    const header = ["Mesto", "Igralec", "Tekme", "Joker nastopi", "Zmage", "Točke", "Povprečje"];
+    const rows = rankings.map((row) => [row.rank, row.name, row.matches, row.jokerAppearances, row.wins, row.points, row.average.toFixed(2)]);
     const csv = [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\n");
     downloadFile(`\ufeff${csv}`, "turnir-lisjaki-lestvica.csv", "text/csv;charset=utf-8");
   };
@@ -341,6 +335,9 @@ const TurnirAdmin = () => {
     try {
       const parsed: unknown = JSON.parse(await file.text());
       if (!validateImportedTournament(parsed)) throw new Error("Datoteka ni veljavna varnostna kopija turnirja.");
+      if (!window.confirm(
+        "Ali ste prepričani, da želite obnoviti turnir iz izbrane varnostne kopije? Trenutni igralci, žrebi in rezultati bodo zamenjani s podatki iz kopije.",
+      )) return;
       setTournament(touchTournament(parsed));
       toast.success("Turnir je obnovljen iz varnostne kopije.");
     } catch (error) {
@@ -349,36 +346,14 @@ const TurnirAdmin = () => {
   };
 
   const reset = async () => {
-    if (!window.confirm("Izbrisali boste ves lokalni turnir, igralce in rezultate. Imate varnostno kopijo?")) return;
+    if (!window.confirm("Izbrisali boste turnir, igralce in rezultate za vse obiskovalce. Imate varnostno kopijo?")) return;
     await resetTournament();
     setActiveTab("prijave");
     toast.success("Ustvarjen je nov prazen turnir.");
   };
 
-  if (!loaded || organizerAccess === "checking") {
-    return <div className="flex min-h-screen items-center justify-center bg-muted/30 text-muted-foreground">Preverjanje organizatorskega dostopa …</div>;
-  }
-
-  if (organizerAccess === "denied") {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-foreground px-4 text-background">
-        <Card className="w-full max-w-lg border-background/10 bg-background text-foreground shadow-2xl">
-          <CardContent className="p-8 text-center sm:p-10">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10 text-destructive">
-              <ShieldX size={32} />
-            </div>
-            <p className="mt-6 text-sm font-bold uppercase tracking-widest text-destructive">Dostop omejen</p>
-            <h1 className="mt-2 text-3xl font-black">Samo za organizatorje</h1>
-            <p className="mt-4 leading-relaxed text-muted-foreground">
-              Vodenje turnirja je na voljo samo lokalno na organizatorskem računalniku. Javnosti so na voljo le razpored, rezultati in lestvica.
-            </p>
-            <Button asChild className="mt-7" size="lg">
-              <Link to="/turnir"><ArrowLeft size={18} /> Nazaj na rezultate</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+  if (!loaded) {
+    return <div className="flex min-h-screen items-center justify-center bg-muted/30 text-muted-foreground">Nalaganje osrednjih podatkov turnirja …</div>;
   }
 
   return (
@@ -404,13 +379,12 @@ const TurnirAdmin = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        {storageError && <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm font-medium text-destructive">{storageError}</div>}
+        {syncError && <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-sm font-medium text-destructive">{syncError}</div>}
 
         <div className="mb-8 grid gap-4 sm:grid-cols-3">
-          <Card><CardContent className="flex items-center gap-4 p-5"><Users className="text-primary" /><div><p className="text-2xl font-black">{activeCount}/30</p><p className="text-sm text-muted-foreground">aktivnih igralcev</p></div></CardContent></Card>
-          <Card><CardContent className="flex items-center gap-4 p-5"><ClipboardList className="text-primary" /><div><p className="text-2xl font-black">{completedRounds}/6</p><p className="text-sm text-muted-foreground">zaključenih krogov</p></div></CardContent></Card>
-          <Card><CardContent className="flex items-center gap-4 p-5"><Save className="text-primary" /><div><p className="text-2xl font-black">Lokalno</p><p className="text-sm text-muted-foreground">samodejno shranjevanje</p></div></CardContent></Card>
-          <Progress value={(completedRounds / tournament.plannedRounds) * 100} className="sm:col-span-3" />
+          <Card><CardContent className="flex items-center gap-4 p-5"><Users className="text-primary" /><div><p className="text-2xl font-black">{activeCount}</p><p className="text-sm text-muted-foreground">aktivnih igralcev</p></div></CardContent></Card>
+          <Card><CardContent className="flex items-center gap-4 p-5"><ClipboardList className="text-primary" /><div><p className="text-2xl font-black">{completedRounds}</p><p className="text-sm text-muted-foreground">zaključenih krogov</p></div></CardContent></Card>
+          <Card><CardContent className="flex items-center gap-4 p-5"><Save className="text-primary" /><div><p className="text-2xl font-black">{syncStatus === "saving" ? "Objavljanje …" : syncStatus === "error" ? "Napaka" : "Objavljeno"}</p><p className="text-sm text-muted-foreground">osrednja baza rezultatov</p></div></CardContent></Card>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -429,22 +403,22 @@ const TurnirAdmin = () => {
                 <div>
                   <Label htmlFor="novo-ime">Posamezni igralec</Label>
                   <div className="mt-2 flex gap-2">
-                    <Input id="novo-ime" placeholder="Ime in priimek" value={newPlayerName} disabled={rosterLocked} onChange={(event) => setNewPlayerName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") addPlayer(); }} />
-                    <Button onClick={addPlayer} disabled={rosterLocked || !newPlayerName.trim()}><Plus size={18} /> Dodaj</Button>
+                    <Input id="novo-ime" placeholder="Ime in priimek" value={newPlayerName} disabled={availabilityLocked} onChange={(event) => setNewPlayerName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") addPlayer(); }} />
+                    <Button onClick={addPlayer} disabled={availabilityLocked || !newPlayerName.trim()}><Plus size={18} /> Dodaj</Button>
                   </div>
                 </div>
                 <div>
                   <Label htmlFor="seznam-imen">Več imen naenkrat</Label>
-                  <Textarea id="seznam-imen" className="mt-2 min-h-28" placeholder={'Vsako ime v svojo vrstico\nAna Novak\nBlaž Kralj'} value={bulkNames} disabled={rosterLocked} onChange={(event) => setBulkNames(event.target.value)} />
-                  <Button className="mt-2" variant="outline" onClick={addBulkPlayers} disabled={rosterLocked || !bulkNames.trim()}>Dodaj seznam</Button>
+                  <Textarea id="seznam-imen" className="mt-2 min-h-28" placeholder={'Vsako ime v svojo vrstico\nAna Novak\nBlaž Kralj'} value={bulkNames} disabled={availabilityLocked} onChange={(event) => setBulkNames(event.target.value)} />
+                  <Button className="mt-2" variant="outline" onClick={addBulkPlayers} disabled={availabilityLocked || !bulkNames.trim()}>Dodaj seznam</Button>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex-row items-center justify-between space-y-0">
-                <div><CardTitle>Seznam igralcev</CardTitle><p className="mt-1 text-sm text-muted-foreground">Za začetek potrebujete 30 prisotnih igralcev.</p></div>
-                <Badge variant={activeCount === 30 ? "default" : "outline"}>{activeCount}/30 aktivnih</Badge>
+                <div><CardTitle>Seznam igralcev</CardTitle><p className="mt-1 text-sm text-muted-foreground">Aktivnih je lahko poljubno število igralcev (najmanj 6). Sistem manjkajoča mesta sam zapolni z jokerji.</p></div>
+                <Badge variant={activeCount >= 6 ? "default" : "outline"}>{activeCount} aktivnih</Badge>
               </CardHeader>
               <CardContent>
                 {tournament.players.length > 0 ? (
@@ -452,10 +426,10 @@ const TurnirAdmin = () => {
                     {tournament.players.map((player, index) => (
                       <div key={player.id} className="grid items-center gap-3 p-3 sm:grid-cols-[2rem_1fr_auto_auto_auto]">
                         <span className="text-sm font-bold text-muted-foreground">{index + 1}.</span>
-                        <Input value={player.name} disabled={rosterLocked} onChange={(event) => updatePlayer(player.id, { name: event.target.value })} className="font-semibold" />
-                        <label className="flex items-center gap-2 text-sm"><Checkbox checked={player.checkedIn} disabled={rosterLocked} onCheckedChange={(checked) => updatePlayer(player.id, { checkedIn: checked === true })} /> Prisoten</label>
+                        <Input value={player.name} disabled={availabilityLocked} onChange={(event) => updatePlayer(player.id, { name: event.target.value })} className="font-semibold" />
+                        <label className="flex items-center gap-2 text-sm"><Checkbox checked={player.checkedIn} disabled={availabilityLocked} onCheckedChange={(checked) => updatePlayer(player.id, { checkedIn: checked === true })} /> Aktiven</label>
                         <label className="flex items-center gap-2 text-sm"><Checkbox checked={player.paid} onCheckedChange={(checked) => updatePlayer(player.id, { paid: checked === true })} /> Plačano</label>
-                        <Button variant="ghost" size="icon" disabled={rosterLocked} onClick={() => removePlayer(player.id)} aria-label={`Odstrani ${player.name}`}><Trash2 size={17} /></Button>
+                        <Button variant="ghost" size="icon" disabled={rosterHasHistory || availabilityLocked} onClick={() => removePlayer(player.id)} aria-label={`Odstrani ${player.name}`}><Trash2 size={17} /></Button>
                       </div>
                     ))}
                   </div>
@@ -463,8 +437,8 @@ const TurnirAdmin = () => {
                   <div className="rounded-lg border border-dashed py-12 text-center text-muted-foreground">Dodajte imena igralcev, da lahko pripravimo prvi žreb.</div>
                 )}
                 <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-sm text-muted-foreground">Ob žrebu se pripravi vseh šest krogov in seznam igralcev se zaklene.</p>
-                  <Button size="lg" disabled={activeCount !== 30 || rosterLocked} onClick={drawAllRounds}><Shuffle size={18} /> Izžrebaj vseh 6 krogov</Button>
+                  <p className="text-sm text-muted-foreground">Vsak krog izžrebate posebej. Med krogi lahko spremenite aktivne igralce; pretekli krogi ostanejo nespremenjeni.</p>
+                  {!tournament.finals && <Button size="lg" disabled={activeCount < 6 || availabilityLocked} onClick={drawNextRound}><Shuffle size={18} /> Izžrebaj {tournament.rounds.length + 1}. krog</Button>}
                 </div>
               </CardContent>
             </Card>
@@ -500,11 +474,12 @@ const TurnirAdmin = () => {
                 </div>
                 <div className="flex flex-wrap justify-end gap-3">
                   {displayedRound.id === currentRound?.id && <Button size="lg" disabled={currentRound.matches.some((match) => !match.locked)} onClick={completeCurrentRound}><CheckCircle2 size={18} /> Zaključi {currentRound.number}. krog</Button>}
-                  {!currentRound && completedRounds === tournament.plannedRounds && !tournament.finals && <Button size="lg" onClick={createFinalStage}><Trophy size={18} /> Pripravi zaključni del</Button>}
+                  {!currentRound && completedRounds > 0 && !tournament.finals && <Button size="lg" variant="outline" onClick={drawNextRound}><Shuffle size={18} /> Izžrebaj {tournament.rounds.length + 1}. krog</Button>}
+                  {!currentRound && completedRounds > 0 && !tournament.finals && <Button size="lg" onClick={createFinalStage}><Trophy size={18} /> Pripravi zaključni del</Button>}
                 </div>
               </>
             ) : (
-              <Card><CardContent className="py-14 text-center"><Shuffle className="mx-auto mb-3 text-primary" size={36} /><h2 className="text-xl font-bold">Krog še ni izžreban</h2><p className="mt-2 text-muted-foreground">Najprej vnesite in potrdite 30 igralcev.</p></CardContent></Card>
+              <Card><CardContent className="py-14 text-center"><Shuffle className="mx-auto mb-3 text-primary" size={36} /><h2 className="text-xl font-bold">Krog še ni izžreban</h2><p className="mt-2 text-muted-foreground">Najprej vnesite najmanj 6 aktivnih igralcev.</p></CardContent></Card>
             )}
           </TabsContent>
 
@@ -513,7 +488,7 @@ const TurnirAdmin = () => {
               <CardHeader className="flex-row items-center justify-between space-y-0"><div><CardTitle>Osebna lestvica</CardTitle><p className="mt-1 text-sm text-muted-foreground">Točke iz vseh potrjenih tekem. Prvih 12 napreduje.</p></div><Trophy className="text-primary" /></CardHeader>
               <CardContent className="p-0">
                 {rankings.length > 0 ? (
-                  <div className="overflow-x-auto"><table className="w-full min-w-[700px] text-left"><thead className="bg-muted/60 text-xs uppercase tracking-wide text-muted-foreground"><tr><th className="px-5 py-3">#</th><th className="px-5 py-3">Igralec</th><th className="px-5 py-3 text-center">Tekme</th><th className="px-5 py-3 text-center">Zmage</th><th className="px-5 py-3 text-center">Povprečje</th><th className="px-5 py-3 text-right">Točke</th></tr></thead><tbody className="divide-y">{rankings.map((row) => <tr key={row.playerId} className={row.rank <= 12 ? "bg-primary/[0.05]" : "bg-background"}><td className="px-5 py-4 font-black">{row.rank}</td><td className="px-5 py-4 font-bold">{row.name}{row.rank <= 12 && <Badge className="ml-2">Top 12</Badge>}</td><td className="px-5 py-4 text-center">{row.matches}</td><td className="px-5 py-4 text-center">{row.wins}</td><td className="px-5 py-4 text-center">{row.average.toFixed(1)}</td><td className="px-5 py-4 text-right text-xl font-black">{row.points}</td></tr>)}</tbody></table></div>
+                  <div className="overflow-x-auto"><table className="w-full min-w-[780px] text-left"><thead className="bg-muted/60 text-xs uppercase tracking-wide text-muted-foreground"><tr><th className="px-5 py-3">#</th><th className="px-5 py-3">Igralec</th><th className="px-5 py-3 text-center">Tekme</th><th className="px-5 py-3 text-center">Joker</th><th className="px-5 py-3 text-center">Zmage</th><th className="px-5 py-3 text-center">Povprečje</th><th className="px-5 py-3 text-right">Točke</th></tr></thead><tbody className="divide-y">{rankings.map((row) => <tr key={row.playerId} className={row.rank <= 12 ? "bg-primary/[0.05]" : "bg-background"}><td className="px-5 py-4 font-black">{row.rank}</td><td className="px-5 py-4 font-bold">{row.name}{row.rank <= 12 && <Badge className="ml-2">Top 12</Badge>}</td><td className="px-5 py-4 text-center">{row.matches}</td><td className="px-5 py-4 text-center">{row.jokerAppearances}</td><td className="px-5 py-4 text-center">{row.wins}</td><td className="px-5 py-4 text-center">{row.average.toFixed(1)}</td><td className="px-5 py-4 text-right text-xl font-black">{row.points}</td></tr>)}</tbody></table></div>
                 ) : <div className="py-14 text-center text-muted-foreground">Lestvica bo pripravljena po prvem potrjenem rezultatu.</div>}
               </CardContent>
             </Card>
@@ -531,7 +506,7 @@ const TurnirAdmin = () => {
                 {tournament.phase === "finished" && <Card className="border-primary bg-primary/5"><CardContent className="flex items-center gap-4 p-6"><Trophy className="text-primary" size={40} /><div><h2 className="text-2xl font-black">Turnir je zaključen</h2><p className="text-muted-foreground">Vsi rezultati so shranjeni. Prenesite končno varnostno kopijo.</p></div></CardContent></Card>}
               </>
             ) : (
-              <Card><CardContent className="py-14 text-center"><Trophy className="mx-auto mb-3 text-primary" size={40} /><h2 className="text-xl font-bold">Zaključni del še ni pripravljen</h2><p className="mx-auto mt-2 max-w-lg text-muted-foreground">Po šestih zaključenih krogih bo sistem najboljših 12 razdelil v štiri uravnotežene ekipe.</p>{completedRounds === tournament.plannedRounds && <Button className="mt-5" onClick={createFinalStage}><Shuffle size={18} /> Izžrebaj zaključne ekipe</Button>}</CardContent></Card>
+              <Card><CardContent className="py-14 text-center"><Trophy className="mx-auto mb-3 text-primary" size={40} /><h2 className="text-xl font-bold">Zaključni del še ni pripravljen</h2><p className="mx-auto mt-2 max-w-lg text-muted-foreground">Ko zmanjka časa za nove kroge, sistem najboljših 12 razdeli v štiri uravnotežene ekipe.</p>{!currentRound && completedRounds > 0 && <Button className="mt-5" onClick={createFinalStage}><Shuffle size={18} /> Izžrebaj zaključne ekipe</Button>}</CardContent></Card>
             )}
           </TabsContent>
 
