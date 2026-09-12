@@ -25,6 +25,7 @@ const score = z.number().int().min(0).max(15).nullable();
 const playerSchema = z.object({
   id: identifier,
   name: z.string().trim().min(1).max(120),
+  gender: z.enum(["male", "female"]).default("male"),
   checkedIn: z.boolean(),
   paid: z.boolean(),
   withdrawn: z.boolean(),

@@ -44,9 +44,10 @@ import {
   validateImportedTournament,
 } from "@/lib/tournament";
 
-const createPlayer = (name: string): TournamentPlayer => ({
+const createPlayer = (name: string, gender: TournamentPlayer["gender"] = "male"): TournamentPlayer => ({
   id: `igralec-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
   name,
+  gender,
   checkedIn: true,
   paid: false,
   withdrawn: false,
@@ -158,12 +159,16 @@ const MatchEditor = ({ match, state, onScore, onLock, onUnlock, editable = true 
 const TurnirAdmin = () => {
   const { tournament, setTournament, loaded, syncError, syncStatus, resetTournament } = useTournament({ editable: true });
   const [newPlayerName, setNewPlayerName] = useState("");
+  const [newPlayerIsFemale, setNewPlayerIsFemale] = useState(false);
   const [bulkNames, setBulkNames] = useState("");
+  const [bulkPlayersAreFemale, setBulkPlayersAreFemale] = useState(false);
   const [activeTab, setActiveTab] = useState("prijave");
   const [selectedRoundNumber, setSelectedRoundNumber] = useState<number | null>(null);
   const importInput = useRef<HTMLInputElement>(null);
   const rankings = useMemo(() => calculateRankings(tournament), [tournament]);
   const activeCount = activePlayers(tournament).length;
+  const activeFemaleCount = activePlayers(tournament).filter((player) => player.gender === "female").length;
+  const activeMaleCount = activeCount - activeFemaleCount;
   const currentRound = tournament.rounds.find((round) => round.status === "active");
   const lastRound = tournament.rounds[tournament.rounds.length - 1];
   const displayedRound = tournament.rounds.find((round) => round.number === selectedRoundNumber) ?? currentRound ?? lastRound;
@@ -182,7 +187,7 @@ const TurnirAdmin = () => {
       toast.error("Igralec s tem imenom je že na seznamu.");
       return;
     }
-    updateState((state) => ({ ...state, players: [...state.players, createPlayer(name)] }));
+    updateState((state) => ({ ...state, players: [...state.players, createPlayer(name, newPlayerIsFemale ? "female" : "male")] }));
     setNewPlayerName("");
   };
 
@@ -197,7 +202,8 @@ const TurnirAdmin = () => {
       toast.error("Ni novih imen za dodajanje.");
       return;
     }
-    updateState((state) => ({ ...state, players: [...state.players, ...accepted.map(createPlayer)] }));
+    const gender = bulkPlayersAreFemale ? "female" : "male";
+    updateState((state) => ({ ...state, players: [...state.players, ...accepted.map((name) => createPlayer(name, gender))] }));
     setBulkNames("");
     toast.success(`Dodanih igralcev: ${accepted.length}.`);
   };
@@ -404,13 +410,17 @@ const TurnirAdmin = () => {
                   <Label htmlFor="novo-ime">Posamezni igralec</Label>
                   <div className="mt-2 flex gap-2">
                     <Input id="novo-ime" placeholder="Ime in priimek" value={newPlayerName} disabled={availabilityLocked} onChange={(event) => setNewPlayerName(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") addPlayer(); }} />
+                    <label className="flex shrink-0 items-center gap-2 rounded-md border px-3 text-sm"><Checkbox checked={newPlayerIsFemale} disabled={availabilityLocked} onCheckedChange={(checked) => setNewPlayerIsFemale(checked === true)} /> Ženska</label>
                     <Button onClick={addPlayer} disabled={availabilityLocked || !newPlayerName.trim()}><Plus size={18} /> Dodaj</Button>
                   </div>
                 </div>
                 <div>
                   <Label htmlFor="seznam-imen">Več imen naenkrat</Label>
                   <Textarea id="seznam-imen" className="mt-2 min-h-28" placeholder={'Vsako ime v svojo vrstico\nAna Novak\nBlaž Kralj'} value={bulkNames} disabled={availabilityLocked} onChange={(event) => setBulkNames(event.target.value)} />
-                  <Button className="mt-2" variant="outline" onClick={addBulkPlayers} disabled={availabilityLocked || !bulkNames.trim()}>Dodaj seznam</Button>
+                  <div className="mt-2 flex items-center gap-3">
+                    <label className="flex items-center gap-2 text-sm"><Checkbox checked={bulkPlayersAreFemale} disabled={availabilityLocked} onCheckedChange={(checked) => setBulkPlayersAreFemale(checked === true)} /> Ženska</label>
+                    <Button variant="outline" onClick={addBulkPlayers} disabled={availabilityLocked || !bulkNames.trim()}>Dodaj seznam</Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -418,15 +428,19 @@ const TurnirAdmin = () => {
             <Card>
               <CardHeader className="flex-row items-center justify-between space-y-0">
                 <div><CardTitle>Seznam igralcev</CardTitle><p className="mt-1 text-sm text-muted-foreground">Aktivnih je lahko poljubno število igralcev (najmanj 6). Sistem manjkajoča mesta sam zapolni z jokerji.</p></div>
-                <Badge variant={activeCount >= 6 ? "default" : "outline"}>{activeCount} aktivnih</Badge>
+                <div className="flex flex-wrap justify-end gap-2">
+                  <Badge variant="outline">{activeFemaleCount} žensk · {activeMaleCount} moških</Badge>
+                  <Badge variant={activeCount >= 6 ? "default" : "outline"}>{activeCount} aktivnih</Badge>
+                </div>
               </CardHeader>
               <CardContent>
                 {tournament.players.length > 0 ? (
                   <div className="divide-y rounded-lg border">
                     {tournament.players.map((player, index) => (
-                      <div key={player.id} className="grid items-center gap-3 p-3 sm:grid-cols-[2rem_1fr_auto_auto_auto]">
+                      <div key={player.id} className="grid items-center gap-3 p-3 sm:grid-cols-[2rem_1fr_auto_auto_auto_auto]">
                         <span className="text-sm font-bold text-muted-foreground">{index + 1}.</span>
                         <Input value={player.name} disabled={availabilityLocked} onChange={(event) => updatePlayer(player.id, { name: event.target.value })} className="font-semibold" />
+                        <label className="flex items-center gap-2 text-sm"><Checkbox checked={player.gender === "female"} disabled={availabilityLocked} onCheckedChange={(checked) => updatePlayer(player.id, { gender: checked === true ? "female" : "male" })} /> Ženska</label>
                         <label className="flex items-center gap-2 text-sm"><Checkbox checked={player.checkedIn} disabled={availabilityLocked} onCheckedChange={(checked) => updatePlayer(player.id, { checkedIn: checked === true })} /> Aktiven</label>
                         <label className="flex items-center gap-2 text-sm"><Checkbox checked={player.paid} onCheckedChange={(checked) => updatePlayer(player.id, { paid: checked === true })} /> Plačano</label>
                         <Button variant="ghost" size="icon" disabled={rosterHasHistory || availabilityLocked} onClick={() => removePlayer(player.id)} aria-label={`Odstrani ${player.name}`}><Trash2 size={17} /></Button>

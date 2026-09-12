@@ -26,6 +26,7 @@ This file is the durable handoff for future coding agents. Keep it current when 
 - Updates use an integer revision. Stale writers receive `409 Conflict`; do not remove this optimistic-concurrency check.
 - Server-side timestamps and the authenticated Access email are recorded on writes.
 - The latest state is stored as one validated JSON document. D1 retains the latest 50 snapshots for recovery/auditing; there is currently no snapshot-restore UI.
+- Each player has a `male`/`female` gender used by both preliminary and finals draws. New and legacy players default to male until the organizer marks the “Ženska” checkbox. When possible, every three-person team has at most one woman. If the number of female appearances exceeds the number of teams, teams may have two women, but never three, and opposing teams may differ by at most one woman (so 2–0 is forbidden).
 
 ## D1
 

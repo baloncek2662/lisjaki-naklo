@@ -1,9 +1,11 @@
 export type TournamentPhase = "registration" | "preliminary" | "finals" | "finished";
 export type MatchPhase = "preliminary" | "semifinal" | "bronze" | "final";
+export type TournamentGender = "male" | "female";
 
 export interface TournamentPlayer {
   id: string;
   name: string;
+  gender?: TournamentGender;
   checkedIn: boolean;
   paid: boolean;
   withdrawn: boolean;
@@ -247,20 +249,77 @@ const getJokerHistory = (state: TournamentState) => {
 };
 
 const selectJokers = (
-  playerIds: string[],
+  players: TournamentPlayer[],
   count: number,
   state: TournamentState,
   rng: () => number,
+  teamCount: number,
 ) => {
   const history = getJokerHistory(state);
-  return shuffle(playerIds, rng)
+  const activeFemaleCount = players.filter((player) => player.gender === "female").length;
+  const femaleCapacity = activeFemaleCount <= teamCount
+    ? teamCount - activeFemaleCount
+    : (teamCount * 2) - activeFemaleCount;
+  let selectedFemaleCount = 0;
+  const selected = shuffle(players, rng)
     .sort((first, second) => {
-      const countDifference = (history.counts.get(first) ?? 0) - (history.counts.get(second) ?? 0);
+      const countDifference = (history.counts.get(first.id) ?? 0) - (history.counts.get(second.id) ?? 0);
       if (countDifference !== 0) return countDifference;
-      const previousDifference = Number(history.previous.has(first)) - Number(history.previous.has(second));
+      const previousDifference = Number(history.previous.has(first.id)) - Number(history.previous.has(second.id));
       return previousDifference;
     })
-    .slice(0, count);
+    .filter((player) => {
+      if (player.gender !== "female") return true;
+      if (selectedFemaleCount >= femaleCapacity) return false;
+      selectedFemaleCount += 1;
+      return true;
+    })
+    .slice(0, count)
+    .map((player) => player.id);
+
+  if (selected.length !== count) {
+    throw new Error("Jokerjev ni mogoče izbrati brez kršitve pravila o spolu ekip.");
+  }
+  return selected;
+};
+
+const genderTeamTargets = (femaleCount: number, teamCount: number, rng: () => number) => {
+  if (femaleCount > teamCount * 2) {
+    throw new Error("Žreba ni mogoče sestaviti: v ekipi so lahko največ dve ženski.");
+  }
+  const targets = femaleCount <= teamCount
+    ? [...Array(femaleCount).fill(1), ...Array(teamCount - femaleCount).fill(0)]
+    : [...Array(femaleCount - teamCount).fill(2), ...Array((teamCount * 2) - femaleCount).fill(1)];
+  return shuffle(targets, rng);
+};
+
+const buildGenderBalancedTeams = (
+  appearances: PlayerAppearance[],
+  femalePlayerIds: Set<string>,
+  teamCount: number,
+  rng: () => number,
+) => {
+  const femaleAppearances = shuffle(
+    appearances.filter((appearance) => femalePlayerIds.has(appearance.playerId)),
+    rng,
+  );
+  const maleAppearances = shuffle(
+    appearances.filter((appearance) => !femalePlayerIds.has(appearance.playerId)),
+    rng,
+  );
+  const targets = genderTeamTargets(femaleAppearances.length, teamCount, rng);
+  let femaleIndex = 0;
+  let maleIndex = 0;
+
+  return targets.map((femaleTarget) => {
+    const team = [
+      ...femaleAppearances.slice(femaleIndex, femaleIndex + femaleTarget),
+      ...maleAppearances.slice(maleIndex, maleIndex + (3 - femaleTarget)),
+    ];
+    femaleIndex += femaleTarget;
+    maleIndex += 3 - femaleTarget;
+    return shuffle(team, rng);
+  });
 };
 
 const scheduleMatches = (
@@ -383,7 +442,12 @@ export const generatePreliminaryRound = (state: TournamentState, seed = makeId("
   const history = getInteractionHistory(state);
   const playerIds = players.map((player) => player.id);
   const totalSlots = Math.ceil(playerIds.length / 6) * 6;
-  const jokerIds = selectJokers(playerIds, totalSlots - playerIds.length, state, rng);
+  const teamCount = totalSlots / 3;
+  const femalePlayerIds = new Set(players.filter((player) => player.gender === "female").map((player) => player.id));
+  if (femalePlayerIds.size > teamCount * 2) {
+    throw new Error("Žreba ni mogoče sestaviti: v ekipi so lahko največ dve ženski.");
+  }
+  const jokerIds = selectJokers(players, totalSlots - playerIds.length, state, rng, teamCount);
   const appearances: PlayerAppearance[] = [
     ...playerIds.map((playerId) => ({ playerId, joker: false })),
     ...jokerIds.map((playerId) => ({ playerId, joker: true })),
@@ -393,11 +457,7 @@ export const generatePreliminaryRound = (state: TournamentState, seed = makeId("
   let bestTeams: PlayerAppearance[][] = [];
 
   for (let attempt = 0; attempt < attempts; attempt += 1) {
-    const candidate = shuffle(appearances, rng);
-    const teams: PlayerAppearance[][] = [];
-    for (let index = 0; index < candidate.length; index += 3) {
-      teams.push(candidate.slice(index, index + 3));
-    }
+    const teams = buildGenderBalancedTeams(appearances, femalePlayerIds, teamCount, rng);
     if (teams.some((team) => new Set(team.map((appearance) => appearance.playerId)).size !== team.length)) continue;
     const penalty = teamPartitionPenalty(
       teams.map((team) => team.map((appearance) => appearance.playerId)),
@@ -535,6 +595,13 @@ export const generateFinals = (state: TournamentState, seed = makeId("finale")) 
   if (rankings.length < 12) throw new Error("Za zaključni del je potrebnih najmanj 12 uvrščenih igralcev.");
 
   const topTwelve = rankings.slice(0, 12);
+  const femalePlayerIds = new Set(state.players.filter((player) => player.gender === "female").map((player) => player.id));
+  const femaleFinalistCount = topTwelve.filter((player) => femalePlayerIds.has(player.playerId)).length;
+  if (femaleFinalistCount > 8) {
+    throw new Error("Zaključnih ekip ni mogoče sestaviti: v ekipi sta lahko največ dve ženski.");
+  }
+  const minFemalePlayersPerTeam = femaleFinalistCount > 4 ? 1 : 0;
+  const maxFemalePlayersPerTeam = femaleFinalistCount <= 4 ? 1 : 2;
   const pots = [topTwelve.slice(0, 4), topTwelve.slice(4, 8), topTwelve.slice(8, 12)];
   const rng = createRng(seed);
   let bestScore = Number.POSITIVE_INFINITY;
@@ -544,6 +611,12 @@ export const generateFinals = (state: TournamentState, seed = makeId("finale")) 
   for (const secondPot of permutations(pots[1])) {
     for (const thirdPot of permutations(pots[2])) {
       const assignments = pots[0].map((player, index) => [player, secondPot[index], thirdPot[index]]);
+      if (assignments.some((team) => {
+        const femaleCount = team.filter((player) => femalePlayerIds.has(player.playerId)).length;
+        return femaleCount < minFemalePlayersPerTeam || femaleCount > maxFemalePlayersPerTeam;
+      })) {
+        continue;
+      }
       const pointTotals = assignments.map((team) => team.reduce((sum, player) => sum + player.points, 0));
       const average = pointTotals.reduce((sum, value) => sum + value, 0) / pointTotals.length;
       const variance = pointTotals.reduce((sum, value) => sum + (value - average) ** 2, 0);
@@ -561,6 +634,10 @@ export const generateFinals = (state: TournamentState, seed = makeId("finale")) 
         if (rng() < 1 / tied) bestAssignments = assignments;
       }
     }
+  }
+
+  if (bestAssignments.length === 0) {
+    throw new Error("Zaključnih ekip ni mogoče uravnotežiti po spolu in uvrstitvi.");
   }
 
   const finalsId = makeId("zakljucni-del");
@@ -657,6 +734,11 @@ export const validateImportedTournament = (value: unknown): value is TournamentS
   return candidate.version === 1 &&
     typeof candidate.id === "string" &&
     Array.isArray(candidate.players) &&
+    candidate.players.every((player) => player && typeof player === "object" && (
+      (player as TournamentPlayer).gender === undefined ||
+      (player as TournamentPlayer).gender === "male" ||
+      (player as TournamentPlayer).gender === "female"
+    )) &&
     Array.isArray(candidate.rounds) &&
     candidate.targetCombinedScore === 15;
 };

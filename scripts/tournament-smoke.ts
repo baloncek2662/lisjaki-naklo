@@ -12,15 +12,26 @@ const defaultTournament = createDefaultTournament();
 if (!parseTournament(defaultTournament) || parseTournament({ ...defaultTournament, courts: 0 })) {
   throw new Error("Strežniško preverjanje podatkov turnirja ni pravilno nastavljeno.");
 }
+const parsedLegacyTournament = parseTournament({
+  ...defaultTournament,
+  players: [{ id: "legacy", name: "Legacy", checkedIn: true, paid: false, withdrawn: false }],
+});
+if (parsedLegacyTournament?.players[0].gender !== "male" || parseTournament({
+  ...defaultTournament,
+  players: [{ id: "invalid", name: "Invalid", gender: "unknown", checkedIn: true, paid: false, withdrawn: false }],
+})) {
+  throw new Error("Stari igralci niso pravilno nadgrajeni oziroma neveljaven spol ni zavrnjen.");
+}
 if (tournamentEtag(12) !== '"tournament-12"') {
   throw new Error("Revizijska oznaka turnirja ni pravilno ustvarjena.");
 }
 
-const createState = (playerCount: number): TournamentState => ({
+const createState = (playerCount: number, femaleCount = 0): TournamentState => ({
   ...createDefaultTournament(),
   players: Array.from({ length: playerCount }, (_, index) => ({
     id: `player-${index + 1}`,
     name: `Igralec ${String(index + 1).padStart(2, "0")}`,
+    gender: index < femaleCount ? "female" : "male",
     checkedIn: true,
     paid: true,
     withdrawn: false,
@@ -60,6 +71,24 @@ const verifyRound = (round: TournamentRound, playerCount: number) => {
 
 };
 
+const verifyGenderBalance = (state: TournamentState, round: TournamentRound) => {
+  const femaleIds = new Set(state.players.filter((player) => player.gender === "female").map((player) => player.id));
+  const teams = round.matches.flatMap((match) => [match.teamA, match.teamB]);
+  const femaleAppearances = teams.reduce(
+    (count, team) => count + team.playerIds.filter((playerId) => femaleIds.has(playerId)).length,
+    0,
+  );
+  const maximumPerTeam = femaleAppearances <= teams.length ? 1 : 2;
+  for (const match of round.matches) {
+    const countWomen = (playerIds: string[]) => playerIds.filter((playerId) => femaleIds.has(playerId)).length;
+    const first = countWomen(match.teamA.playerIds);
+    const second = countWomen(match.teamB.playerIds);
+    if (first > maximumPerTeam || second > maximumPerTeam || Math.abs(first - second) > 1) {
+      throw new Error("Ženske niso pravilno razporejene med ekipe.");
+    }
+  }
+};
+
 const completeRound = (state: TournamentState, scoreA = 9, scoreB = 6) => {
   const round = state.rounds[state.rounds.length - 1];
   for (const match of round.matches) {
@@ -74,6 +103,17 @@ for (let playerCount = 30; playerCount <= 36; playerCount += 1) {
   for (let attempt = 1; attempt <= 5; attempt += 1) {
     const state = generatePreliminaryRound(createState(playerCount), `count-${playerCount}-${attempt}`);
     verifyRound(state.rounds[0], playerCount);
+  }
+}
+
+for (const [playerCount, femaleCount] of [[26, 7], [12, 5], [13, 9]] as const) {
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
+    const genderState = generatePreliminaryRound(
+      createState(playerCount, femaleCount),
+      `gender-${playerCount}-${femaleCount}-${attempt}`,
+    );
+    verifyRound(genderState.rounds[0], playerCount);
+    verifyGenderBalance(genderState, genderState.rounds[0]);
   }
 }
 
@@ -133,6 +173,26 @@ state = generateFinals(state, "smoke-finals");
 const finalists = state.finals?.teams.flatMap((team) => team.playerIds) ?? [];
 if (finalists.length !== 12 || new Set(finalists).size !== 12) {
   throw new Error("Zaključni žreb nima 12 različnih igralcev.");
+}
+
+
+let mixedFinalsState = createState(12, 5);
+mixedFinalsState = generatePreliminaryRound(mixedFinalsState, "mixed-finals-round");
+verifyGenderBalance(mixedFinalsState, mixedFinalsState.rounds[0]);
+completeRound(mixedFinalsState);
+mixedFinalsState = generateFinals(mixedFinalsState, "mixed-finals");
+const mixedFinalTeams = mixedFinalsState.finals?.teams ?? [];
+const mixedFinalFemaleIds = new Set(mixedFinalsState.players.filter((player) => player.gender === "female").map((player) => player.id));
+const mixedFinalFemaleCounts = mixedFinalTeams.map(
+  (team) => team.playerIds.filter((playerId) => mixedFinalFemaleIds.has(playerId)).length,
+);
+if (mixedFinalFemaleCounts.some((count) => count < 1 || count > 2)) {
+  throw new Error("Ženske niso pravilno razporejene v zaključnih ekipah.");
+}
+for (const match of mixedFinalsState.finals?.matches ?? []) {
+  const first = match.teamA.playerIds.filter((playerId) => mixedFinalFemaleIds.has(playerId)).length;
+  const second = match.teamB.playerIds.filter((playerId) => mixedFinalFemaleIds.has(playerId)).length;
+  if (Math.abs(first - second) > 1) throw new Error("Zaključna tekma ima nedovoljeno razliko med spoloma.");
 }
 
 const repeatTeammatePairs = [...teammateCounts.values()].filter((count) => count > 1).length;
