@@ -73,6 +73,7 @@ export interface PlayerRanking {
 }
 
 const FINAL_TEAM_LABELS = ["Ekipa A", "Ekipa B", "Ekipa C", "Ekipa D"];
+export const MAX_INITIAL_ROUNDS = 20;
 
 const makeId = (prefix: string) => {
   const random = typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -430,10 +431,15 @@ const bestTeamPairing = (
   return bestPairs;
 };
 
-export const generatePreliminaryRound = (state: TournamentState, seed = makeId("zreb")) => {
+const appendPreliminaryRound = (
+  state: TournamentState,
+  seed: string,
+  status: TournamentRound["status"],
+  allowOpenRounds: boolean,
+) => {
   const players = activePlayers(state);
   if (players.length < 6) throw new Error("Za žreb potrebujete najmanj 6 aktivnih igralcev.");
-  if (state.rounds.some((round) => round.status !== "completed" || round.matches.some((match) => !match.locked))) {
+  if (!allowOpenRounds && state.rounds.some((round) => round.status !== "completed" || round.matches.some((match) => !match.locked))) {
     throw new Error("Pred novim žrebom zaključite in potrdite vse rezultate prejšnjih krogov.");
   }
   if (state.finals) throw new Error("Po začetku zaključnega dela novih krogov ni mogoče dodati.");
@@ -511,7 +517,7 @@ export const generatePreliminaryRound = (state: TournamentState, seed = makeId("
     number: roundNumber,
     seed,
     createdAt: new Date().toISOString(),
-    status: "active",
+    status,
     matches,
   };
 
@@ -519,6 +525,61 @@ export const generatePreliminaryRound = (state: TournamentState, seed = makeId("
     ...state,
     phase: "preliminary",
     rounds: [...state.rounds, round],
+  });
+};
+
+export const generatePreliminaryRound = (state: TournamentState, seed = makeId("zreb")) =>
+  appendPreliminaryRound(state, seed, "active", false);
+
+export const generateInitialRounds = (
+  state: TournamentState,
+  count: number,
+  seed = makeId("zrebi"),
+) => {
+  if (!Number.isInteger(count) || count < 1 || count > MAX_INITIAL_ROUNDS) {
+    throw new Error(`Začetno število krogov mora biti med 1 in ${MAX_INITIAL_ROUNDS}.`);
+  }
+  if (state.rounds.length > 0 || state.finals) {
+    throw new Error("Začetni paket krogov lahko izžrebate samo pred prvim krogom.");
+  }
+
+  let next = state;
+  for (let index = 0; index < count; index += 1) {
+    next = appendPreliminaryRound(
+      next,
+      `${seed}-${index + 1}`,
+      index === 0 ? "active" : "scheduled",
+      true,
+    );
+  }
+  return next;
+};
+
+export const completePreliminaryRound = (state: TournamentState, roundId: string) => {
+  const currentRound = state.rounds.find((round) => round.id === roundId);
+  if (!currentRound || currentRound.status !== "active") {
+    throw new Error("Zaključite lahko samo trenutni aktivni krog.");
+  }
+  if (currentRound.matches.some((match) => !match.locked)) {
+    throw new Error("Najprej potrdite vse rezultate trenutnega kroga.");
+  }
+  return touchTournament({
+    ...state,
+    rounds: state.rounds.map((round) => round.id === roundId ? { ...round, status: "completed" } : round),
+  });
+};
+
+export const startNextScheduledRound = (state: TournamentState) => {
+  if (state.finals) throw new Error("Po začetku zaključnega dela ni mogoče začeti novega kroga.");
+  if (state.rounds.some((round) => round.status === "active")) {
+    throw new Error("Trenutni krog je že v teku.");
+  }
+  const nextRound = state.rounds.find((round) => round.status === "scheduled");
+  if (!nextRound) throw new Error("Ni naslednjega načrtovanega kroga.");
+  return touchTournament({
+    ...state,
+    phase: "preliminary",
+    rounds: state.rounds.map((round) => round.id === nextRound.id ? { ...round, status: "active" } : round),
   });
 };
 
@@ -587,11 +648,17 @@ const permutations = <T,>(items: T[]): T[][] => {
 };
 
 export const generateFinals = (state: TournamentState, seed = makeId("finale")) => {
-  if (state.rounds.length === 0 || state.rounds.some((round) => round.status !== "completed" || round.matches.some((match) => !match.locked))) {
+  const completedRounds = state.rounds.filter((round) => round.status === "completed");
+  if (
+    completedRounds.length === 0 ||
+    state.rounds.some((round) => round.status === "active") ||
+    completedRounds.some((round) => round.matches.some((match) => !match.locked))
+  ) {
     throw new Error("Pred zaključnim delom odigrajte in zaključite najmanj en predtekmovalni krog.");
   }
   if (state.finals) throw new Error("Zaključni del je že pripravljen.");
-  const rankings = calculateRankings(state);
+  const stateWithoutScheduledRounds = { ...state, rounds: completedRounds };
+  const rankings = calculateRankings(stateWithoutScheduledRounds);
   if (rankings.length < 12) throw new Error("Za zaključni del je potrebnih najmanj 12 uvrščenih igralcev.");
 
   const topTwelve = rankings.slice(0, 12);
@@ -661,7 +728,7 @@ export const generateFinals = (state: TournamentState, seed = makeId("finale")) 
   }));
 
   return touchTournament({
-    ...state,
+    ...stateWithoutScheduledRounds,
     phase: "finals",
     finals: { seed, teams, matches },
   });

@@ -32,10 +32,14 @@ import { useTournament } from "@/hooks/use-tournament";
 import {
   activePlayers,
   calculateRankings,
+  completePreliminaryRound,
+  generateInitialRounds,
   generatePreliminaryRound,
   generateFinals,
   getPlayerName,
   isValidCombinedScore,
+  MAX_INITIAL_ROUNDS,
+  startNextScheduledRound,
   syncFinalMatches,
   touchTournament,
   TournamentMatch,
@@ -162,6 +166,7 @@ const TurnirAdmin = () => {
   const [newPlayerIsFemale, setNewPlayerIsFemale] = useState(false);
   const [bulkNames, setBulkNames] = useState("");
   const [bulkPlayersAreFemale, setBulkPlayersAreFemale] = useState(false);
+  const [initialRoundCount, setInitialRoundCount] = useState(6);
   const [activeTab, setActiveTab] = useState("prijave");
   const [selectedRoundNumber, setSelectedRoundNumber] = useState<number | null>(null);
   const importInput = useRef<HTMLInputElement>(null);
@@ -170,11 +175,12 @@ const TurnirAdmin = () => {
   const activeFemaleCount = activePlayers(tournament).filter((player) => player.gender === "female").length;
   const activeMaleCount = activeCount - activeFemaleCount;
   const currentRound = tournament.rounds.find((round) => round.status === "active");
+  const nextScheduledRound = tournament.rounds.find((round) => round.status === "scheduled");
   const lastRound = tournament.rounds[tournament.rounds.length - 1];
   const displayedRound = tournament.rounds.find((round) => round.number === selectedRoundNumber) ?? currentRound ?? lastRound;
   const completedRounds = tournament.rounds.filter((round) => round.status === "completed").length;
   const rosterHasHistory = tournament.rounds.length > 0;
-  const availabilityLocked = Boolean(currentRound || tournament.finals);
+  const availabilityLocked = Boolean(currentRound || nextScheduledRound || tournament.finals);
 
   const updateState = (updater: (state: TournamentState) => TournamentState) => {
     setTournament((previous) => touchTournament(updater(previous)));
@@ -230,6 +236,29 @@ const TurnirAdmin = () => {
     }
   };
 
+  const drawInitialRounds = () => {
+    try {
+      setTournament((state) => generateInitialRounds(state, initialRoundCount));
+      setSelectedRoundNumber(1);
+      setActiveTab("krog");
+      toast.success(initialRoundCount === 1 ? "Prvi krog je izžreban." : `Izžrebanih je ${initialRoundCount} krogov.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Začetni žreb ni uspel.");
+    }
+  };
+
+  const startNextRound = () => {
+    if (!nextScheduledRound) return;
+    try {
+      setTournament((state) => startNextScheduledRound(state));
+      setSelectedRoundNumber(nextScheduledRound.number);
+      setActiveTab("krog");
+      toast.success(`${nextScheduledRound.number}. krog je v teku.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Kroga ni bilo mogoče začeti.");
+    }
+  };
+
   const updatePreliminaryScore = (matchId: string, side: "A" | "B", value: number | null) => {
     updateState((state) => ({
       ...state,
@@ -258,23 +287,18 @@ const TurnirAdmin = () => {
       toast.error("Najprej potrdite vse rezultate trenutnega kroga.");
       return;
     }
-    updateState((state) => ({
-      ...state,
-      rounds: state.rounds.map((round) => {
-        if (round.id === currentRound.id) return { ...round, status: "completed" };
-        // Backward compatibility for schedules created by the previous six-round version.
-        if (round.number === currentRound.number + 1 && round.status === "scheduled") return { ...round, status: "active" };
-        return round;
-      }),
-    }));
+    setTournament((state) => completePreliminaryRound(state, currentRound.id));
     setSelectedRoundNumber(currentRound.number);
     setActiveTab("lestvica");
     toast.success(`${currentRound.number}. krog je zaključen in lestvica posodobljena.`);
   };
 
   const createFinalStage = () => {
+    const scheduledWarning = nextScheduledRound
+      ? " Neodigrani načrtovani krogi bodo odstranjeni."
+      : "";
     if (!window.confirm(
-      "Ali ste prepričani, da želite zaključiti predtekmovanje in izžrebati zaključne ekipe? Po tem ne bo več mogoče dodajati novih krogov.",
+      `Ali ste prepričani, da želite zaključiti predtekmovanje in izžrebati zaključne ekipe? Po tem ne bo več mogoče dodajati novih krogov.${scheduledWarning}`,
     )) return;
     try {
       setTournament((state) => generateFinals(state));
@@ -451,8 +475,33 @@ const TurnirAdmin = () => {
                   <div className="rounded-lg border border-dashed py-12 text-center text-muted-foreground">Dodajte imena igralcev, da lahko pripravimo prvi žreb.</div>
                 )}
                 <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-                  <p className="text-sm text-muted-foreground">Vsak krog izžrebate posebej. Med krogi lahko spremenite aktivne igralce; pretekli krogi ostanejo nespremenjeni.</p>
-                  {!tournament.finals && <Button size="lg" disabled={activeCount < 6 || availabilityLocked} onClick={drawNextRound}><Shuffle size={18} /> Izžrebaj {tournament.rounds.length + 1}. krog</Button>}
+                  <p className="max-w-2xl text-sm text-muted-foreground">Na začetku lahko pripravite več krogov. Po vsakem zaključenem krogu izberete nadaljevanje ali zaključni del; ko zmanjka načrtovanih krogov, jih lahko dodajate po enega.</p>
+                  {!tournament.finals && tournament.rounds.length === 0 && (
+                    <div className="flex items-end gap-2">
+                      <div>
+                        <Label htmlFor="zacetno-stevilo-krogov">Število krogov</Label>
+                        <Input
+                          id="zacetno-stevilo-krogov"
+                          type="number"
+                          min={1}
+                          max={MAX_INITIAL_ROUNDS}
+                          value={initialRoundCount}
+                          onChange={(event) => setInitialRoundCount(Math.min(MAX_INITIAL_ROUNDS, Math.max(1, Number(event.target.value) || 1)))}
+                          className="mt-1 w-24"
+                        />
+                      </div>
+                      <Button size="lg" disabled={activeCount < 6} onClick={drawInitialRounds}><Shuffle size={18} /> {initialRoundCount === 1 ? "Izžrebaj 1. krog" : `Izžrebaj ${initialRoundCount} krogov`}</Button>
+                    </div>
+                  )}
+                  {!tournament.finals && !currentRound && nextScheduledRound && (
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="lg" variant="outline" onClick={startNextRound}><Shuffle size={18} /> Začni {nextScheduledRound.number}. krog</Button>
+                      <Button size="lg" onClick={createFinalStage}><Trophy size={18} /> Pripravi zaključni del</Button>
+                    </div>
+                  )}
+                  {!tournament.finals && !currentRound && !nextScheduledRound && tournament.rounds.length > 0 && (
+                    <Button size="lg" onClick={drawNextRound}><Shuffle size={18} /> Izžrebaj {tournament.rounds.length + 1}. krog</Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -488,7 +537,8 @@ const TurnirAdmin = () => {
                 </div>
                 <div className="flex flex-wrap justify-end gap-3">
                   {displayedRound.id === currentRound?.id && <Button size="lg" disabled={currentRound.matches.some((match) => !match.locked)} onClick={completeCurrentRound}><CheckCircle2 size={18} /> Zaključi {currentRound.number}. krog</Button>}
-                  {!currentRound && completedRounds > 0 && !tournament.finals && <Button size="lg" variant="outline" onClick={drawNextRound}><Shuffle size={18} /> Izžrebaj {tournament.rounds.length + 1}. krog</Button>}
+                  {!currentRound && nextScheduledRound && !tournament.finals && <Button size="lg" variant="outline" onClick={startNextRound}><Shuffle size={18} /> Začni {nextScheduledRound.number}. krog</Button>}
+                  {!currentRound && !nextScheduledRound && completedRounds > 0 && !tournament.finals && <Button size="lg" variant="outline" onClick={drawNextRound}><Shuffle size={18} /> Izžrebaj {tournament.rounds.length + 1}. krog</Button>}
                   {!currentRound && completedRounds > 0 && !tournament.finals && <Button size="lg" onClick={createFinalStage}><Trophy size={18} /> Pripravi zaključni del</Button>}
                 </div>
               </>
@@ -506,6 +556,21 @@ const TurnirAdmin = () => {
                 ) : <div className="py-14 text-center text-muted-foreground">Lestvica bo pripravljena po prvem potrjenem rezultatu.</div>}
               </CardContent>
             </Card>
+            {!currentRound && completedRounds > 0 && !tournament.finals && (
+              <Card className="mt-5 border-primary/30 bg-primary/[0.04]">
+                <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
+                  <div><p className="font-black">Kako želite nadaljevati?</p><p className="mt-1 text-sm text-muted-foreground">Začnite naslednji krog ali zaključite predtekmovanje.</p></div>
+                  <div className="flex flex-wrap gap-2">
+                    {nextScheduledRound ? (
+                      <Button variant="outline" onClick={startNextRound}><Shuffle size={18} /> Začni {nextScheduledRound.number}. krog</Button>
+                    ) : (
+                      <Button variant="outline" onClick={drawNextRound}><Shuffle size={18} /> Izžrebaj {tournament.rounds.length + 1}. krog</Button>
+                    )}
+                    <Button onClick={createFinalStage}><Trophy size={18} /> Pripravi zaključni del</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="finale" className="space-y-6">
@@ -520,7 +585,7 @@ const TurnirAdmin = () => {
                 {tournament.phase === "finished" && <Card className="border-primary bg-primary/5"><CardContent className="flex items-center gap-4 p-6"><Trophy className="text-primary" size={40} /><div><h2 className="text-2xl font-black">Turnir je zaključen</h2><p className="text-muted-foreground">Vsi rezultati so shranjeni. Prenesite končno varnostno kopijo.</p></div></CardContent></Card>}
               </>
             ) : (
-              <Card><CardContent className="py-14 text-center"><Trophy className="mx-auto mb-3 text-primary" size={40} /><h2 className="text-xl font-bold">Zaključni del še ni pripravljen</h2><p className="mx-auto mt-2 max-w-lg text-muted-foreground">Ko zmanjka časa za nove kroge, sistem najboljših 12 razdeli v štiri uravnotežene ekipe.</p>{!currentRound && completedRounds > 0 && <Button className="mt-5" onClick={createFinalStage}><Shuffle size={18} /> Izžrebaj zaključne ekipe</Button>}</CardContent></Card>
+              <Card><CardContent className="py-14 text-center"><Trophy className="mx-auto mb-3 text-primary" size={40} /><h2 className="text-xl font-bold">Zaključni del še ni pripravljen</h2><p className="mx-auto mt-2 max-w-lg text-muted-foreground">Po zaključenem krogu lahko sistem najboljših 12 razdeli v štiri uravnotežene ekipe. Neodigrani načrtovani krogi bodo odstranjeni.</p>{!currentRound && completedRounds > 0 && <Button className="mt-5" onClick={createFinalStage}><Shuffle size={18} /> Izžrebaj zaključne ekipe</Button>}</CardContent></Card>
             )}
           </TabsContent>
 

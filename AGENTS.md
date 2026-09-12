@@ -23,6 +23,8 @@ This file is the durable handoff for future coding agents. Keep it current when 
 - D1 is the sole authority. IndexedDB, localStorage, `BroadcastChannel`, and localhost-only organizer gating were deliberately removed. Do not restore them as persistence or authorization fallbacks.
 - Public clients fetch on initial load, every 15 seconds while visible, and when the window regains focus. They send the last ETag; unchanged data returns `304`. A publish-to-public delay of up to roughly 15 seconds is expected.
 - The admin client automatically publishes a quiet batch of changes after a 750 ms debounce. The UI reports loading/saving/saved/error state.
+- At the start, organizers can pre-draw 1–20 preliminary rounds. The first is active and the rest are scheduled. Completing a round does not automatically start the next one: the organizer can start the next scheduled round or finish early and generate finals, which removes unused scheduled rounds. After all pre-drawn rounds are completed, additional rounds can still be drawn one at a time.
+- Completing a preliminary round does not permanently lock its matches. Organizers can use “Popravi” to unlock a previous result, edit it, and confirm it again; rankings recalculate from confirmed results.
 - Updates use an integer revision. Stale writers receive `409 Conflict`; do not remove this optimistic-concurrency check.
 - Server-side timestamps and the authenticated Access email are recorded on writes.
 - The latest state is stored as one validated JSON document. D1 retains the latest 50 snapshots for recovery/auditing; there is currently no snapshot-restore UI.

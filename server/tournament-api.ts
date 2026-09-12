@@ -107,9 +107,6 @@ const tournamentSchema = z.object({
   };
 
   state.rounds.forEach((round, roundIndex) => {
-    if (round.status === "completed" && round.matches.some((match) => !match.locked)) {
-      context.addIssue({ code: z.ZodIssueCode.custom, message: "Completed rounds require confirmed matches.", path: ["rounds", roundIndex, "status"] });
-    }
     round.matches.forEach((match, matchIndex) => validateMatch(match, ["rounds", roundIndex, "matches", matchIndex]));
   });
   state.finals?.matches.forEach((match, matchIndex) => validateMatch(match, ["finals", "matches", matchIndex]));

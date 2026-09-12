@@ -1,8 +1,12 @@
 import {
   calculateRankings,
+  completePreliminaryRound,
   createDefaultTournament,
   generateFinals,
+  generateInitialRounds,
   generatePreliminaryRound,
+  MAX_INITIAL_ROUNDS,
+  startNextScheduledRound,
   TournamentRound,
   TournamentState,
 } from "../src/lib/tournament";
@@ -38,6 +42,21 @@ const createState = (playerCount: number, femaleCount = 0): TournamentState => (
   })),
 });
 
+const expectError = (operation: () => unknown, expectedMessage: string) => {
+  try {
+    operation();
+  } catch (error) {
+    if (error instanceof Error && error.message.includes(expectedMessage)) return;
+    throw error;
+  }
+  throw new Error(`Pričakovana napaka ni bila sprožena: ${expectedMessage}`);
+};
+
+const femaleCountsForTeams = (state: TournamentState, teams: Array<{ playerIds: string[] }>) => {
+  const femaleIds = new Set(state.players.filter((player) => player.gender === "female").map((player) => player.id));
+  return teams.map((team) => team.playerIds.filter((playerId) => femaleIds.has(playerId)).length);
+};
+
 const verifyRound = (round: TournamentRound, playerCount: number) => {
   const appearances = round.matches.flatMap((match) => [match.teamA, match.teamB])
     .flatMap((team) => team.playerIds.map((playerId) => ({
@@ -72,17 +91,13 @@ const verifyRound = (round: TournamentRound, playerCount: number) => {
 };
 
 const verifyGenderBalance = (state: TournamentState, round: TournamentRound) => {
-  const femaleIds = new Set(state.players.filter((player) => player.gender === "female").map((player) => player.id));
   const teams = round.matches.flatMap((match) => [match.teamA, match.teamB]);
-  const femaleAppearances = teams.reduce(
-    (count, team) => count + team.playerIds.filter((playerId) => femaleIds.has(playerId)).length,
-    0,
-  );
+  const femaleCounts = femaleCountsForTeams(state, teams);
+  const femaleAppearances = femaleCounts.reduce((sum, count) => sum + count, 0);
   const maximumPerTeam = femaleAppearances <= teams.length ? 1 : 2;
-  for (const match of round.matches) {
-    const countWomen = (playerIds: string[]) => playerIds.filter((playerId) => femaleIds.has(playerId)).length;
-    const first = countWomen(match.teamA.playerIds);
-    const second = countWomen(match.teamB.playerIds);
+  for (let index = 0; index < femaleCounts.length; index += 2) {
+    const first = femaleCounts[index];
+    const second = femaleCounts[index + 1];
     if (first > maximumPerTeam || second > maximumPerTeam || Math.abs(first - second) > 1) {
       throw new Error("Ženske niso pravilno razporejene med ekipe.");
     }
@@ -97,6 +112,14 @@ const completeRound = (state: TournamentState, scoreA = 9, scoreB = 6) => {
     match.locked = true;
   }
   round.status = "completed";
+};
+
+const enterRoundResults = (round: TournamentRound, scoreA = 9, scoreB = 6) => {
+  for (const match of round.matches) {
+    match.scoreA = scoreA;
+    match.scoreB = scoreB;
+    match.locked = true;
+  }
 };
 
 for (let playerCount = 30; playerCount <= 36; playerCount += 1) {
@@ -115,6 +138,92 @@ for (const [playerCount, femaleCount] of [[26, 7], [12, 5], [13, 9]] as const) {
     verifyRound(genderState.rounds[0], playerCount);
     verifyGenderBalance(genderState, genderState.rounds[0]);
   }
+}
+
+for (const [femaleCount, expectedPerTeam] of [[4, 1], [8, 2]] as const) {
+  const boundaryState = generatePreliminaryRound(createState(12, femaleCount), `boundary-${femaleCount}`);
+  const boundaryTeams = boundaryState.rounds[0].matches.flatMap((match) => [match.teamA, match.teamB]);
+  if (femaleCountsForTeams(boundaryState, boundaryTeams).some((count) => count !== expectedPerTeam)) {
+    throw new Error(`Mejna razporeditev za ${femaleCount} žensk ni pravilna.`);
+  }
+}
+
+expectError(
+  () => generatePreliminaryRound(createState(12, 9), "too-many-women"),
+  "največ dve ženski",
+);
+expectError(
+  () => generatePreliminaryRound(createState(7, 7), "not-enough-jokers"),
+  "Jokerjev ni mogoče izbrati",
+);
+
+let repeatedMixedState = createState(26, 7);
+for (let roundNumber = 1; roundNumber <= 8; roundNumber += 1) {
+  repeatedMixedState = generatePreliminaryRound(repeatedMixedState, `mixed-round-${roundNumber}`);
+  const round = repeatedMixedState.rounds[repeatedMixedState.rounds.length - 1];
+  verifyRound(round, 26);
+  verifyGenderBalance(repeatedMixedState, round);
+  completeRound(repeatedMixedState);
+}
+const repeatedMixedJokerCounts = calculateRankings(repeatedMixedState).map((row) => row.jokerAppearances);
+if (Math.max(...repeatedMixedJokerCounts) - Math.min(...repeatedMixedJokerCounts) > 1) {
+  throw new Error("Jokerji pri mešani zasedbi niso razporejeni dovolj enakomerno skozi več krogov.");
+}
+
+expectError(() => generateInitialRounds(createState(26, 7), 0, "zero-rounds"), "med 1 in");
+expectError(
+  () => generateInitialRounds(createState(26, 7), MAX_INITIAL_ROUNDS + 1, "too-many-rounds"),
+  "med 1 in",
+);
+
+let plannedState = generateInitialRounds(createState(26, 7), 3, "planned-rounds");
+if (
+  plannedState.rounds.length !== 3 ||
+  plannedState.rounds[0].status !== "active" ||
+  plannedState.rounds.slice(1).some((round) => round.status !== "scheduled")
+) {
+  throw new Error("Začetni paket krogov nima pravilnih statusov.");
+}
+for (const round of plannedState.rounds) {
+  verifyRound(round, 26);
+  verifyGenderBalance(plannedState, round);
+}
+expectError(() => generateInitialRounds(plannedState, 2, "duplicate-plan"), "samo pred prvim krogom");
+expectError(() => generatePreliminaryRound(plannedState, "blocked-extra-round"), "zaključite in potrdite");
+
+enterRoundResults(plannedState.rounds[0]);
+plannedState = completePreliminaryRound(plannedState, plannedState.rounds[0].id);
+if (plannedState.rounds.some((round) => round.status === "active")) {
+  throw new Error("Naslednji načrtovani krog se ne sme začeti brez izbire organizatorja.");
+}
+plannedState.rounds[0].matches[0].locked = false;
+if (!parseTournament(plannedState)) {
+  throw new Error("Zaključen krog mora ostati veljaven med popravljanjem odklenjenega rezultata.");
+}
+plannedState.rounds[0].matches[0].locked = true;
+const earlyFinalsState = generateFinals(plannedState, "early-finals");
+if (!earlyFinalsState.finals || earlyFinalsState.rounds.length !== 1 || earlyFinalsState.rounds[0].status !== "completed") {
+  throw new Error("Predčasen prehod v finale ni odstranil neodigranih načrtovanih krogov.");
+}
+
+let continuedPlanState = generateInitialRounds(createState(26, 7), 2, "continued-plan");
+enterRoundResults(continuedPlanState.rounds[0]);
+continuedPlanState = completePreliminaryRound(continuedPlanState, continuedPlanState.rounds[0].id);
+continuedPlanState = startNextScheduledRound(continuedPlanState);
+if (continuedPlanState.rounds[1].status !== "active") {
+  throw new Error("Naslednji načrtovani krog se ni pravilno začel.");
+}
+enterRoundResults(continuedPlanState.rounds[1]);
+continuedPlanState = completePreliminaryRound(continuedPlanState, continuedPlanState.rounds[1].id);
+continuedPlanState = generatePreliminaryRound(continuedPlanState, "one-extra-round");
+if (continuedPlanState.rounds.length !== 3 || continuedPlanState.rounds[2].status !== "active") {
+  throw new Error("Dodatni posamični krog po začetnem paketu ni bil ustvarjen.");
+}
+enterRoundResults(continuedPlanState.rounds[2]);
+continuedPlanState = completePreliminaryRound(continuedPlanState, continuedPlanState.rounds[2].id);
+continuedPlanState = generateFinals(continuedPlanState, "finals-after-extra-round");
+if (!continuedPlanState.finals || continuedPlanState.rounds.length !== 3) {
+  throw new Error("Prehod v finale po dodatnem posamičnem krogu ni uspel.");
 }
 
 let state = createState(33);
@@ -176,24 +285,33 @@ if (finalists.length !== 12 || new Set(finalists).size !== 12) {
 }
 
 
-let mixedFinalsState = createState(12, 5);
-mixedFinalsState = generatePreliminaryRound(mixedFinalsState, "mixed-finals-round");
-verifyGenderBalance(mixedFinalsState, mixedFinalsState.rounds[0]);
-completeRound(mixedFinalsState);
-mixedFinalsState = generateFinals(mixedFinalsState, "mixed-finals");
-const mixedFinalTeams = mixedFinalsState.finals?.teams ?? [];
-const mixedFinalFemaleIds = new Set(mixedFinalsState.players.filter((player) => player.gender === "female").map((player) => player.id));
-const mixedFinalFemaleCounts = mixedFinalTeams.map(
-  (team) => team.playerIds.filter((playerId) => mixedFinalFemaleIds.has(playerId)).length,
-);
-if (mixedFinalFemaleCounts.some((count) => count < 1 || count > 2)) {
-  throw new Error("Ženske niso pravilno razporejene v zaključnih ekipah.");
+for (const femaleCount of [0, 4, 5, 8]) {
+  let mixedFinalsState = createState(12, femaleCount);
+  mixedFinalsState = generatePreliminaryRound(mixedFinalsState, `finals-round-${femaleCount}`);
+  verifyGenderBalance(mixedFinalsState, mixedFinalsState.rounds[0]);
+  completeRound(mixedFinalsState);
+  mixedFinalsState = generateFinals(mixedFinalsState, `finals-${femaleCount}`);
+  const mixedFinalTeams = mixedFinalsState.finals?.teams ?? [];
+  const mixedFinalFemaleCounts = femaleCountsForTeams(mixedFinalsState, mixedFinalTeams);
+  const expectedMinimum = femaleCount > 4 ? 1 : 0;
+  const expectedMaximum = femaleCount <= 4 ? 1 : 2;
+  if (
+    mixedFinalFemaleCounts.reduce((sum, count) => sum + count, 0) !== femaleCount ||
+    mixedFinalFemaleCounts.some((count) => count < expectedMinimum || count > expectedMaximum)
+  ) {
+    throw new Error(`Ženske niso pravilno razporejene v zaključnih ekipah pri številu ${femaleCount}.`);
+  }
+  for (const match of mixedFinalsState.finals?.matches ?? []) {
+    const [first, second] = femaleCountsForTeams(mixedFinalsState, [match.teamA, match.teamB]);
+    if (Math.abs(first - second) > 1) throw new Error("Zaključna tekma ima nedovoljeno razliko med spoloma.");
+  }
 }
-for (const match of mixedFinalsState.finals?.matches ?? []) {
-  const first = match.teamA.playerIds.filter((playerId) => mixedFinalFemaleIds.has(playerId)).length;
-  const second = match.teamB.playerIds.filter((playerId) => mixedFinalFemaleIds.has(playerId)).length;
-  if (Math.abs(first - second) > 1) throw new Error("Zaključna tekma ima nedovoljeno razliko med spoloma.");
-}
+
+let impossibleFinalsState = createState(12, 8);
+impossibleFinalsState = generatePreliminaryRound(impossibleFinalsState, "impossible-finals-round");
+completeRound(impossibleFinalsState);
+impossibleFinalsState.players[8].gender = "female";
+expectError(() => generateFinals(impossibleFinalsState, "impossible-finals"), "največ dve ženski");
 
 const repeatTeammatePairs = [...teammateCounts.values()].filter((count) => count > 1).length;
 const highestRepeat = Math.max(...teammateCounts.values());
