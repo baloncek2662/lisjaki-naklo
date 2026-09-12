@@ -226,6 +226,67 @@ if (!continuedPlanState.finals || continuedPlanState.rounds.length !== 3) {
   throw new Error("Prehod v finale po dodatnem posamičnem krogu ni uspel.");
 }
 
+let thirtyOnePlayerState = generateInitialRounds(createState(31, 8), 8, "thirty-one-player-plan");
+if (
+  thirtyOnePlayerState.rounds.length !== 8 ||
+  thirtyOnePlayerState.rounds[0].status !== "active" ||
+  thirtyOnePlayerState.rounds.slice(1).some((round) => round.status !== "scheduled")
+) {
+  throw new Error("Začetni žreb osmih krogov za 31 igralcev nima pravilnih statusov.");
+}
+
+for (let roundIndex = 0; roundIndex < 8; roundIndex += 1) {
+  const round = thirtyOnePlayerState.rounds[roundIndex];
+  if (round.status !== "active") throw new Error(`${roundIndex + 1}. krog za 31 igralcev ni aktiven.`);
+  verifyRound(round, 31);
+  verifyGenderBalance(thirtyOnePlayerState, round);
+  const jokerAppearances = round.matches
+    .flatMap((match) => [match.teamA, match.teamB])
+    .reduce((sum, team) => sum + (team.jokerPlayerIds?.length ?? 0), 0);
+  if (jokerAppearances !== 5) throw new Error(`${roundIndex + 1}. krog nima natanko petih jokerjev.`);
+
+  enterRoundResults(round, roundIndex % 2 === 0 ? 9 : 7, roundIndex % 2 === 0 ? 6 : 8);
+  thirtyOnePlayerState = completePreliminaryRound(thirtyOnePlayerState, round.id);
+  if (roundIndex < 7) thirtyOnePlayerState = startNextScheduledRound(thirtyOnePlayerState);
+}
+
+const thirtyOnePlayerRankings = calculateRankings(thirtyOnePlayerState);
+if (
+  thirtyOnePlayerRankings.length !== 31 ||
+  thirtyOnePlayerRankings.some((row) => row.matches !== 8) ||
+  thirtyOnePlayerRankings.reduce((sum, row) => sum + row.jokerAppearances, 0) !== 40
+) {
+  throw new Error("Osem krogov za 31 igralcev nima pravilnega števila uradnih nastopov ali jokerjev.");
+}
+const thirtyOneJokerCounts = thirtyOnePlayerRankings.map((row) => row.jokerAppearances);
+if (Math.max(...thirtyOneJokerCounts) - Math.min(...thirtyOneJokerCounts) > 1) {
+  throw new Error("Pet jokerjev na krog ni enakomerno razporejenih med 31 igralcev.");
+}
+
+thirtyOnePlayerState = generateFinals(thirtyOnePlayerState, "thirty-one-player-finals");
+const thirtyOneFinalTeams = thirtyOnePlayerState.finals?.teams ?? [];
+const thirtyOneFinalists = thirtyOneFinalTeams.flatMap((team) => team.playerIds);
+const thirtyOneFemaleFinalists = femaleCountsForTeams(thirtyOnePlayerState, thirtyOneFinalTeams);
+const thirtyOneFemaleFinalistCount = thirtyOneFemaleFinalists.reduce((sum, count) => sum + count, 0);
+const thirtyOneFinalMinimum = thirtyOneFemaleFinalistCount > 4 ? 1 : 0;
+const thirtyOneFinalMaximum = thirtyOneFemaleFinalistCount <= 4 ? 1 : 2;
+if (
+  thirtyOneFinalTeams.length !== 4 ||
+  thirtyOnePlayerState.finals?.matches.length !== 2 ||
+  thirtyOneFinalists.length !== 12 ||
+  new Set(thirtyOneFinalists).size !== 12 ||
+  thirtyOneFemaleFinalists.some((count) => count < thirtyOneFinalMinimum || count > thirtyOneFinalMaximum)
+) {
+  throw new Error("Zaključni žreb po osmih krogih za 31 igralcev ni veljaven.");
+}
+for (const semifinal of thirtyOnePlayerState.finals?.matches ?? []) {
+  const [first, second] = femaleCountsForTeams(thirtyOnePlayerState, [semifinal.teamA, semifinal.teamB]);
+  if (Math.abs(first - second) > 1) throw new Error("Polfinale za 31 igralcev nima uravnoteženega spola.");
+}
+if (!parseTournament(thirtyOnePlayerState)) {
+  throw new Error("Končno stanje testa z 31 igralci ni prestalo strežniške validacije.");
+}
+
 let state = createState(33);
 const teammateCounts = new Map<string, number>();
 const firstRoundTeams: string[] = [];
@@ -326,4 +387,11 @@ console.log(JSON.stringify({
   repeatTeammatePairs,
   highestRepeat,
   pastRoundTeamsPreserved: true,
+  thirtyOnePlayerScenario: {
+    rounds: thirtyOnePlayerState.rounds.length,
+    jokers: thirtyOnePlayerRankings.reduce((sum, row) => sum + row.jokerAppearances, 0),
+    finalists: thirtyOneFinalists.length,
+    femaleFinalists: thirtyOneFemaleFinalistCount,
+    womenPerFinalTeam: thirtyOneFemaleFinalists,
+  },
 }, null, 2));
