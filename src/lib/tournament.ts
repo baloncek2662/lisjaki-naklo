@@ -18,6 +18,11 @@ export interface TournamentTeam {
   jokerPlayerIds?: string[];
 }
 
+export interface TournamentSetScore {
+  scoreA: number | null;
+  scoreB: number | null;
+}
+
 export interface TournamentMatch {
   id: string;
   phase: MatchPhase;
@@ -28,6 +33,7 @@ export interface TournamentMatch {
   teamB: TournamentTeam;
   scoreA: number | null;
   scoreB: number | null;
+  setScores?: TournamentSetScore[];
   locked: boolean;
 }
 
@@ -74,6 +80,7 @@ export interface PlayerRanking {
 
 const FINAL_TEAM_LABELS = ["Ekipa A", "Ekipa B", "Ekipa C", "Ekipa D"];
 export const MAX_INITIAL_ROUNDS = 20;
+export const FINAL_WINNING_SCORE = 21;
 
 const makeId = (prefix: string) => {
   const random = typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -117,6 +124,59 @@ export const isValidCombinedScore = (
   (scoreA as number) >= 0 &&
   (scoreB as number) >= 0 &&
   (scoreA as number) + (scoreB as number) === target;
+
+export const isValidFinalScore = (
+  scoreA: number | null,
+  scoreB: number | null,
+  winningScore = FINAL_WINNING_SCORE,
+) => {
+  if (
+    !Number.isInteger(scoreA) ||
+    !Number.isInteger(scoreB) ||
+    (scoreA as number) < 0 ||
+    (scoreB as number) < 0 ||
+    scoreA === scoreB
+  ) return false;
+  const winner = Math.max(scoreA as number, scoreB as number);
+  const loser = Math.min(scoreA as number, scoreB as number);
+  return winner === winningScore
+    ? loser <= winningScore - 2
+    : winner > winningScore && winner - loser === 2;
+};
+
+export const getSemifinalResult = (setScores: TournamentSetScore[] | undefined) => {
+  let winsA = 0;
+  let winsB = 0;
+  let completedSets = 0;
+  let reachedEmptySet = false;
+  let valid = Boolean(setScores && setScores.length <= 3);
+
+  for (const set of setScores ?? []) {
+    const empty = set.scoreA === null && set.scoreB === null;
+    if (empty) {
+      reachedEmptySet = true;
+      continue;
+    }
+    if (
+      reachedEmptySet ||
+      winsA === 2 ||
+      winsB === 2 ||
+      !isValidFinalScore(set.scoreA, set.scoreB)
+    ) {
+      valid = false;
+      continue;
+    }
+    completedSets += 1;
+    if ((set.scoreA as number) > (set.scoreB as number)) winsA += 1;
+    else winsB += 1;
+  }
+
+  valid = valid && completedSets >= 2 && completedSets <= 3 && (winsA === 2 || winsB === 2);
+  return { valid, winsA, winsB, completedSets };
+};
+
+export const isValidSemifinalScore = (setScores: TournamentSetScore[] | undefined) =>
+  getSemifinalResult(setScores).valid;
 
 const hashString = (value: string) => {
   let hash = 2166136261;
@@ -724,6 +784,7 @@ export const generateFinals = (state: TournamentState, seed = makeId("finale")) 
     teamB: semifinalOrder[index * 2 + 1],
     scoreA: null,
     scoreB: null,
+    setScores: Array.from({ length: 3 }, () => ({ scoreA: null, scoreB: null })),
     locked: false,
   }));
 
@@ -735,8 +796,10 @@ export const generateFinals = (state: TournamentState, seed = makeId("finale")) 
 };
 
 const winningAndLosingTeam = (match: TournamentMatch) => {
-  if (!match.locked || match.scoreA === null || match.scoreB === null) return null;
-  return match.scoreA > match.scoreB
+  if (!match.locked || match.phase !== "semifinal") return null;
+  const result = getSemifinalResult(match.setScores);
+  if (!result.valid) return null;
+  return result.winsA > result.winsB
     ? { winner: match.teamA, loser: match.teamB }
     : { winner: match.teamB, loser: match.teamA };
 };

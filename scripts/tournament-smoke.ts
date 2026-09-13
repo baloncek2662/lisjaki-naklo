@@ -5,8 +5,12 @@ import {
   generateFinals,
   generateInitialRounds,
   generatePreliminaryRound,
+  getSemifinalResult,
+  isValidFinalScore,
+  isValidSemifinalScore,
   MAX_INITIAL_ROUNDS,
   startNextScheduledRound,
+  syncFinalMatches,
   TournamentRound,
   TournamentState,
 } from "../src/lib/tournament";
@@ -28,6 +32,54 @@ if (parsedLegacyTournament?.players[0].gender !== "male" || parseTournament({
 }
 if (tournamentEtag(12) !== '"tournament-12"') {
   throw new Error("Revizijska oznaka turnirja ni pravilno ustvarjena.");
+}
+if (
+  !isValidFinalScore(21, 0) ||
+  !isValidFinalScore(21, 19) ||
+  !isValidFinalScore(20, 22) ||
+  !isValidFinalScore(23, 21) ||
+  isValidFinalScore(null, 21) ||
+  isValidFinalScore(20, 18) ||
+  isValidFinalScore(21, 20) ||
+  isValidFinalScore(22, 19) ||
+  isValidFinalScore(25, 2) ||
+  isValidFinalScore(21, 21)
+) {
+  throw new Error("Pravilo zaključne tekme do 21 z dvema točkama razlike ni pravilno.");
+}
+const twoSetSemifinal = [
+  { scoreA: 21, scoreB: 19 },
+  { scoreA: 22, scoreB: 20 },
+  { scoreA: null, scoreB: null },
+];
+const threeSetSemifinal = [
+  { scoreA: 21, scoreB: 18 },
+  { scoreA: 19, scoreB: 21 },
+  { scoreA: 21, scoreB: 23 },
+];
+const threeSetResult = getSemifinalResult(threeSetSemifinal);
+if (
+  !isValidSemifinalScore(twoSetSemifinal) ||
+  !isValidSemifinalScore(threeSetSemifinal) ||
+  threeSetResult.winsA !== 1 ||
+  threeSetResult.winsB !== 2 ||
+  isValidSemifinalScore([{ scoreA: 21, scoreB: 19 }]) ||
+  isValidSemifinalScore([
+    { scoreA: 21, scoreB: 19 },
+    { scoreA: 19, scoreB: 21 },
+    { scoreA: null, scoreB: null },
+  ]) ||
+  isValidSemifinalScore([
+    { scoreA: 21, scoreB: 20 },
+    { scoreA: 21, scoreB: 19 },
+  ]) ||
+  isValidSemifinalScore([
+    { scoreA: 21, scoreB: 19 },
+    { scoreA: 21, scoreB: 18 },
+    { scoreA: 21, scoreB: 17 },
+  ])
+) {
+  throw new Error("Polfinale na dva dobljena niza ni pravilno preverjen.");
 }
 
 const createState = (playerCount: number, femaleCount = 0): TournamentState => ({
@@ -285,6 +337,50 @@ for (const semifinal of thirtyOnePlayerState.finals?.matches ?? []) {
 }
 if (!parseTournament(thirtyOnePlayerState)) {
   throw new Error("Končno stanje testa z 31 igralci ni prestalo strežniške validacije.");
+}
+
+const invalidFinalScoreState = structuredClone(thirtyOnePlayerState);
+const invalidSemifinal = invalidFinalScoreState.finals?.matches.find((match) => match.phase === "semifinal");
+if (!invalidSemifinal) throw new Error("Manjka polfinale za preverjanje neveljavnega rezultata.");
+invalidSemifinal.setScores = [
+  { scoreA: 21, scoreB: 20 },
+  { scoreA: 21, scoreB: 19 },
+  { scoreA: null, scoreB: null },
+];
+invalidSemifinal.locked = true;
+const otherInvalidStateSemifinal = invalidFinalScoreState.finals?.matches.find(
+  (match) => match.phase === "semifinal" && match.id !== invalidSemifinal.id,
+);
+if (!otherInvalidStateSemifinal) throw new Error("Manjka drugi polfinale za preverjanje napredovanja.");
+Object.assign(otherInvalidStateSemifinal, { setScores: twoSetSemifinal, locked: true });
+if (parseTournament(invalidFinalScoreState)) {
+  throw new Error("Strežnik je sprejel potrjen zaključni rezultat brez dveh točk razlike.");
+}
+if (syncFinalMatches(invalidFinalScoreState).finals?.matches.some((match) => match.phase === "final")) {
+  throw new Error("Neveljaven polfinalni rezultat je ustvaril finalno tekmo.");
+}
+
+const thirtyOneSemifinals = thirtyOnePlayerState.finals?.matches.filter((match) => match.phase === "semifinal") ?? [];
+if (thirtyOneSemifinals.length !== 2) throw new Error("Za test napredovanja morata obstajati dva polfinala.");
+const expectedFinalists = [thirtyOneSemifinals[0].teamA.id, thirtyOneSemifinals[1].teamB.id].sort();
+const expectedBronzeTeams = [thirtyOneSemifinals[0].teamB.id, thirtyOneSemifinals[1].teamA.id].sort();
+Object.assign(thirtyOneSemifinals[0], { setScores: twoSetSemifinal, locked: true });
+Object.assign(thirtyOneSemifinals[1], { setScores: threeSetSemifinal, locked: true });
+thirtyOnePlayerState = syncFinalMatches(thirtyOnePlayerState);
+const thirtyOneFinal = thirtyOnePlayerState.finals?.matches.find((match) => match.phase === "final");
+const thirtyOneBronze = thirtyOnePlayerState.finals?.matches.find((match) => match.phase === "bronze");
+if (
+  !thirtyOneFinal ||
+  !thirtyOneBronze ||
+  JSON.stringify([thirtyOneFinal.teamA.id, thirtyOneFinal.teamB.id].sort()) !== JSON.stringify(expectedFinalists) ||
+  JSON.stringify([thirtyOneBronze.teamA.id, thirtyOneBronze.teamB.id].sort()) !== JSON.stringify(expectedBronzeTeams)
+) {
+  throw new Error("Zmagovalca polfinalov oziroma poraženca nista napredovala v pravilni tekmi.");
+}
+Object.assign(thirtyOneBronze, { scoreA: 21, scoreB: 10, locked: true });
+Object.assign(thirtyOneFinal, { scoreA: 23, scoreB: 21, locked: true });
+if (!parseTournament(thirtyOnePlayerState)) {
+  throw new Error("Veljavni zaključni rezultati do 21 niso prestali strežniške validacije.");
 }
 
 let state = createState(33);

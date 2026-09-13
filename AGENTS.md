@@ -25,6 +25,7 @@ This file is the durable handoff for future coding agents. Keep it current when 
 - The admin client automatically publishes a quiet batch of changes after a 750 ms debounce. The UI reports loading/saving/saved/error state.
 - At the start, organizers can pre-draw 1–20 preliminary rounds. The first is active and the rest are scheduled. Completing a round does not automatically start the next one: the organizer can start the next scheduled round or finish early and generate finals, which removes unused scheduled rounds. After all pre-drawn rounds are completed, additional rounds can still be drawn one at a time.
 - Completing a preliminary round does not permanently lock its matches. Organizers can use “Popravi” to unlock a previous result, edit it, and confirm it again; rankings recalculate from confirmed results.
+- Preliminary matches still require a combined score of 15. Semifinals are best-of-three (first to two sets); every set, including a deciding third set, is played to at least 21 and must be won by two points. The bronze match and final are each one set under the same 21-point rule. Only the winning team advances from each semifinal.
 - Updates use an integer revision. Stale writers receive `409 Conflict`; do not remove this optimistic-concurrency check.
 - Server-side timestamps and the authenticated Access email are recorded on writes.
 - The latest state is stored as one validated JSON document. D1 retains the latest 50 snapshots for recovery/auditing; there is currently no snapshot-restore UI.

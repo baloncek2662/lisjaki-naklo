@@ -37,7 +37,10 @@ import {
   generatePreliminaryRound,
   generateFinals,
   getPlayerName,
+  getSemifinalResult,
+  isValidFinalScore,
   isValidCombinedScore,
+  isValidSemifinalScore,
   MAX_INITIAL_ROUNDS,
   startNextScheduledRound,
   syncFinalMatches,
@@ -86,17 +89,42 @@ const phaseMatchLabels = {
 interface MatchEditorProps {
   match: TournamentMatch;
   state: TournamentState;
-  onScore: (matchId: string, side: "A" | "B", value: number | null) => void;
+  onScore: (matchId: string, side: "A" | "B", value: number | null, setIndex?: number) => void;
   onLock: (matchId: string) => void;
   onUnlock: (matchId: string) => void;
   editable?: boolean;
 }
 
 const MatchEditor = ({ match, state, onScore, onLock, onUnlock, editable = true }: MatchEditorProps) => {
-  const valid = isValidCombinedScore(match.scoreA, match.scoreB, state.targetCombinedScore);
+  const preliminary = match.phase === "preliminary";
+  const semifinal = match.phase === "semifinal";
+  const valid = preliminary
+    ? isValidCombinedScore(match.scoreA, match.scoreB, state.targetCombinedScore)
+    : semifinal
+      ? isValidSemifinalScore(match.setScores)
+      : isValidFinalScore(match.scoreA, match.scoreB);
+  const semifinalSets = match.setScores ?? Array.from({ length: 3 }, () => ({ scoreA: null, scoreB: null }));
+  const semifinalResult = getSemifinalResult(semifinalSets);
   const teamNames = (team: TournamentMatch["teamA"]) => team.playerIds
     .map((id) => `${getPlayerName(state, id)}${team.jokerPlayerIds?.includes(id) ? " (joker)" : ""}`)
     .join(" · ");
+  const scoreHint = !editable
+    ? "Rezultat bo mogoče vnesti, ko bo ta krog na vrsti."
+    : match.locked
+      ? semifinal
+        ? `Rezultat je shranjen (${semifinalResult.winsA} : ${semifinalResult.winsB} v nizih).`
+        : "Rezultat je varno shranjen."
+      : valid
+        ? preliminary
+          ? "Vsota je 15 – rezultat je pripravljen."
+          : semifinal
+            ? "Ekipa je dobila dva niza – rezultat je pripravljen."
+            : "Doseženih je najmanj 21 točk z dvema točkama prednosti."
+        : preliminary
+          ? "Rezultata morata imeti skupno 15 točk."
+          : semifinal
+            ? "Polfinale se igra na dva dobljena niza; vsak niz je do najmanj 21 z dvema točkama razlike."
+            : "Igra se do najmanj 21 z dvema točkama razlike.";
 
   return (
     <Card className={match.locked ? "border-emerald-200 bg-emerald-50/40" : "border-border"}>
@@ -115,29 +143,70 @@ const MatchEditor = ({ match, state, onScore, onLock, onUnlock, editable = true 
             <p className="font-black">{match.teamA.label}</p>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{teamNames(match.teamA)}</p>
           </div>
-          <div className="flex items-center justify-center gap-2">
-            <Input
-              aria-label={`Rezultat ${match.teamA.label}`}
-              type="number"
-              min={0}
-              max={15}
-              value={match.scoreA ?? ""}
-              disabled={match.locked || !editable}
-              onChange={(event) => onScore(match.id, "A", event.target.value === "" ? null : Number(event.target.value))}
-              className="h-14 w-20 text-center text-2xl font-black"
-            />
-            <span className="text-xl font-black text-muted-foreground">:</span>
-            <Input
-              aria-label={`Rezultat ${match.teamB.label}`}
-              type="number"
-              min={0}
-              max={15}
-              value={match.scoreB ?? ""}
-              disabled={match.locked || !editable}
-              onChange={(event) => onScore(match.id, "B", event.target.value === "" ? null : Number(event.target.value))}
-              className="h-14 w-20 text-center text-2xl font-black"
-            />
-          </div>
+          {semifinal ? (
+            <div className="grid gap-2">
+              {semifinalSets.map((set, setIndex) => (
+                <div key={setIndex} className="grid grid-cols-[3.5rem_4.5rem_auto_4.5rem] items-center gap-2">
+                  <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Niz {setIndex + 1}</span>
+                  <Input
+                    aria-label={`${setIndex + 1}. niz, rezultat ${match.teamA.label}`}
+                    type="number"
+                    min={0}
+                    max={999}
+                    value={set.scoreA ?? ""}
+                    disabled={match.locked || !editable}
+                    onChange={(event) => onScore(
+                      match.id,
+                      "A",
+                      event.target.value === "" ? null : Number(event.target.value),
+                      setIndex,
+                    )}
+                    className="h-11 text-center text-lg font-black"
+                  />
+                  <span className="font-black text-muted-foreground">:</span>
+                  <Input
+                    aria-label={`${setIndex + 1}. niz, rezultat ${match.teamB.label}`}
+                    type="number"
+                    min={0}
+                    max={999}
+                    value={set.scoreB ?? ""}
+                    disabled={match.locked || !editable}
+                    onChange={(event) => onScore(
+                      match.id,
+                      "B",
+                      event.target.value === "" ? null : Number(event.target.value),
+                      setIndex,
+                    )}
+                    className="h-11 text-center text-lg font-black"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex items-center justify-center gap-2">
+              <Input
+                aria-label={`Rezultat ${match.teamA.label}`}
+                type="number"
+                min={0}
+                max={preliminary ? state.targetCombinedScore : 999}
+                value={match.scoreA ?? ""}
+                disabled={match.locked || !editable}
+                onChange={(event) => onScore(match.id, "A", event.target.value === "" ? null : Number(event.target.value))}
+                className="h-14 w-20 text-center text-2xl font-black"
+              />
+              <span className="text-xl font-black text-muted-foreground">:</span>
+              <Input
+                aria-label={`Rezultat ${match.teamB.label}`}
+                type="number"
+                min={0}
+                max={preliminary ? state.targetCombinedScore : 999}
+                value={match.scoreB ?? ""}
+                disabled={match.locked || !editable}
+                onChange={(event) => onScore(match.id, "B", event.target.value === "" ? null : Number(event.target.value))}
+                className="h-14 w-20 text-center text-2xl font-black"
+              />
+            </div>
+          )}
           <div className="sm:text-right">
             <p className="font-black">{match.teamB.label}</p>
             <p className="mt-1 text-sm leading-relaxed text-muted-foreground">{teamNames(match.teamB)}</p>
@@ -145,7 +214,7 @@ const MatchEditor = ({ match, state, onScore, onLock, onUnlock, editable = true 
         </div>
         <div className="mt-5 flex items-center justify-between gap-3 border-t pt-4">
           <p className={`text-xs font-medium ${!editable || valid || match.locked ? "text-muted-foreground" : "text-destructive"}`}>
-            {!editable ? "Rezultat bo mogoče vnesti, ko bo ta krog na vrsti." : match.locked ? "Rezultat je varno shranjen." : valid ? "Vsota je 15 – rezultat je pripravljen." : "Rezultata morata imeti skupno 15 točk."}
+            {scoreHint}
           </p>
           {!editable ? (
             <Badge variant="outline">Načrtovano</Badge>
@@ -309,14 +378,25 @@ const TurnirAdmin = () => {
     }
   };
 
-  const updateFinalScore = (matchId: string, side: "A" | "B", value: number | null) => {
+  const updateFinalScore = (matchId: string, side: "A" | "B", value: number | null, setIndex?: number) => {
     updateState((state) => ({
       ...state,
       finals: state.finals ? {
         ...state.finals,
-        matches: state.finals.matches.map((match) => match.id === matchId
-          ? { ...match, [side === "A" ? "scoreA" : "scoreB"]: value }
-          : match),
+        matches: state.finals.matches.map((match) => {
+          if (match.id !== matchId) return match;
+          if (match.phase !== "semifinal" || setIndex === undefined) {
+            return { ...match, [side === "A" ? "scoreA" : "scoreB"]: value };
+          }
+          const setScores = match.setScores
+            ? match.setScores.map((set) => ({ ...set }))
+            : Array.from({ length: 3 }, () => ({ scoreA: null, scoreB: null }));
+          setScores[setIndex] = {
+            ...setScores[setIndex],
+            [side === "A" ? "scoreA" : "scoreB"]: value,
+          };
+          return { ...match, scoreA: null, scoreB: null, setScores };
+        }),
       } : null,
     }));
   };

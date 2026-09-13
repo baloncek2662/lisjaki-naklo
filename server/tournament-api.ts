@@ -1,5 +1,10 @@
 import { z } from "zod";
-import type { TournamentState } from "../src/lib/tournament";
+import {
+  isValidCombinedScore,
+  isValidFinalScore,
+  isValidSemifinalScore,
+  type TournamentState,
+} from "../src/lib/tournament";
 
 export interface TournamentEnv {
   TOURNAMENT_DB: D1Database;
@@ -20,7 +25,11 @@ interface TournamentRow {
 
 const identifier = z.string().min(1).max(200);
 const timestamp = z.string().datetime({ offset: true });
-const score = z.number().int().min(0).max(15).nullable();
+const score = z.number().int().min(0).max(999).nullable();
+const setScoreSchema = z.object({
+  scoreA: score,
+  scoreB: score,
+}).strict();
 
 const playerSchema = z.object({
   id: identifier,
@@ -48,6 +57,7 @@ const matchSchema = z.object({
   teamB: teamSchema,
   scoreA: score,
   scoreB: score,
+  setScores: z.array(setScoreSchema).max(3).optional(),
   locked: z.boolean(),
 }).strict();
 
@@ -101,8 +111,27 @@ const tournamentSchema = z.object({
         context.addIssue({ code: z.ZodIssueCode.custom, message: "Jokers must belong to their team.", path: [...path, key, "jokerPlayerIds"] });
       }
     }
-    if (match.locked && (match.scoreA === null || match.scoreB === null || match.scoreA + match.scoreB !== state.targetCombinedScore)) {
-      context.addIssue({ code: z.ZodIssueCode.custom, message: "A confirmed score must total 15.", path: [...path, "locked"] });
+    if (match.phase === "preliminary" && (
+      (match.scoreA !== null && match.scoreA > state.targetCombinedScore) ||
+      (match.scoreB !== null && match.scoreB > state.targetCombinedScore)
+    )) {
+      context.addIssue({ code: z.ZodIssueCode.custom, message: "A preliminary score cannot exceed 15.", path });
+    }
+    const validLockedScore = match.phase === "preliminary"
+      ? isValidCombinedScore(match.scoreA, match.scoreB, state.targetCombinedScore)
+      : match.phase === "semifinal"
+        ? isValidSemifinalScore(match.setScores)
+        : isValidFinalScore(match.scoreA, match.scoreB);
+    if (match.locked && !validLockedScore) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: match.phase === "preliminary"
+          ? "A confirmed preliminary score must total 15."
+          : match.phase === "semifinal"
+            ? "A confirmed semifinal must be won in two valid sets."
+            : "A confirmed finals score must be won at 21 or later by two points.",
+        path: [...path, "locked"],
+      });
     }
   };
 

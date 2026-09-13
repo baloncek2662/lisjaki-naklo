@@ -9,6 +9,7 @@ import { useTournament } from "@/hooks/use-tournament";
 import {
   calculateRankings,
   getPlayerName,
+  getSemifinalResult,
   getTournamentProgress,
   TournamentMatch,
   TournamentTeam,
@@ -37,20 +38,36 @@ const TeamPlayers = ({ team, names }: { team: TournamentTeam; names: (id: string
   </div>
 );
 
+const MatchScore = ({ match }: { match: TournamentMatch }) => {
+  if (!match.locked) {
+    return <span className="text-sm font-semibold uppercase tracking-wider opacity-70">še ni rezultata</span>;
+  }
+  if (match.phase !== "semifinal") {
+    return <><span>{match.scoreA}</span><span className="opacity-40">:</span><span>{match.scoreB}</span></>;
+  }
+
+  const result = getSemifinalResult(match.setScores);
+  const sets = match.setScores?.filter((set) => set.scoreA !== null && set.scoreB !== null) ?? [];
+  return (
+    <div className="text-center">
+      <div>{result.winsA}<span className="mx-2 opacity-40">:</span>{result.winsB}</div>
+      <div className="mt-1 whitespace-nowrap text-xs font-semibold opacity-70">
+        {sets.map((set) => `${set.scoreA}:${set.scoreB}`).join(" · ")}
+      </div>
+    </div>
+  );
+};
+
 const PublicMatch = ({ match, names }: { match: TournamentMatch; names: (id: string) => string }) => (
   <Card className="overflow-hidden border-border/80 shadow-sm">
     <div className="flex items-center justify-between border-b bg-muted/40 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-      <span>{matchPhaseLabel[match.phase]}</span>
+      <span>{matchPhaseLabel[match.phase]}{match.phase === "semifinal" ? " · na dva dobljena niza" : ""}</span>
       <span>Termin {match.wave} · Igrišče {match.court}</span>
     </div>
     <CardContent className="grid gap-4 p-4 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
       <TeamPlayers team={match.teamA} names={names} />
       <div className="flex min-w-24 items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-3 text-2xl font-black text-background">
-        {match.locked ? (
-          <><span>{match.scoreA}</span><span className="opacity-40">:</span><span>{match.scoreB}</span></>
-        ) : (
-          <span className="text-sm font-semibold uppercase tracking-wider opacity-70">še ni rezultata</span>
-        )}
+        <MatchScore match={match} />
       </div>
       <div className="sm:text-right">
         <TeamPlayers team={match.teamB} names={names} />
@@ -96,7 +113,9 @@ const Turnir = () => {
                   <CircleDot size={14} className="text-primary" />
                   {phaseLabel[tournament.phase]}
                 </Badge>
-                <span className="text-sm text-background/60">{progress.activePlayerCount} igralcev · 2 igrišči · 15 skupnih točk</span>
+                <span className="text-sm text-background/60">
+                  {progress.activePlayerCount} igralcev · 2 igrišči · predtekmovanje: 15 skupnih točk · zaključni nizi: do 21
+                </span>
               </div>
               <h1 className="max-w-3xl text-balance text-4xl font-black tracking-tight md:text-6xl">
                 Turnir odbojke <span className="text-primary">na mivki</span>
