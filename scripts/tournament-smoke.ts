@@ -491,3 +491,78 @@ console.log(JSON.stringify({
     womenPerFinalTeam: thirtyOneFemaleFinalists,
   },
 }, null, 2));
+
+// Analytics must preserve official rankings and be independent of court ordering.
+const { analyzeTournament } = await import("../src/lib/tournament-analysis");
+const analyticsState: TournamentState = {
+  ...createDefaultTournament(),
+  players: Array.from({ length: 6 }, (_, index) => ({ id: `analysis-${index}`, name: `Player ${index}`, checkedIn: true, paid: false, withdrawn: false })),
+  rounds: [{ id: "analysis-round", number: 1, seed: "test", createdAt: "2026-09-13", status: "completed", matches: [{
+    id: "analysis-match", phase: "preliminary", roundNumber: 1, wave: 1, court: 1,
+    teamA: { id: "a", label: "A", playerIds: ["analysis-0", "analysis-1", "analysis-2"] },
+    teamB: { id: "b", label: "B", playerIds: ["analysis-3", "analysis-4", "analysis-5"] },
+    scoreA: 9, scoreB: 6, locked: true,
+  }] }],
+};
+const beforeAnalysis = JSON.stringify(analyticsState);
+const analytics = analyzeTournament(analyticsState);
+const winnerAnalysis = analytics.players.find((player) => player.playerId === "analysis-0")!;
+if (winnerAnalysis.opponentPoints !== null || winnerAnalysis.teammatePoints !== null || winnerAnalysis.difficulty !== null || winnerAnalysis.history[0].points !== 9 || JSON.stringify(analyticsState) !== beforeAnalysis) {
+  throw new Error("Analytics final points, schedule strength, history or immutability failed.");
+}
+const pendingAnalysis = structuredClone(analyticsState);
+pendingAnalysis.rounds[0].matches[0].locked = false;
+if (analyzeTournament(pendingAnalysis).players.length !== 0) throw new Error("Unconfirmed results entered analytics.");
+const jokerAnalysis = structuredClone(analyticsState);
+jokerAnalysis.rounds[0].matches[0].teamA.jokerPlayerIds = ["analysis-0"];
+if (analyzeTournament(jokerAnalysis).players.some((player) => player.playerId === "analysis-0")) throw new Error("Joker appearance counted personally.");
+const historyAnalysis = structuredClone(analyticsState);
+historyAnalysis.rounds.push({ ...structuredClone(analyticsState.rounds[0]), id: "second", number: 2 });
+const twoRounds = analyzeTournament(historyAnalysis);
+for (const player of twoRounds.players) {
+  const official = calculateRankings(historyAnalysis).find((row) => row.playerId === player.playerId)!;
+  if (player.history[1].points !== official.points || player.history[1].rank !== official.rank) throw new Error("History diverged from official standings.");
+}
+const semifinalAnalysis = structuredClone(analyticsState);
+const sampleMatch = semifinalAnalysis.rounds[0].matches[0];
+semifinalAnalysis.finals = { seed: "test", teams: [sampleMatch.teamA, sampleMatch.teamB], matches: [{ ...sampleMatch, phase: "semifinal", scoreA: null, scoreB: null, setScores: [{ scoreA: 21, scoreB: 19 }, { scoreA: 19, scoreB: 21 }, { scoreA: 21, scoreB: 19 }] }] };
+semifinalAnalysis.finals.matches.push(
+  { ...sampleMatch, id: "bronze-analysis", phase: "bronze", scoreA: 21, scoreB: 19 },
+  { ...sampleMatch, id: "final-analysis", phase: "final", scoreA: 19, scoreB: 21 },
+);
+const playoffAnalysis = analyzeTournament(semifinalAnalysis);
+for (const player of playoffAnalysis.players) {
+  const original = analytics.players.find((entry) => entry.playerId === player.playerId)!;
+  if (player.points !== original.points || player.difficulty !== original.difficulty ||
+      JSON.stringify(player.history) !== JSON.stringify(original.history) || !player.qualified) {
+    throw new Error("Playoffs must not affect final points, draw difficulty or preliminary history.");
+  }
+}
+console.log("Tournament analytics checks passed.");
+
+// A second match without player 0 gives independent evidence for all five others.
+const independentState = structuredClone(analyticsState);
+independentState.players.push({ ...independentState.players[0], id: "analysis-6", name: "Player 6" });
+const independentMatch = structuredClone(independentState.rounds[0].matches[0]);
+independentMatch.id = "independent-match";
+independentMatch.teamA.playerIds[0] = "analysis-6";
+independentMatch.scoreA = 10;
+independentMatch.scoreB = 5;
+independentState.rounds.push({ ...independentState.rounds[0], id: "independent-round", number: 2, matches: [independentMatch] });
+const independentPlayer = analyzeTournament(independentState).players.find((player) => player.playerId === "analysis-0")!;
+if (independentPlayer.opponentPoints !== 5 || independentPlayer.teammatePoints !== 10 || independentPlayer.difficulty !== -5 || independentPlayer.minSamples !== 1) {
+  throw new Error("Independent match averages or sample counts are wrong.");
+}
+const changedOwnResult = structuredClone(independentState);
+changedOwnResult.rounds[0].matches[0].scoreA = 0;
+changedOwnResult.rounds[0].matches[0].scoreB = 15;
+const changedPlayer = analyzeTournament(changedOwnResult).players.find((player) => player.playerId === "analysis-0")!;
+if (changedPlayer.difficulty !== independentPlayer.difficulty) throw new Error("Own result leaked into draw difficulty.");
+const focalJoker = structuredClone(independentState);
+focalJoker.rounds[1].matches[0].teamA.playerIds[0] = "analysis-0";
+focalJoker.rounds[1].matches[0].teamA.jokerPlayerIds = ["analysis-0"];
+if (analyzeTournament(focalJoker).players.find((player) => player.playerId === "analysis-0")!.difficulty !== null) {
+  throw new Error("Focal joker appearance leaked into independent estimates.");
+}
+const reversedAnalysis = analyzeTournament({ ...historyAnalysis, rounds: [...historyAnalysis.rounds].reverse() });
+if (JSON.stringify(reversedAnalysis) !== JSON.stringify(twoRounds)) throw new Error("Round storage order changed point-based difficulty.");

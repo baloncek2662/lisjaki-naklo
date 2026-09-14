@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CalendarDays, ChevronRight, CircleDot, Medal, Trophy, Users } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import TournamentAnalysis from "@/components/TournamentAnalysis";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -127,6 +128,7 @@ const Turnir = () => {
                 <Button asChild size="lg" className="shadow-orange">
                   <a href="#lestvica">Poglej lestvico <ChevronRight size={18} /></a>
                 </Button>
+                <Button asChild size="lg" variant="secondary"><a href="#analiza">Analiza igralcev</a></Button>
               </div>
             </div>
           </div>
@@ -284,6 +286,7 @@ const Turnir = () => {
                 </Card>
               </div>
             </section>
+            <TournamentAnalysis tournament={tournament} />
           </>
         )}
       </main>

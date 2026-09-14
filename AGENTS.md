@@ -71,6 +71,7 @@ Remote D1 commands change or inspect production depending on the SQL. Treat muta
 
 - `src/hooks/use-tournament.ts`: public polling and serialized admin publishing.
 - `src/lib/tournament-api.ts`: browser API client.
+- `src/lib/tournament-analysis.ts` and `src/components/TournamentAnalysis.tsx`: read-only qualifying draw difficulty and official points/rank history. For each focal player, exclude every match they participated in (including joker appearances), then estimate others by personal points per remaining confirmed preliminary match. Difficulty averages opponent estimates minus the other two teammates’ estimates over the focal player’s regular appearances. Playoffs and personal extra joker appearances are excluded. Missing independent evidence yields no difficulty score; minimum sample counts remain available in the analysis data and report, but are not displayed in the public table. This replaces the earlier Elo and raw-total estimates. No analytics are persisted; D1 remains authoritative.
 - `src/lib/tournament.ts`: tournament model, draws, results, rankings, and import validation.
 - `server/tournament-api.ts`: strict server validation, D1 loading, ETags, and response helpers.
 - `functions/api/tournament.ts`: public read endpoint.
