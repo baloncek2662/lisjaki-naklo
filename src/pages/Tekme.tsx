@@ -3,10 +3,11 @@ import { Calendar, MapPin, Trophy, ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { playedMatches, upcomingMatches } from "@/data/matches";
+import { playedMatches, upcomingMatches, pendingMatches, leagueSources, type PlayedMatch, type UpcomingMatch } from "@/data/matches";
 import MatchTeamDetails from "@/components/MatchTeamDetails";
 
-const MatchCard = ({ match, isPlayed }: { match: any; isPlayed: boolean }) => {
+const MatchCard = ({ match }: { match: PlayedMatch | UpcomingMatch }) => {
+  const isPlayed = "homeScore" in match;
   const [expanded, setExpanded] = useState(false);
 
   const isLisjakiHome = match.home === "Lisjaki Naklo";
@@ -23,7 +24,7 @@ const MatchCard = ({ match, isPlayed }: { match: any; isPlayed: boolean }) => {
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
             <Calendar size={16} />
             {match.date}
-            {!isPlayed && match.time && <span>• {match.time}</span>}
+            {"time" in match && match.time && <span>• {match.time}</span>}
           </div>
           {isPlayed && (
             <span className={`px-3 py-1 rounded-full text-xs font-medium ${
@@ -69,7 +70,7 @@ const MatchCard = ({ match, isPlayed }: { match: any; isPlayed: boolean }) => {
           {match.location}
         </div>
 
-        {match.details && (
+        {isPlayed && match.details && (
           <>
             <div className={expanded ? "mt-4" : "hidden"}>
               <div className="border-t border-border pt-4">
@@ -99,6 +100,10 @@ const MatchCard = ({ match, isPlayed }: { match: any; isPlayed: boolean }) => {
 };
 
 const Tekme = () => {
+  const [season, setSeason] = useState<keyof typeof leagueSources>("2026/27");
+  const results = playedMatches.filter((match) => match.season === season);
+  const fixtures = upcomingMatches.filter((match) => match.season === season);
+  const pending = pendingMatches.filter((match) => match.season === season);
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -112,6 +117,14 @@ const Tekme = () => {
             <p className="text-muted-foreground text-lg">
               Pregled vseh tekem kluba Lisjaki Naklo
             </p>
+            <div className="mt-6 flex flex-wrap items-center gap-3">
+              <label htmlFor="season" className="font-medium">Sezona</label>
+              <select id="season" value={season} onChange={(event) => setSeason(event.target.value as keyof typeof leagueSources)} className="rounded-md border border-border bg-background px-3 py-2 text-foreground">
+                <option value="2026/27">2026/27</option>
+                <option value="2025/26">2025/26</option>
+              </select>
+              <a href={leagueSources[season]} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline">Vir: Športna zveza Radovljica</a>
+            </div>
           </div>
         </section>
 
@@ -123,10 +136,10 @@ const Tekme = () => {
                 Prihajajoče Tekme
               </h2>
             </div>
-            {upcomingMatches.length > 0 ? (
+            {fixtures.length > 0 ? (
               <div className="grid gap-4">
-                {upcomingMatches.map((match) => (
-                  <MatchCard key={match.id} match={match} isPlayed={false} />
+                {fixtures.map((match) => (
+                  <MatchCard key={match.id} match={match} />
                 ))}
               </div>
             ) : (
@@ -139,6 +152,16 @@ const Tekme = () => {
           </div>
         </section>
 
+        {pending.length > 0 && (
+          <section className="pb-12">
+            <div className="container mx-auto px-4">
+              <h2 className="mb-3 text-2xl font-bold">Čakamo na rezultat</h2>
+              <p className="mb-6 text-muted-foreground">Rezultat še ni objavljen pri organizatorju lige.</p>
+              <div className="grid gap-4">{pending.map((match) => <MatchCard key={match.id} match={match} />)}</div>
+            </div>
+          </section>
+        )}
+
         <section className="py-12 md:py-16 bg-muted/30">
           <div className="container mx-auto px-4">
             <div className="flex items-center gap-3 mb-8">
@@ -148,8 +171,8 @@ const Tekme = () => {
               </h2>
             </div>
             <div className="grid gap-4">
-              {playedMatches.map((match) => (
-                <MatchCard key={match.id} match={match} isPlayed={true} />
+              {results.map((match) => (
+                <MatchCard key={match.id} match={match} />
               ))}
             </div>
           </div>

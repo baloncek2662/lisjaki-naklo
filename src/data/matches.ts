@@ -16,6 +16,8 @@ export interface MatchDetails {
 
 export interface PlayedMatch {
   id: number;
+  season: string;
+  kickoff: string;
   home: string;
   away: string;
   homeScore: number;
@@ -27,6 +29,8 @@ export interface PlayedMatch {
 
 export interface UpcomingMatch {
   id: number;
+  season: string;
+  kickoff: string;
   home: string;
   away: string;
   date: string;
@@ -34,119 +38,444 @@ export interface UpcomingMatch {
   location: string;
 }
 
+// Imported from the Rezultati / Razpored tabs on 22 September 2026.
+// Existing manually recorded match details and the friendly are retained.
+export const leagueSources = {
+  "2025/26": "https://sport-radovljica.si/tekmovanje/liga-malega-nogometa-2025-26/",
+  "2026/27": "https://sport-radovljica.si/tekmovanje/liga-malega-nogometa-26-27/",
+};
+
 export const playedMatches: PlayedMatch[] = [
   {
-    id: 9,
-    home: "Lisjaki Naklo",
-    away: "Baffi Brezje",
-    homeScore: 4,
-    awayScore: 2,
-    date: "31. maj 2026",
-    location: "Športni park Radovljica",
-    details: {
-      home: {
-        goalscorers: [
-          { player: "UM" },
-          { player: "JJ" },
-          { player: "TH" },
-          { player: "BL" },
-        ],
-        lineup: ["GA", "UM", "JJ", "TH", "BL", "TK", "GM", "DN", "MP", "BŽ"],
-        substitutions: [],
+    "id": 6660,
+    "season": "2026/27",
+    "kickoff": "2026-09-20T08:00:00+02:00",
+    "home": "Lisjaki Naklo",
+    "away": "NK Hom",
+    "date": "20. sep. 2026",
+    "location": "Športni Park Radovljica",
+    // Result and scorers recorded in zmaga-proti-nk-hom.md.
+    "homeScore": 5,
+    "awayScore": 2,
+    "details": {
+      "home": {
+        "goalscorers": [{ "player": "DN" }, { "player": "DN" }, { "player": "JJES" }, { "player": "EP" }, { "player": "BL" }],
+        "lineup": ["BL", "HH", "GM", "EP", "GA", "MP", "DN", "JJES", "JR"]
       },
-      away: {
-        goalscorers: [],
-        lineup: [],
-        substitutions: [],
-      },
-    },
+      "away": {
+        "goalscorers": [],
+        "lineup": []
+      }
+    }
   },
   {
-    id: 11,
-    home: "KMN Utrip",
-    away: "Lisjaki Naklo",
-    homeScore: 4,
-    awayScore: 2,
-    date: "17. maj 2026",
-    location: "Nomenj",
-    details: {
-      home: {
-        goalscorers: [],
-        lineup: [],
-        substitutions: [],
+    "id": 6612,
+    "season": "2026/27",
+    "kickoff": "2026-09-13T08:00:00+02:00",
+    "home": "ŠD Dvorska vas",
+    "away": "Lisjaki Naklo",
+    "date": "13. sep. 2026",
+    "location": "Begunje",
+    // Club-confirmed correction: the source incorrectly listed 1–0.
+    "homeScore": 3,
+    "awayScore": 3,
+    "details": {
+      "home": {
+        "goalscorers": [],
+        "lineup": []
       },
-      away: {
-        goalscorers: [
-          { player: "MP" },
-          { player: "DN" },
-        ],
-        lineup: ["GA", "UM", "TH", "EP", "MP", "DN", "TK", "BŽ"],
-        substitutions: [],
-      },
-    },
+      "away": {
+        "goalscorers": [{ "player": "MP" }, { "player": "MP" }, { "player": "EP" }],
+        "lineup": ["BL", "GM", "TH", "DP", "GA", "MP", "DN", "BŽ", "JJES", "JR", "EP"]
+      }
+    }
   },
   {
-    id: 10,
-    home: "Lisjaki Naklo",
-    away: "Smola",
-    homeScore: 1,
-    awayScore: 13,
-    date: "10. maj 2026",
-    location: "Športni park Radovljica",
-    details: {
-      home: {
-        goalscorers: [
-          { player: "GP" },
-        ],
-        lineup: ["GA", "UM", "BL", "TH", "GP", "DN", "BŽ", "GM"],
-        substitutions: [],
+    "id": 6576,
+    "season": "2026/27",
+    "kickoff": "2026-09-06T09:15:00+02:00",
+    "home": "Lisjaki Naklo",
+    "away": "ŠD Beli Gumb",
+    "date": "6. sep. 2026",
+    "location": "Športni Park Radovljica",
+    "homeScore": 1,
+    "awayScore": 7,
+    "details": {
+      "home": {
+        "goalscorers": [{ "player": "EP" }],
+        "lineup": ["HH", "AR", "GM", "EP", "TH", "DP", "DN", "JJES", "UM", "ŽV"]
       },
-      away: {
-        goalscorers: [],
-        lineup: [],
-        substitutions: [],
-      },
-    },
+      "away": {
+        "goalscorers": [],
+        "lineup": []
+      }
+    }
   },
   {
-    id: 8,
-    home: "Lisjaki Naklo",
-    away: "Na'Klani",
-    homeScore: 3,
-    awayScore: 2,
-    date: "28. feb. 2026",
-    location: "Športni park Naklo",
-    details: {
-      home: {
-        goalscorers: [
-          { player: "GM" },
-          { player: "GP" },
-          { player: "JJ" },
-        ],
-        lineup: ["GA", "UM", "BL", "MG", "EP", "GP", "JJ", "DP", "TC", "GM", "MP", "DN"],
-        substitutions: ["TP", "TH", "AŠ", "NŠ", "AL"],
+    "id": 6468,
+    "season": "2025/26",
+    "kickoff": "2026-06-14T08:00:00+02:00",
+    "home": "Lisjaki Naklo",
+    "away": "MST-Activity",
+    "date": "14. jun. 2026",
+    "location": "Športni Park Radovljica",
+    "homeScore": 4,
+    "awayScore": 6,
+    "details": {
+      "home": {
+        "goalscorers": [],
+        "lineup": ["BL", "TK", "AR", "GA", "MP", "JJES", "UM"]
       },
-      away: {
-        goalscorers: [
-          {player: "O_ES"},
-          {player: "O_ES"},
-        ],
-        lineup: [
-          // TODO: "Ime Priimek",
-        ],
-        substitutions: [],
-      },
-    },
+      "away": {
+        "goalscorers": [],
+        "lineup": []
+      }
+    }
   },
-  { id: 1, home: "Baffi Brezje", away: "Lisjaki Naklo", homeScore: 2, awayScore: 0, date: "26. okt. 2025", location: "Črnivec" },
-  { id: 2, home: "MST-Activity", away: "Lisjaki Naklo", homeScore: 9, awayScore: 6, date: "19. okt. 2025", location: "Hrušica" },
-  { id: 3, home: "Lisjaki Naklo", away: "ŠD Podnart", homeScore: 4, awayScore: 4, date: "12. okt. 2025", location: "Športni park Radovljica" },
-  { id: 4, home: "Vrbnje", away: "Lisjaki Naklo", homeScore: 3, awayScore: 2, date: "28. sep. 2025", location: "Športni park Vrbnje" },
-  { id: 5, home: "Lisjaki Naklo", away: "KMN Utrip", homeScore: 3, awayScore: 5, date: "21. sep. 2025", location: "Športni park Radovljica" },
-  { id: 6, home: "Smola", away: "Lisjaki Naklo", homeScore: 11, awayScore: 1, date: "14. sep. 2025", location: "Športni park Radovljica" },
-  { id: 7, home: "Lisjaki Naklo", away: "Elmont Bled", homeScore: 0, awayScore: 4, date: "7. sep. 2025", location: "Športni park Radovljica" },
+  {
+    "id": 6460,
+    "season": "2025/26",
+    "kickoff": "2026-06-07T10:00:00+02:00",
+    "home": "ŠD Podnart",
+    "away": "Lisjaki Naklo",
+    "date": "7. jun. 2026",
+    "location": "Podnart",
+    "homeScore": 6,
+    "awayScore": 3,
+    "details": {
+      "home": {
+        "goalscorers": [],
+        "lineup": []
+      },
+      "away": {
+        "goalscorers": [{ "player": "GM" }, { "player": "MP" }, { "player": "JJES" }],
+        "lineup": ["GM", "GP", "GA", "MP", "BŽ", "UM", "JJES"]
+      }
+    }
+  },
+  {
+    "id": 6446,
+    "season": "2025/26",
+    "kickoff": "2026-05-31T08:00:00+02:00",
+    "home": "Lisjaki Naklo",
+    "away": "Baffi Brezje",
+    "date": "31. maj 2026",
+    "location": "Športni Park Radovljica",
+    "homeScore": 4,
+    "awayScore": 2,
+    "details": {
+      "home": {
+        "goalscorers": [
+          {
+            "player": "UM"
+          },
+          {
+            "player": "JJ"
+          },
+          {
+            "player": "TH"
+          },
+          {
+            "player": "BL"
+          }
+        ],
+        "lineup": [
+          "GA",
+          "UM",
+          "JJ",
+          "TH",
+          "BL",
+          "TK",
+          "GM",
+          "DN",
+          "MP",
+          "BŽ"
+        ],
+        "substitutions": []
+      },
+      "away": {
+        "goalscorers": [],
+        "lineup": [],
+        "substitutions": []
+      }
+    }
+  },
+  {
+    "id": 6432,
+    "season": "2025/26",
+    "kickoff": "2026-05-24T09:15:00+02:00",
+    "home": "Lisjaki Naklo",
+    "away": "Vrbnje",
+    "date": "24. maj 2026",
+    "location": "Športni Park Radovljica",
+    "homeScore": 0,
+    "awayScore": 3
+  },
+  {
+    "id": 6422,
+    "season": "2025/26",
+    "kickoff": "2026-05-17T10:30:00+02:00",
+    "home": "KMN Utrip",
+    "away": "Lisjaki Naklo",
+    "date": "17. maj 2026",
+    "location": "Nomenj",
+    "homeScore": 4,
+    "awayScore": 2,
+    "details": {
+      "home": {
+        "goalscorers": [],
+        "lineup": [],
+        "substitutions": []
+      },
+      "away": {
+        "goalscorers": [
+          {
+            "player": "MP"
+          },
+          {
+            "player": "DN"
+          }
+        ],
+        "lineup": [
+          "GA",
+          "UM",
+          "TH",
+          "EP",
+          "MP",
+          "DN",
+          "TK",
+          "BŽ"
+        ],
+        "substitutions": []
+      }
+    }
+  },
+  {
+    "id": 6382,
+    "season": "2025/26",
+    "kickoff": "2026-05-10T10:15:00+02:00",
+    "home": "Lisjaki Naklo",
+    "away": "NK Smola",
+    "date": "10. maj 2026",
+    "location": "Športni Park Radovljica",
+    "homeScore": 1,
+    "awayScore": 13,
+    "details": {
+      "home": {
+        "goalscorers": [
+          {
+            "player": "GP"
+          }
+        ],
+        "lineup": [
+          "GA",
+          "UM",
+          "BL",
+          "TH",
+          "GP",
+          "DN",
+          "BŽ",
+          "GM"
+        ],
+        "substitutions": []
+      },
+      "away": {
+        "goalscorers": [],
+        "lineup": [],
+        "substitutions": []
+      }
+    }
+  },
+  {
+    "id": 6328,
+    "season": "2025/26",
+    "kickoff": "2026-05-03T10:15:00+02:00",
+    "home": "Elmont Bled",
+    "away": "Lisjaki Naklo",
+    "date": "3. maj 2026",
+    "location": "Lipce",
+    "homeScore": 3,
+    "awayScore": 0
+  },
+  {
+    "id": 8,
+    "home": "Lisjaki Naklo",
+    "away": "Na'Klani",
+    "homeScore": 3,
+    "awayScore": 2,
+    "date": "28. feb. 2026",
+    "location": "Športni park Naklo",
+    "details": {
+      "home": {
+        "goalscorers": [
+          {
+            "player": "GM"
+          },
+          {
+            "player": "GP"
+          },
+          {
+            "player": "JJ"
+          }
+        ],
+        "lineup": [
+          "GA",
+          "UM",
+          "BL",
+          "MG",
+          "EP",
+          "GP",
+          "JJ",
+          "DP",
+          "TC",
+          "GM",
+          "MP",
+          "DN"
+        ],
+        "substitutions": [
+          "TP",
+          "TH",
+          "AŠ",
+          "NŠ",
+          "AL"
+        ]
+      },
+      "away": {
+        "goalscorers": [
+          {
+            "player": "O_ES"
+          },
+          {
+            "player": "O_ES"
+          }
+        ],
+        "lineup": [],
+        "substitutions": []
+      }
+    },
+    "season": "2025/26",
+    "kickoff": "2026-02-28T00:00:00+01:00"
+  },
+  {
+    "id": 5983,
+    "season": "2025/26",
+    "kickoff": "2025-10-26T10:00:00+02:00",
+    "home": "Baffi Brezje",
+    "away": "Lisjaki Naklo",
+    "date": "26. okt. 2025",
+    "location": "Črnivec",
+    "homeScore": 2,
+    "awayScore": 0
+  },
+  {
+    "id": 6005,
+    "season": "2025/26",
+    "kickoff": "2025-10-19T09:00:00+02:00",
+    "home": "MST-Activity",
+    "away": "Lisjaki Naklo",
+    "date": "19. okt. 2025",
+    "location": "Hrušica",
+    "homeScore": 9,
+    "awayScore": 6
+  },
+  {
+    "id": 6003,
+    "season": "2025/26",
+    "kickoff": "2025-10-12T11:45:00+02:00",
+    "home": "Lisjaki Naklo",
+    "away": "ŠD Podnart",
+    "date": "12. okt. 2025",
+    "location": "Športni Park Radovljica",
+    "homeScore": 4,
+    "awayScore": 4
+  },
+  {
+    "id": 5974,
+    "season": "2025/26",
+    "kickoff": "2025-09-28T10:15:00+02:00",
+    "home": "Vrbnje",
+    "away": "Lisjaki Naklo",
+    "date": "28. sep. 2025",
+    "location": "Športni Park Vrbnje",
+    "homeScore": 3,
+    "awayScore": 2
+  },
+  {
+    "id": 5962,
+    "season": "2025/26",
+    "kickoff": "2025-09-21T09:00:00+02:00",
+    "home": "Lisjaki Naklo",
+    "away": "KMN Utrip",
+    "date": "21. sep. 2025",
+    "location": "Športni Park Radovljica",
+    "homeScore": 3,
+    "awayScore": 5
+  },
+  {
+    "id": 5951,
+    "season": "2025/26",
+    "kickoff": "2025-09-14T08:00:00+02:00",
+    "home": "NK Smola",
+    "away": "Lisjaki Naklo",
+    "date": "14. sep. 2025",
+    "location": "Športni Park Radovljica",
+    "homeScore": 11,
+    "awayScore": 1
+  },
+  {
+    "id": 5938,
+    "season": "2025/26",
+    "kickoff": "2025-09-07T09:00:00+02:00",
+    "home": "Lisjaki Naklo",
+    "away": "Elmont Bled",
+    "date": "7. sep. 2025",
+    "location": "Športni Park Radovljica",
+    "homeScore": 0,
+    "awayScore": 4
+  }
 ];
 
 export const upcomingMatches: UpcomingMatch[] = [
-  // Add upcoming matches when available from the schedule
+  {
+    "id": 6676,
+    "season": "2026/27",
+    "kickoff": "2026-09-27T08:00:00+02:00",
+    "home": "Čpinarji Ljubno",
+    "away": "Lisjaki Naklo",
+    "date": "27. sep. 2026",
+    "location": "Ljubno",
+    "time": "08:00"
+  },
+  {
+    "id": 6683,
+    "season": "2026/27",
+    "kickoff": "2026-10-04T09:00:00+02:00",
+    "home": "Lisjaki Naklo",
+    "away": "Realj Madrid",
+    "date": "4. okt. 2026",
+    "location": "Športni Park Radovljica",
+    "time": "09:00"
+  },
+  {
+    "id": 6693,
+    "season": "2026/27",
+    "kickoff": "2026-10-11T08:00:00+02:00",
+    "home": "Lisjaki Naklo",
+    "away": "ŠD Gorje",
+    "date": "11. okt. 2026",
+    "location": "Športni Park Radovljica",
+    "time": "08:00"
+  },
+  {
+    "id": 6706,
+    "season": "2026/27",
+    "kickoff": "2026-10-18T09:15:00+02:00",
+    "home": "ŠD Lancovo",
+    "away": "Lisjaki Naklo",
+    "date": "18. okt. 2026",
+    "location": "Športni Park Vrbnje",
+    "time": "09:15"
+  }
 ];
+
+export const pendingMatches: UpcomingMatch[] = [];

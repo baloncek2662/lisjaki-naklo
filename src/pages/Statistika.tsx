@@ -53,6 +53,15 @@ function calculateStats(): PlayerStat[] {
 type SortKey = "appearances" | "goals" | "number" | "name";
 type SortDir = "desc" | "asc";
 
+const recordedMatches = playedMatches.filter((match) => {
+  const details = match.home === "Lisjaki Naklo" ? match.details?.home : match.details?.away;
+  return details && (details.lineup.length > 0 || details.goalscorers.length > 0 || (details.substitutions?.length ?? 0) > 0);
+});
+const firstRecordedMatch = [...recordedMatches].sort((a, b) => a.kickoff.localeCompare(b.kickoff))[0];
+const statisticsStartDate = firstRecordedMatch
+  ? new Intl.DateTimeFormat("sl-SI", { day: "numeric", month: "numeric", year: "numeric", timeZone: "Europe/Ljubljana" }).format(new Date(firstRecordedMatch.kickoff))
+  : undefined;
+
 const SortIcon = ({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; sortDir: SortDir }) => {
   if (col !== sortKey) return <ChevronsUpDown size={13} className="text-muted-foreground/40" />;
   return sortDir === "desc" ? <ChevronDown size={13} className="text-primary" /> : <ChevronUp size={13} className="text-primary" />;
@@ -105,8 +114,13 @@ const Statistika = () => {
               </h1>
             </div>
             <p className="text-muted-foreground text-lg">
-              Sezona 2025/2026 · {playedMatches.filter(m => m.details).length} tekem z evidenco
+              Vse sezone · {recordedMatches.length} tekem z evidenco
             </p>
+            {statisticsStartDate && (
+              <p className="mt-3 text-sm text-muted-foreground">
+                Statistika nastopov in zadetkov se vodi od {statisticsStartDate} dalje. Upoštevani so le vpisani podatki o postavah in strelcih.
+              </p>
+            )}
           </div>
         </section>
 

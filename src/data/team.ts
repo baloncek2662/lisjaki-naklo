@@ -15,6 +15,7 @@ export const teamData: Player[] = [
   { initials: "AŠ", name: "Aljaž Šilar",      number: 10 },
   { initials: "GP", name: "Gaber Petrovič",    number: 11 },
   { initials: "JJ", name: "Jaka Jerala",       number: 14 },
+  { initials: "JJES", name: "Jan Jesenko" },
   { initials: "DP", name: "Domen Porenta",     number: 17 },
   { initials: "TC", name: "Tilen Celjer",      number: 18 },
   { initials: "TK", name: "Tim Kalan",         number: 19 },
@@ -28,6 +29,8 @@ export const teamData: Player[] = [
   { initials: "BŽ", name: "Blaž Žerovnik",    number: 45 },
   { initials: "AL", name: "Aleš Logonder",     number: 69 },
   { initials: "DN", name: "David Naglič",      number: 71 },
+  { initials: "HH", name: "Husein Hasanagić" },
+  { initials: "ŽV", name: "Žan Vrtač" },
 
   // Opponents
   { initials: "O_ES", name: "Erazem Šluga",      number: 17, opponent: true },

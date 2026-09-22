@@ -7,8 +7,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trophy, Info } from "lucide-react";
+import { Trophy } from "lucide-react";
 import { standingsData } from "@/data/standings";
+import { leagueSources } from "@/data/matches";
 
 const StandingsTable = () => {
   return (
@@ -21,15 +22,14 @@ const StandingsTable = () => {
           </h2>
         </div>
 
-        <div className="max-w-4xl mx-auto mb-4 flex items-center gap-2 rounded-md border border-yellow-400/40 bg-yellow-400/10 px-4 py-3 text-sm text-yellow-700 dark:text-yellow-400">
-          <Info className="w-4 h-4 shrink-0" />
-          <span>Lestvica še ni posodobljena z zadnjimi rezultati.</span>
-        </div>
+        <p className="max-w-4xl mx-auto mb-4 text-sm text-muted-foreground">
+          Stanje na dan 22. 9. 2026 · <a href={leagueSources["2026/27"]} target="_blank" rel="noopener noreferrer" className="text-primary underline">Športna zveza Radovljica</a>
+        </p>
 
         <Card className="max-w-4xl mx-auto shadow-elevated border-0 overflow-hidden">
           <CardHeader className="bg-charcoal text-primary-foreground">
             <CardTitle className="text-lg md:text-xl">
-              Liga malega nogometa 2025/26 - Skupina A
+              Liga malega nogometa 2026/27 - Skupina B
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
