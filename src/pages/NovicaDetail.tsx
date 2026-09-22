@@ -92,13 +92,17 @@ const NovicaDetail = () => {
           <img
             src={article.image}
             alt={article.title}
-            className="w-full h-full object-cover object-[center_42%]"
+            className={article.imageFit === "contain"
+              ? "w-full h-full object-contain bg-muted"
+              : "w-full h-full object-cover object-[center_42%]"}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+          {article.imageFit !== "contain" && (
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+          )}
         </div>
 
         {/* Content */}
-        <article className="container mx-auto px-4 -mt-24 relative z-10">
+        <article className={`container mx-auto px-4 relative z-10 ${article.imageFit === "contain" ? "mt-8" : "-mt-24"}`}>
           <div className="max-w-3xl mx-auto">
             {/* Back link */}
             <Link to="/novice" className="inline-flex items-center text-primary hover:text-primary/80 mb-6 transition-colors">
@@ -117,6 +121,11 @@ const NovicaDetail = () => {
               className="prose prose-lg max-w-none"
               dangerouslySetInnerHTML={{ __html: renderMarkdown(article.content) }}
             />
+            {article.gallerySlug && (
+              <Button asChild className="mt-8">
+                <Link to={`/galerija/${article.gallerySlug}`}>Oglej si album</Link>
+              </Button>
+            )}
           </div>
         </article>
 

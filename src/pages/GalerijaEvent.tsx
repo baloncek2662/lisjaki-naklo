@@ -103,7 +103,7 @@ const GalerijaEvent = () => {
             <div className="flex items-center gap-2 text-primary-foreground/70">
               <Calendar className="w-5 h-5" />
               <span>
-                {new Date(event.date).toLocaleDateString("sl-SI", {
+                {event.dateLabel ?? new Date(event.date).toLocaleDateString("sl-SI", {
                   day: "numeric",
                   month: "long",
                   year: "numeric",

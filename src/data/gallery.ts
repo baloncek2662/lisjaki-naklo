@@ -12,6 +12,7 @@ export interface GalleryEvent {
   title: string;
   date: string;
   coverImage: string;
+  dateLabel?: string;
   images: GalleryImage[];
 }
 
@@ -45,6 +46,66 @@ export const featuredImages: GalleryImage[] = [
 
 // Event galleries, folder-like sections
 export const galleryEvents: GalleryEvent[] = [
+  {
+    id: "event-turnir-odbojka-2026",
+    slug: "turnir-odbojka-2026",
+    title: "Prvi Lisjakov turnir v odbojki",
+    date: "2026-09-13",
+    coverImage: "/images/gallery/turnir-odbojka-2026/P1092623.jpg",
+    images: [
+      { id: "turnir-odbojka-2026-1", src: "/images/gallery/turnir-odbojka-2026/P1082257.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 1" },
+      { id: "turnir-odbojka-2026-2", src: "/images/gallery/turnir-odbojka-2026/P1082260.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 2" },
+      { id: "turnir-odbojka-2026-3", src: "/images/gallery/turnir-odbojka-2026/P1082278.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 3" },
+      { id: "turnir-odbojka-2026-4", src: "/images/gallery/turnir-odbojka-2026/P1082296.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 4" },
+      { id: "turnir-odbojka-2026-5", src: "/images/gallery/turnir-odbojka-2026/P1082323.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 5" },
+      { id: "turnir-odbojka-2026-6", src: "/images/gallery/turnir-odbojka-2026/P1082330.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 6" },
+      { id: "turnir-odbojka-2026-7", src: "/images/gallery/turnir-odbojka-2026/P1082342.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 7" },
+      { id: "turnir-odbojka-2026-8", src: "/images/gallery/turnir-odbojka-2026/P1082347.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 8" },
+      { id: "turnir-odbojka-2026-9", src: "/images/gallery/turnir-odbojka-2026/P1082366.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 9" },
+      { id: "turnir-odbojka-2026-10", src: "/images/gallery/turnir-odbojka-2026/P1082382.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 10" },
+      { id: "turnir-odbojka-2026-11", src: "/images/gallery/turnir-odbojka-2026/P1082439.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 11" },
+      { id: "turnir-odbojka-2026-12", src: "/images/gallery/turnir-odbojka-2026/P1082484.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 12" },
+      { id: "turnir-odbojka-2026-13", src: "/images/gallery/turnir-odbojka-2026/P1082515.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 13" },
+      { id: "turnir-odbojka-2026-14", src: "/images/gallery/turnir-odbojka-2026/P1082521.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 14" },
+      { id: "turnir-odbojka-2026-15", src: "/images/gallery/turnir-odbojka-2026/P1082571.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 15" },
+      { id: "turnir-odbojka-2026-16", src: "/images/gallery/turnir-odbojka-2026/P1092623.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 16" },
+      { id: "turnir-odbojka-2026-17", src: "/images/gallery/turnir-odbojka-2026/P1092652.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 17" },
+      { id: "turnir-odbojka-2026-18", src: "/images/gallery/turnir-odbojka-2026/P1092654.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 18" },
+      { id: "turnir-odbojka-2026-19", src: "/images/gallery/turnir-odbojka-2026/P1092719.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 19" },
+      { id: "turnir-odbojka-2026-20", src: "/images/gallery/turnir-odbojka-2026/P1092739.jpg", alt: "Prvi Lisjakov turnir v odbojki – fotografija 20" },
+    ],
+  },
+  {
+    id: "event-priprave-2026",
+    slug: "priprave-2026",
+    title: "Priprave 2026 – Poreč",
+    date: "2026-04-10",
+    dateLabel: "10.–12. april 2026",
+    coverImage: "/images/gallery/priprave-2026/666239886_1271833417826925_4595179522553431878_n.jpg",
+    images: [
+      { id: "priprave-2026-4", src: "/images/gallery/priprave-2026/651039115_2020080575530873_4493422817500931864_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 4" },
+      { id: "priprave-2026-5", src: "/images/gallery/priprave-2026/658140869_1274101097532424_3574849607897793555_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 5" },
+      { id: "priprave-2026-6", src: "/images/gallery/priprave-2026/658186930_1232013932348378_3967899888521614158_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 6" },
+      { id: "priprave-2026-7", src: "/images/gallery/priprave-2026/658373227_943860681730010_8043459527231843768_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 7" },
+      { id: "priprave-2026-9", src: "/images/gallery/priprave-2026/663375521_922353327280889_7477625588527130084_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 9" },
+      { id: "priprave-2026-11", src: "/images/gallery/priprave-2026/664437706_2033921278004273_1652587718526401282_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 11" },
+      { id: "priprave-2026-12", src: "/images/gallery/priprave-2026/665130476_26682729008083979_6582471492329016602_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 12" },
+      { id: "priprave-2026-13", src: "/images/gallery/priprave-2026/665944661_967196022719488_5830675035393512138_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 13" },
+      { id: "priprave-2026-14", src: "/images/gallery/priprave-2026/666239886_1271833417826925_4595179522553431878_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 14" },
+      { id: "priprave-2026-15", src: "/images/gallery/priprave-2026/666980696_1611563026812741_5372750723981710322_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 15" },
+      { id: "priprave-2026-19", src: "/images/gallery/priprave-2026/669024743_1069454562919852_8875531617780906320_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 19" },
+      { id: "priprave-2026-20", src: "/images/gallery/priprave-2026/671475217_1514789193539064_4165612601872911373_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 20" },
+      { id: "priprave-2026-21", src: "/images/gallery/priprave-2026/dron.mp4", alt: "Posnetek z dronom – priprave v Poreču 2026", type: "video" },
+      { id: "priprave-2026-2", src: "/images/gallery/priprave-2026/641710058_1595066535127370_8682221465457534333_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 2" },
+      { id: "priprave-2026-1", src: "/images/gallery/priprave-2026/640876845_2444813472652855_7458753239228547685_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 1" },
+      { id: "priprave-2026-3", src: "/images/gallery/priprave-2026/645214607_1286805016740516_153315374721303825_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 3" },
+      { id: "priprave-2026-8", src: "/images/gallery/priprave-2026/662503944_1250047270444304_7405319027789510651_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 8" },
+      { id: "priprave-2026-10", src: "/images/gallery/priprave-2026/663847360_1651888862819518_2708039753203087005_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 10" },
+      { id: "priprave-2026-16", src: "/images/gallery/priprave-2026/668174113_790819697139233_19752887700588156_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 16" },
+      { id: "priprave-2026-17", src: "/images/gallery/priprave-2026/668234057_1968054110584736_6800448366648597428_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 17" },
+      { id: "priprave-2026-18", src: "/images/gallery/priprave-2026/668581682_26529533540035327_2307617991464947073_n.jpg", alt: "Priprave 2026 – Poreč – fotografija 18" },
+    ],
+  },
   {
     id: "event-naklani-2026",
     slug: "pripravljalna-tekma-naklani-2026",

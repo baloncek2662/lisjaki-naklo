@@ -13,6 +13,12 @@ This file is the durable handoff for future coding agents. Keep it current when 
 - The site intentionally has no service worker or application-level offline cache. Cloudflare Pages and Vite's hashed assets provide normal HTTP/CDN caching without risking stale API data.
 - `src/main.tsx` retains best-effort cleanup for the former root service worker and `lisjaki-turnir-*` caches. Keep it long enough for infrequent returning visitors to receive the cleanup.
 
+## Article and gallery photos
+
+- Always look first in `~/Pictures/lisjaki` (`/Users/gasperm/Pictures/lisjaki`) for article and album media. Each subfolder represents one event.
+- Copy the matching event media into `public/images/gallery/<event-slug>/`; leave the source originals untouched. The website must use repository assets, never absolute local photo paths.
+- Use provided event photos for article and album covers. Do not add photo credits or Instagram source links to articles unless requested.
+
 ## Tournament architecture
 
 - Public results: `/turnir`.

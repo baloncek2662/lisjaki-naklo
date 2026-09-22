@@ -34,7 +34,9 @@ const Novice = () => {
                       <img
                         src={news.image}
                         alt={news.title}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                        className={news.imageFit === "contain"
+                          ? "w-full h-48 object-contain bg-muted"
+                          : "w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"}
                       />
                       <div className="absolute top-4 left-4 bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1">
                         <Calendar size={14} />
