@@ -8,6 +8,7 @@ This file is the durable handoff for future coding agents. Keep it current when 
 - Production: Cloudflare Pages project `lisjaki-naklo`.
 - Production hostname: `https://lisjaki-naklo.si`.
 - `main` is the production branch; pushes trigger the Pages deployment.
+- Use npm and commit `package-lock.json` as the sole dependency lockfile. Do not add Bun lockfiles: Cloudflare auto-detects them and would switch dependency installation to Bun. Validate dependency changes with a clean `npm ci` before building.
 - Cloudflare Pages Functions live under `functions/`. Do not create a separate Worker for the tournament API.
 - `wrangler.jsonc` is the source-controlled Cloudflare configuration.
 - The site intentionally has no service worker or application-level offline cache. Cloudflare Pages and Vite's hashed assets provide normal HTTP/CDN caching without risking stale API data.
