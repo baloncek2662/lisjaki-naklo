@@ -12,103 +12,103 @@ export interface StandingRow {
   isHighlighted?: boolean;
 }
 
-// Group B, as published by Športna zveza Radovljica on 22 September 2026.
+// Group B, checked against Športna zveza Radovljica on 27 September 2026.
 export const standingsData: StandingRow[] = [
   {
     "pos": 1,
     "team": "ŠD Beli Gumb",
-    "played": 2,
-    "won": 2,
+    "played": 3,
+    "won": 3,
     "draw": 0,
     "lost": 0,
-    "goalsFor": 15,
-    "goalsAgainst": 2,
-    "goalDiff": 13,
-    "points": 6
+    "goalsFor": 20,
+    "goalsAgainst": 6,
+    "goalDiff": 14,
+    "points": 9
   },
   {
     "pos": 2,
-    "team": "ŠD Gorje",
-    "played": 2,
+    "team": "ŠD Dvorska vas",
+    "played": 3,
     "won": 1,
-    "draw": 1,
+    "draw": 2,
     "lost": 0,
     "goalsFor": 9,
-    "goalsAgainst": 7,
-    "goalDiff": 2,
-    "points": 4
+    "goalsAgainst": 6,
+    "goalDiff": 3,
+    "points": 5
   },
   {
     "pos": 3,
-    "team": "ŠD Dvorska vas",
-    "played": 2,
+    "team": "ŠD Gorje",
+    "played": 3,
     "won": 1,
     "draw": 1,
-    "lost": 0,
-    "goalsFor": 4,
-    "goalsAgainst": 3,
-    "goalDiff": 1,
+    "lost": 1,
+    "goalsFor": 9,
+    "goalsAgainst": 10,
+    "goalDiff": -1,
     "points": 4
   },
   {
     "pos": 4,
-    "team": "ŠD Lancovo",
-    "played": 2,
+    "team": "Realj Madrid",
+    "played": 3,
     "won": 1,
-    "draw": 0,
+    "draw": 1,
     "lost": 1,
-    "goalsFor": 13,
-    "goalsAgainst": 9,
-    "goalDiff": 4,
-    "points": 3
+    "goalsFor": 9,
+    "goalsAgainst": 11,
+    "goalDiff": -2,
+    "points": 4
   },
   {
     "pos": 5,
-    "team": "NK Hom",
-    "played": 2,
+    "team": "Lisjaki Naklo",
+    "played": 3,
     "won": 1,
-    "draw": 0,
+    "draw": 1,
     "lost": 1,
-    "goalsFor": 5,
-    "goalsAgainst": 8,
+    "goalsFor": 9,
+    "goalsAgainst": 12,
     "goalDiff": -3,
-    "points": 3
+    "points": 4,
+    "isHighlighted": true
   },
   {
     "pos": 6,
-    "team": "Realj Madrid",
-    "played": 2,
-    "won": 0,
-    "draw": 1,
-    "lost": 1,
-    "goalsFor": 3,
-    "goalsAgainst": 6,
-    "goalDiff": -3,
-    "points": 1
+    "team": "ŠD Lancovo",
+    "played": 3,
+    "won": 1,
+    "draw": 0,
+    "lost": 2,
+    "goalsFor": 17,
+    "goalsAgainst": 14,
+    "goalDiff": 3,
+    "points": 3
   },
   {
     "pos": 7,
-    "team": "Čpinarji Ljubno",
-    "played": 2,
-    "won": 0,
-    "draw": 1,
-    "lost": 1,
-    "goalsFor": 3,
-    "goalsAgainst": 10,
-    "goalDiff": -7,
-    "points": 1
+    "team": "NK Hom",
+    "played": 3,
+    "won": 1,
+    "draw": 0,
+    "lost": 2,
+    "goalsFor": 7,
+    "goalsAgainst": 13,
+    "goalDiff": -6,
+    "points": 3
   },
   {
     "pos": 8,
-    "team": "Lisjaki Naklo",
-    "played": 2,
+    "team": "Čpinarji Ljubno",
+    "played": 3,
     "won": 0,
-    "draw": 0,
+    "draw": 1,
     "lost": 2,
-    "goalsFor": 1,
-    "goalsAgainst": 8,
-    "goalDiff": -7,
-    "points": 0,
-    "isHighlighted": true
+    "goalsFor": 8,
+    "goalsAgainst": 16,
+    "goalDiff": -8,
+    "points": 1
   }
 ];

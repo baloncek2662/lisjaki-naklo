@@ -47,6 +47,27 @@ export const leagueSources = {
 
 export const playedMatches: PlayedMatch[] = [
   {
+    "id": 6676,
+    "season": "2026/27",
+    "kickoff": "2026-09-27T08:00:00+02:00",
+    "home": "Čpinarji Ljubno",
+    "away": "Lisjaki Naklo",
+    "date": "27. sep. 2026",
+    "location": "Ljubno",
+    "homeScore": 4,
+    "awayScore": 1,
+    "details": {
+      "home": {
+        "goalscorers": [],
+        "lineup": []
+      },
+      "away": {
+        "goalscorers": [{ "player": "BL" }],
+        "lineup": ["BL", "GM", "DP", "GA", "MP", "DN", "BŽ", "JJES", "JR", "UM"]
+      }
+    }
+  },
+  {
     "id": 6660,
     "season": "2026/27",
     "kickoff": "2026-09-20T08:00:00+02:00",
@@ -102,7 +123,7 @@ export const playedMatches: PlayedMatch[] = [
     "awayScore": 7,
     "details": {
       "home": {
-        "goalscorers": [{ "player": "EP" }],
+        "goalscorers": [{ "player": "DP" }],
         "lineup": ["HH", "AR", "GM", "EP", "TH", "DP", "DN", "JJES", "UM", "ŽV"]
       },
       "away": {
@@ -436,16 +457,6 @@ export const playedMatches: PlayedMatch[] = [
 ];
 
 export const upcomingMatches: UpcomingMatch[] = [
-  {
-    "id": 6676,
-    "season": "2026/27",
-    "kickoff": "2026-09-27T08:00:00+02:00",
-    "home": "Čpinarji Ljubno",
-    "away": "Lisjaki Naklo",
-    "date": "27. sep. 2026",
-    "location": "Ljubno",
-    "time": "08:00"
-  },
   {
     "id": 6683,
     "season": "2026/27",

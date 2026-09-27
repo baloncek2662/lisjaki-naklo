@@ -23,7 +23,7 @@ const StandingsTable = () => {
         </div>
 
         <p className="max-w-4xl mx-auto mb-4 text-sm text-muted-foreground">
-          Stanje na dan 22. 9. 2026 · <a href={leagueSources["2026/27"]} target="_blank" rel="noopener noreferrer" className="text-primary underline">Športna zveza Radovljica</a>
+          Stanje na dan 27. 9. 2026 · <a href={leagueSources["2026/27"]} target="_blank" rel="noopener noreferrer" className="text-primary underline">Športna zveza Radovljica</a>
         </p>
 
         <Card className="max-w-4xl mx-auto shadow-elevated border-0 overflow-hidden">
