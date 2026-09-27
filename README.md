@@ -1,73 +1,43 @@
-# Welcome to your Lovable project
+# Lisjaki Naklo
 
-## Project info
+Website for Lisjaki Naklo, with club news, photo galleries, fixtures, results, league standings, player statistics, and tournament results.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Production: [lisjaki-naklo.si](https://lisjaki-naklo.si).
 
-## How can I edit this code?
+## Local development
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Use Node.js 22 and npm 10. The production build has been verified with npm 10.9.2.
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+git clone git@github.com:baloncek2662/lisjaki-naklo.git
+cd lisjaki-naklo
+npm ci
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Keep `package-lock.json` as the only dependency lockfile. Cloudflare detects Bun lockfiles and switches to Bun if one is present.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Build and preview
 
-**Use GitHub Codespaces**
+```sh
+npm run build
+npm run preview
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+The site uses React, TypeScript, Vite, Tailwind CSS, and shadcn/ui. `vite-react-ssg` generates the static pages in `dist/`.
 
-## What technologies are used for this project?
+## Content
 
-This project is built with:
+- `src/data/matches.ts`: fixtures, results, lineups, and scorers.
+- `src/data/standings.ts`: league standings.
+- `src/data/team.ts`: player names and jersey numbers.
+- `src/data/articles/`: club news articles.
+- `public/images/gallery/`: event photos.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Deployment
 
-## How can I deploy this project?
+Pushes to `main` trigger the Cloudflare Pages project `lisjaki-naklo`. The build command is `npm run build`, and the output directory is `dist/`. Cloudflare configuration is maintained in `wrangler.jsonc`.
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+The tournament API runs in Pages Functions under `functions/`, with Cloudflare D1 as the authoritative data store. Organizer access and writes are protected by Cloudflare Access. The Vite development server alone does not run these Functions.
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+See [AGENTS.md](AGENTS.md) for tournament architecture, security requirements, migrations, and verification commands.
