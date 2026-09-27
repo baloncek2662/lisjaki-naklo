@@ -15,7 +15,7 @@ export const teamData: Player[] = [
   { initials: "AŠ", name: "Aljaž Šilar",      number: 10 },
   { initials: "GP", name: "Gaber Petrovič",    number: 11 },
   { initials: "JJ", name: "Jaka Jerala",       number: 14 },
-  { initials: "JJES", name: "Jan Jesenko" },
+  { initials: "JJES", name: "Jan Jesenko",     number: 50 },
   { initials: "DP", name: "Domen Porenta",     number: 17 },
   { initials: "TC", name: "Tilen Celjer",      number: 18 },
   { initials: "TK", name: "Tim Kalan",         number: 19 },
