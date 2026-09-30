@@ -89,7 +89,6 @@ const createState = (playerCount: number, femaleCount = 0): TournamentState => (
     name: `Igralec ${String(index + 1).padStart(2, "0")}`,
     gender: index < femaleCount ? "female" : "male",
     checkedIn: true,
-    paid: true,
     withdrawn: false,
   })),
 });
@@ -496,7 +495,7 @@ console.log(JSON.stringify({
 const { analyzeTournament } = await import("../src/lib/tournament-analysis");
 const analyticsState: TournamentState = {
   ...createDefaultTournament(),
-  players: Array.from({ length: 6 }, (_, index) => ({ id: `analysis-${index}`, name: `Player ${index}`, checkedIn: true, paid: false, withdrawn: false })),
+  players: Array.from({ length: 6 }, (_, index) => ({ id: `analysis-${index}`, name: `Player ${index}`, checkedIn: true, withdrawn: false })),
   rounds: [{ id: "analysis-round", number: 1, seed: "test", createdAt: "2026-09-13", status: "completed", matches: [{
     id: "analysis-match", phase: "preliminary", roundNumber: 1, wave: 1, court: 1,
     teamA: { id: "a", label: "A", playerIds: ["analysis-0", "analysis-1", "analysis-2"] },
@@ -566,3 +565,8 @@ if (analyzeTournament(focalJoker).players.find((player) => player.playerId === "
 }
 const reversedAnalysis = analyzeTournament({ ...historyAnalysis, rounds: [...historyAnalysis.rounds].reverse() });
 if (JSON.stringify(reversedAnalysis) !== JSON.stringify(twoRounds)) throw new Error("Round storage order changed point-based difficulty.");
+
+if (!parsedLegacyTournament || "paid" in parsedLegacyTournament.players[0]) {
+  throw new Error("Legacy payment status must be discarded when loading old data.");
+}
+console.log("Retired payment field compatibility check passed.");

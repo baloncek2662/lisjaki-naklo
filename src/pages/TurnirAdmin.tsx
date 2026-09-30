@@ -56,7 +56,6 @@ const createPlayer = (name: string, gender: TournamentPlayer["gender"] = "male")
   name,
   gender,
   checkedIn: true,
-  paid: false,
   withdrawn: false,
 });
 
@@ -448,7 +447,12 @@ const TurnirAdmin = () => {
       if (!window.confirm(
         "Ali ste prepričani, da želite obnoviti turnir iz izbrane varnostne kopije? Trenutni igralci, žrebi in rezultati bodo zamenjani s podatki iz kopije.",
       )) return;
-      setTournament(touchTournament(parsed));
+      setTournament(touchTournament({
+        ...parsed,
+        players: parsed.players.map(({ id, name, gender, checkedIn, withdrawn }) => ({
+          id, name, gender, checkedIn, withdrawn,
+        })),
+      }));
       toast.success("Turnir je obnovljen iz varnostne kopije.");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Uvoz ni uspel.");
@@ -546,7 +550,6 @@ const TurnirAdmin = () => {
                         <Input value={player.name} disabled={availabilityLocked} onChange={(event) => updatePlayer(player.id, { name: event.target.value })} className="font-semibold" />
                         <label className="flex items-center gap-2 text-sm"><Checkbox checked={player.gender === "female"} disabled={availabilityLocked} onCheckedChange={(checked) => updatePlayer(player.id, { gender: checked === true ? "female" : "male" })} /> Ženska</label>
                         <label className="flex items-center gap-2 text-sm"><Checkbox checked={player.checkedIn} disabled={availabilityLocked} onCheckedChange={(checked) => updatePlayer(player.id, { checkedIn: checked === true })} /> Aktiven</label>
-                        <label className="flex items-center gap-2 text-sm"><Checkbox checked={player.paid} onCheckedChange={(checked) => updatePlayer(player.id, { paid: checked === true })} /> Plačano</label>
                         <Button variant="ghost" size="icon" disabled={rosterHasHistory || availabilityLocked} onClick={() => removePlayer(player.id)} aria-label={`Odstrani ${player.name}`}><Trash2 size={17} /></Button>
                       </div>
                     ))}

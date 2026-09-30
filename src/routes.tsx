@@ -14,6 +14,7 @@ import GalerijaEvent from "@/pages/GalerijaEvent";
 import Turnir from "@/pages/Turnir";
 import TurnirAdmin from "@/pages/TurnirAdmin";
 import NotFound from "@/pages/NotFound";
+import Zasebnost from "@/pages/Zasebnost";
 import { newsData } from "@/data/news";
 import { galleryEvents } from "@/data/gallery";
 import type { RouteRecord } from "vite-react-ssg";
@@ -39,6 +40,7 @@ export const routes: RouteRecord[] = [
       { index: true, element: <Index /> },
       { path: "tekme", element: <Tekme /> },
       { path: "statistika", element: <Statistika /> },
+      { path: "zasebnost", element: <Zasebnost /> },
       { path: "novice", element: <Novice /> },
       {
         path: "novice/:slug",

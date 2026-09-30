@@ -38,6 +38,10 @@ This file is the durable handoff for future coding agents. Keep it current when 
 - The latest state is stored as one validated JSON document. D1 retains the latest 50 snapshots for recovery/auditing; there is currently no snapshot-restore UI.
 - Each player has a `male`/`female` gender used by both preliminary and finals draws. New and legacy players default to male until the organizer marks the “Ženska” checkbox. When possible, every three-person team has at most one woman. If the number of female appearances exceeds the number of teams, teams may have two women, but never three, and opposing teams may differ by at most one woman (so 2–0 is forbidden).
 
+- Payment status (`paid`) is retired from the organizer UI and model. Server parsing accepts and discards the legacy field so existing D1 documents/backups still load; browser imports also discard it. New writes omit it. Existing stored JSON/snapshots are not retroactively rewritten by this change.
+- The public API still returns the tournament player records, including gender and check-in/withdrawal flags, as explicitly accepted on 2026-09-30. Organizer writes remain authenticated.
+- Privacy notice: `/zasebnost`, linked from the shared footer. Keep it aligned with the public API fields and external services (Cloudflare, Google Fonts, an Unsplash image, Gmail contact).
+
 ## D1
 
 - Binding used by code: `TOURNAMENT_DB` (`context.env.TOURNAMENT_DB`).

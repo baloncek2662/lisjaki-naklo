@@ -36,9 +36,13 @@ const playerSchema = z.object({
   name: z.string().trim().min(1).max(120),
   gender: z.enum(["male", "female"]).default("male"),
   checkedIn: z.boolean(),
-  paid: z.boolean(),
+  // Read legacy backups without retaining the retired payment field.
+  paid: z.boolean().optional(),
   withdrawn: z.boolean(),
-}).strict();
+}).strict().transform((player) => ({
+  id: player.id, name: player.name, gender: player.gender,
+  checkedIn: player.checkedIn, withdrawn: player.withdrawn,
+}));
 
 const teamSchema = z.object({
   id: identifier,

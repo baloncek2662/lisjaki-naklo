@@ -14,6 +14,7 @@ import Statistika from "./pages/Statistika";
 import Turnir from "./pages/Turnir";
 import TurnirAdmin from "./pages/TurnirAdmin";
 import NotFound from "./pages/NotFound";
+import Zasebnost from "./pages/Zasebnost";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
           <Route path="/galerija" element={<Galerija />} />
           <Route path="/galerija/:slug" element={<GalerijaEvent />} />
           <Route path="/statistika" element={<Statistika />} />
+          <Route path="/zasebnost" element={<Zasebnost />} />
           <Route path="/turnir" element={<Turnir />} />
           <Route path="/turnir/vodenje" element={<TurnirAdmin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -7,7 +7,6 @@ export interface TournamentPlayer {
   name: string;
   gender?: TournamentGender;
   checkedIn: boolean;
-  paid: boolean;
   withdrawn: boolean;
 }
 

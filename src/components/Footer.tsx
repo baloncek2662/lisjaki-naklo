@@ -1,4 +1,5 @@
 import { Facebook, Instagram, Mail, MapPin } from "lucide-react";
+import { Link } from "react-router-dom";
 import logo from "@/assets/lisjaki-logo.jpg";
 
 const Footer = () => {
@@ -61,6 +62,9 @@ const Footer = () => {
 
         {/* Bottom Bar */}
         <div className="border-t border-primary-foreground/10 mt-12 pt-6 text-center">
+          <Link to="/zasebnost" className="mb-3 inline-block text-sm text-primary-foreground/70 underline underline-offset-4 hover:text-primary">
+            Zasebnost in piškotki
+          </Link>
           <p className="text-primary-foreground/50 text-sm">
             © 2025 ŠD Lisjaki Naklo. Vse pravice pridržane.
           </p>
