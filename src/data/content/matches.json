@@ -1,6 +1,17 @@
 {
   "played": [
     {
+      "id": 6683,
+      "season": "2026/27",
+      "kickoff": "2026-10-04T12:00:00+02:00",
+      "home": "Lisjaki Naklo",
+      "away": "Realj Madrid",
+      "date": "4. okt. 2026",
+      "location": "Športni Park Radovljica",
+      "homeScore": 3,
+      "awayScore": 0
+    },
+    {
       "id": 6676,
       "season": "2026/27",
       "kickoff": "2026-09-27T08:00:00+02:00",
@@ -513,16 +524,6 @@
   ],
   "upcoming": [
     {
-      "id": 6683,
-      "season": "2026/27",
-      "kickoff": "2026-10-04T09:00:00+02:00",
-      "home": "Lisjaki Naklo",
-      "away": "Realj Madrid",
-      "date": "4. okt. 2026",
-      "location": "Športni Park Radovljica",
-      "time": "09:00"
-    },
-    {
       "id": 6693,
       "season": "2026/27",
       "kickoff": "2026-10-11T08:00:00+02:00",
@@ -554,6 +555,7 @@
     6446,
     6422,
     6382,
-    8
+    8,
+    6683
   ]
 }
