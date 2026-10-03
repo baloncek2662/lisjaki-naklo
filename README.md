@@ -4,6 +4,8 @@ Website for Lisjaki Naklo, with club news, photo galleries, fixtures, results, l
 
 Production: [lisjaki-naklo.si](https://lisjaki-naklo.si).
 
+Explore the [interactive architecture diagrams](docs/architecture.html), starting with the whole app's build and deployment, then the `/turnir` and `/turnir/vodenje` API, D1 data and scoring; download the HTML file or clone this repository, then open it in any browser (no server required).
+
 ## Local development
 
 Use Node.js 22 and npm 10. The production build has been verified with npm 10.9.2.
