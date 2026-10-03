@@ -30,11 +30,15 @@ The site uses React, TypeScript, Vite, Tailwind CSS, and shadcn/ui. `vite-react-
 
 ## Content
 
-- `src/data/matches.ts`: fixtures, results, lineups, and scorers.
-- `src/data/standings.ts`: league standings.
-- `src/data/team.ts`: player names and jersey numbers.
+- `src/data/content/matches.json`: fixtures, results, lineups, and scorers.
+- `src/data/content/standings.json`: standings and source metadata.
+- `src/data/content/players.json`: player names and jersey numbers.
 - `src/data/articles/`: club news articles.
 - `public/images/gallery/`: event photos.
+
+## Weekly content updates
+
+Use the repository `$lisjaki-content` skill for matches, standings, news and albums. The harness accepts structured batches and checks them before writing. See [the workflow guide](docs/content-harness.md) and run `npm run content -- help`. Editable records live in `src/data/content/`; existing TypeScript exports remain adapters.
 
 ## Deployment
 

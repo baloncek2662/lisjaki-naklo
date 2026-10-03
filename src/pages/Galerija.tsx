@@ -1,3 +1,5 @@
+import { GalleryImage } from "@/components/GalleryImage";
+import { useGalleryPrefetch } from "@/hooks/use-gallery-prefetch";
 import { Link } from "react-router-dom";
 import { Folder, Calendar, X, ChevronLeft, ChevronRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -8,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 const Galerija = () => {
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  useGalleryPrefetch(featuredImages, selectedImageIndex);
 
   const handleNext = useCallback(() => {
     setSelectedImageIndex((prev) =>
@@ -85,7 +88,7 @@ const Galerija = () => {
                   className="group relative aspect-square overflow-hidden rounded-xl shadow-card cursor-pointer"
                   onClick={() => setSelectedImageIndex(index)}
                 >
-                  <img
+                  <GalleryImage
                     src={image.src}
                     alt={image.alt}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -121,7 +124,7 @@ const Galerija = () => {
 
                     {/* Cover Image */}
                     <div className="absolute inset-0">
-                      <img
+                      <GalleryImage
                         src={event.coverImage}
                         alt={event.title}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -151,7 +154,7 @@ const Galerija = () => {
                         </span>
                       </div>
                       <p className="text-xs text-primary-foreground/60 mt-1">
-                        {event.images.length} fotografij
+                        {event.images.filter(image => image.type !== "video").length} fotografij
                       </p>
                     </div>
                   </div>
@@ -205,11 +208,13 @@ const Galerija = () => {
               className="relative w-full h-full p-4 md:p-12 flex items-center justify-center"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
-                src={featuredImages[selectedImageIndex].src}
+              <GalleryImage
+                mode="lightbox" src={featuredImages[selectedImageIndex].src}
                 alt={featuredImages[selectedImageIndex].alt}
                 className="max-w-full max-h-full object-contain shadow-2xl rounded-sm animate-in fade-in zoom-in-95 duration-300"
               />
+
+              <a href={featuredImages[selectedImageIndex].src} target="_blank" rel="noopener noreferrer" className="absolute top-4 left-4 text-white underline">Odpri izvirnik</a>
 
               {/* Caption if available */}
               {featuredImages[selectedImageIndex].caption && (

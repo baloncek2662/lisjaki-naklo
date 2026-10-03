@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy } from "lucide-react";
-import { standingsData } from "@/data/standings";
-import { leagueSources } from "@/data/matches";
+import { standingsData, standingsMetadata } from "@/data/standings";
+
 
 const StandingsTable = () => {
   return (
@@ -23,13 +23,13 @@ const StandingsTable = () => {
         </div>
 
         <p className="max-w-4xl mx-auto mb-4 text-sm text-muted-foreground">
-          Stanje na dan 30. 9. 2026 · <a href={leagueSources["2026/27"]} target="_blank" rel="noopener noreferrer" className="text-primary underline">Športna zveza Radovljica</a>
+          Stanje na dan {new Date(standingsMetadata.asOf + "T12:00:00Z").toLocaleDateString("sl-SI", { timeZone: "Europe/Ljubljana" })} · <a href={standingsMetadata.source} target="_blank" rel="noopener noreferrer" className="text-primary underline">Športna zveza Radovljica</a>
         </p>
 
         <Card className="max-w-4xl mx-auto shadow-elevated border-0 overflow-hidden">
           <CardHeader className="bg-charcoal text-primary-foreground">
             <CardTitle className="text-lg md:text-xl">
-              Liga malega nogometa 2026/27 - Skupina B
+              Liga malega nogometa {standingsMetadata.season} - Skupina {standingsMetadata.group}
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">

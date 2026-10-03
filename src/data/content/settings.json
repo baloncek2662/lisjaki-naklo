@@ -1,0 +1,16 @@
+{
+  "club": "Lisjaki Naklo",
+  "activeSeason": "2026/27",
+  "seasons": {
+    "2025/26": {
+      "source": "https://sport-radovljica.si/tekmovanje/liga-malega-nogometa-2025-26/",
+      "group": "A"
+    },
+    "2026/27": {
+      "source": "https://sport-radovljica.si/tekmovanje/liga-malega-nogometa-26-27/",
+      "group": "B"
+    }
+  },
+  "teamAliases": {},
+  "playerAliases": {}
+}

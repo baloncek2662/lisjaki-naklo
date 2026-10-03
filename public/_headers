@@ -1,0 +1,4 @@
+/images/gallery/*
+  Cache-Control: public, max-age=86400
+/deployment.json
+  Cache-Control: no-store

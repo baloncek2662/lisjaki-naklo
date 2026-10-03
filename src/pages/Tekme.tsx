@@ -3,7 +3,7 @@ import { Calendar, MapPin, Trophy, ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { playedMatches, upcomingMatches, pendingMatches, leagueSources, type PlayedMatch, type UpcomingMatch } from "@/data/matches";
+import { playedMatches, upcomingMatches, pendingMatches, leagueSources, activeSeason, type PlayedMatch, type UpcomingMatch } from "@/data/matches";
 import MatchTeamDetails from "@/components/MatchTeamDetails";
 
 const MatchCard = ({ match }: { match: PlayedMatch | UpcomingMatch }) => {
@@ -100,7 +100,7 @@ const MatchCard = ({ match }: { match: PlayedMatch | UpcomingMatch }) => {
 };
 
 const Tekme = () => {
-  const [season, setSeason] = useState<keyof typeof leagueSources>("2026/27");
+  const [season, setSeason] = useState<keyof typeof leagueSources>(activeSeason);
   const results = playedMatches.filter((match) => match.season === season);
   const fixtures = upcomingMatches.filter((match) => match.season === season);
   const pending = pendingMatches.filter((match) => match.season === season);

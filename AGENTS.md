@@ -122,3 +122,14 @@ Lint only changed files when appropriate. As of 2026-08-29, the full `npm run li
 
 - Central tournament persistence and Access authentication landed in feature commit `fd01e10` and merge commit `b88519c` on 2026-08-29.
 - The migration intentionally replaced browser-only IndexedDB state. Any old tournament data in a browser was never authoritative and is not imported automatically.
+
+## Weekly content harness
+
+- Repo skill: `.agents/skills/lisjaki-content/SKILL.md`; input/editorial references live beside it. Use for matches, standings, roster, news and gallery tasks.
+- CLI: `npm run content -- help`; `batch <input.json> [--dry-run]` validates the whole batch before writing. `verify` runs content audit/tests/build/diff check.
+- Mutable content is in `src/data/content/*.json`; `src/data/{matches,standings,team,news,gallery}.ts` retain compatible exports. Article bodies remain Markdown, automatically discovered by Vite.
+- Club-confirmed result IDs (including existing detailed records and explicit corrections) survive league sync. Imports preserve lineups/scorers; manual match writes mark results confirmed. Report source conflicts instead of overriding club evidence.
+- Gallery imports copy source media with hashed filenames and leave originals untouched. Responsive Cloudflare delivery is in `GalleryImage`/`gallery-images`; failures fall back to originals. No application offline cache.
+- Standings date/season/group/source live together; settings drive the default match season. A season change needs a league refresh before publishing.
+- Content-only publish accepts an explicit path list and requires user authorization. Implementation changes use normal scoped Git commits. Build marker `/deployment.json` confirms served commit; pushing alone only triggers deployment.
+- Guide: `docs/content-harness.md`. Tests: `npm run test:content`; CLI typecheck: `npx tsc -p scripts/content/tsconfig.json`. Content CI uses clean npm ci. The harness does not mutate tournament D1.

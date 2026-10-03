@@ -1,3 +1,5 @@
+import { GalleryImage } from "@/components/GalleryImage";
+import { useGalleryPrefetch } from "@/hooks/use-gallery-prefetch";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Calendar, X, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -11,6 +13,7 @@ const GalerijaEvent = () => {
   const { slug } = useParams<{ slug: string }>();
   const event = slug ? getGalleryEventBySlug(slug) : undefined;
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+  useGalleryPrefetch(event?.images ?? [], selectedImageIndex);
 
   const handleNext = useCallback(() => {
     if (!event) return;
@@ -143,7 +146,7 @@ const GalerijaEvent = () => {
                       </div>
                     </>
                   ) : (
-                    <img
+                    <GalleryImage
                       src={image.src}
                       alt={image.alt}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
@@ -209,12 +212,15 @@ const GalerijaEvent = () => {
                   className="max-w-full max-h-full shadow-2xl rounded-sm animate-in fade-in zoom-in-95 duration-300"
                 />
               ) : (
-                <img
+                <GalleryImage
+                  mode="lightbox"
                   src={event.images[selectedImageIndex].src}
                   alt={event.images[selectedImageIndex].alt}
                   className="max-w-full max-h-full object-contain shadow-2xl rounded-sm animate-in fade-in zoom-in-95 duration-300"
                 />
               )}
+
+              <a href={event.images[selectedImageIndex].src} target="_blank" rel="noopener noreferrer" className="absolute top-4 left-4 text-white underline">Odpri izvirnik</a>
 
               {/* Caption if available */}
               {event.images[selectedImageIndex].caption && (
