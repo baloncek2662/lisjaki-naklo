@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import ScrollToTop from "@/components/ScrollToTop";
+import PageTitle from "@/components/PageTitle";
 import Index from "@/pages/Index";
 import Tekme from "@/pages/Tekme";
 import Statistika from "@/pages/Statistika";
@@ -27,6 +28,7 @@ const AppLayout = () => (
       <Toaster />
       <Sonner />
       <ScrollToTop />
+      <PageTitle />
       <Outlet />
     </TooltipProvider>
   </QueryClientProvider>

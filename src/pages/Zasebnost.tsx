@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { ShieldCheck, ArrowUpRight } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Head } from "vite-react-ssg";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -18,9 +17,6 @@ const PrivacySection = ({ title, value, children }: { title: string; value: stri
 
 const Zasebnost = () => (
   <div className="min-h-screen bg-background">
-    <Head>
-      <title>Zasebnost in piškotki | ŠD Lisjaki Naklo</title>
-    </Head>
     <Navbar />
 
     <main className="pt-16 md:pt-20">
