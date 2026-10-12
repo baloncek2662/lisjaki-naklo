@@ -27,6 +27,30 @@
   ],
   "events": [
     {
+      "id": "event-zmaga-proti-gorjam",
+      "slug": "zmaga-proti-gorjam",
+      "title": "Lisjaki – ŠD Gorje 10:0",
+      "date": "2026-10-11",
+      "coverImage": "/images/gallery/zmaga-proti-gorjam/rezultat-c842b702a5715f11.jpeg",
+      "images": [
+        {
+          "id": "zmaga-proti-gorjam-22d4acc0-c842b702a5715f11",
+          "src": "/images/gallery/zmaga-proti-gorjam/rezultat-c842b702a5715f11.jpeg",
+          "alt": "Grafika rezultata Lisjaki Naklo – ŠD Gorje 10:0 in strelcev."
+        },
+        {
+          "id": "zmaga-proti-gorjam-ca894bd6-47929752f9ef12f9",
+          "src": "/images/gallery/zmaga-proti-gorjam/posiljka-golov-47929752f9ef12f9.jpeg",
+          "alt": "Montaža nogometaša s padalom in vrečo nogometnih žog nad igriščem."
+        },
+        {
+          "id": "zmaga-proti-gorjam-0b93ec2c-db1c5e70ce6e7859",
+          "src": "/images/gallery/zmaga-proti-gorjam/hobotnica-db1c5e70ce6e7859.jpeg",
+          "alt": "Montaža vratarja s šestimi rokami v vratarskih rokavicah na igrišču."
+        }
+      ]
+    },
+    {
       "id": "event-turnir-odbojka-2026",
       "slug": "turnir-odbojka-2026",
       "title": "Prvi Lisjakov turnir v odbojki",
