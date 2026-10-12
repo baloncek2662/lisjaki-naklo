@@ -18,7 +18,7 @@ const activities = [
     icon: Bus,
     title: "Izleti",
     description:
-      "Skupinska potovanja na tekme slovenske reprezentance in evropske lige.",
+      "Skupaj podpiramo slovensko reprezentanco v različnih športih, potujemo na domače in gostujoče tekme ter na vsa večja tekmovanja, kamor se uvrstimo.",
   },
 ];
 
