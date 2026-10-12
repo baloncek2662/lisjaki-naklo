@@ -3,7 +3,8 @@ import { BarChart2, ChevronDown, ChevronUp, ChevronsUpDown } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { playedMatches } from "@/data/matches";
+import SeasonSelect from "@/components/SeasonSelect";
+import { playedMatches, leagueSeasons } from "@/data/matches";
 import { playerMap } from "@/data/team";
 
 interface PlayerStat {
@@ -14,11 +15,11 @@ interface PlayerStat {
   goals: number;
 }
 
-function calculateStats(): PlayerStat[] {
+function calculateStats(season: string): PlayerStat[] {
   const stats = new Map<string, PlayerStat>();
 
   for (const match of playedMatches) {
-    if (!match.details) continue;
+    if (!match.details || (season !== "all" && match.season !== season)) continue;
 
     const lisjakiDetails =
       match.home === "Lisjaki Naklo" ? match.details.home : match.details.away;
@@ -53,25 +54,28 @@ function calculateStats(): PlayerStat[] {
 type SortKey = "appearances" | "goals" | "number" | "name";
 type SortDir = "desc" | "asc";
 
-const recordedMatches = playedMatches.filter((match) => {
-  const details = match.home === "Lisjaki Naklo" ? match.details?.home : match.details?.away;
-  return details && (details.lineup.length > 0 || details.goalscorers.length > 0 || (details.substitutions?.length ?? 0) > 0);
-});
-const firstRecordedMatch = [...recordedMatches].sort((a, b) => a.kickoff.localeCompare(b.kickoff))[0];
-const statisticsStartDate = firstRecordedMatch
-  ? new Intl.DateTimeFormat("sl-SI", { day: "numeric", month: "numeric", year: "numeric", timeZone: "Europe/Ljubljana" }).format(new Date(firstRecordedMatch.kickoff))
-  : undefined;
-
 const SortIcon = ({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; sortDir: SortDir }) => {
   if (col !== sortKey) return <ChevronsUpDown size={13} className="text-muted-foreground/40" />;
   return sortDir === "desc" ? <ChevronDown size={13} className="text-primary" /> : <ChevronUp size={13} className="text-primary" />;
 };
 
 const Statistika = () => {
+  const [season, setSeason] = useState("all");
   const [sortKey, setSortKey] = useState<SortKey>("appearances");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
-  const allStats = calculateStats();
+  const allStats = calculateStats(season);
+  const recordedMatches = playedMatches.filter((match) => {
+    if (season !== "all" && match.season !== season) return false;
+    const details = match.home === "Lisjaki Naklo" ? match.details?.home : match.details?.away;
+    return details && (details.lineup.length > 0 || details.goalscorers.length > 0 || (details.substitutions?.length ?? 0) > 0);
+  });
+  const firstRecordedMatch = [...recordedMatches].sort((a, b) => a.kickoff.localeCompare(b.kickoff))[0];
+  const statisticsStartDate = firstRecordedMatch
+    ? new Intl.DateTimeFormat("sl-SI", { day: "numeric", month: "numeric", year: "numeric", timeZone: "Europe/Ljubljana" }).format(new Date(firstRecordedMatch.kickoff))
+    : undefined;
+
+  const selectedLeague = leagueSeasons.find(league => league.season === season);
 
   const sorted = [...allStats].sort((a, b) => {
     if (sortKey === "name") {
@@ -82,7 +86,7 @@ const Statistika = () => {
     if (diff !== 0) return diff;
     // tiebreakers
     if (sortKey !== "appearances") return b.appearances - a.appearances;
-    if (sortKey !== "goals") return b.goals - a.goals;
+    if (b.goals !== a.goals) return b.goals - a.goals;
     return (a.number ?? 99) - (b.number ?? 99);
   });
 
@@ -96,7 +100,7 @@ const Statistika = () => {
   };
 
   const thClass = (key: SortKey) =>
-    `px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider cursor-pointer select-none whitespace-nowrap hover:text-primary transition-colors ${
+    `px-2 sm:px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider cursor-pointer select-none whitespace-nowrap hover:text-primary transition-colors ${
       sortKey === key ? "text-primary" : "text-muted-foreground"
     }`;
 
@@ -114,8 +118,9 @@ const Statistika = () => {
               </h1>
             </div>
             <p className="text-muted-foreground text-lg">
-              Vse sezone · {recordedMatches.length} tekem z evidenco
+              {selectedLeague ? `${season} · Liga ${selectedLeague.group}` : "Vse sezone"} · {recordedMatches.length} tekem z evidenco
             </p>
+            <div className="mt-6"><SeasonSelect value={season} onChange={setSeason} includeAll /></div>
             {statisticsStartDate && (
               <p className="mt-3 text-sm text-muted-foreground">
                 Statistika nastopov in zadetkov se vodi od {statisticsStartDate} dalje. Upoštevani so le vpisani podatki o postavah in strelcih.
@@ -174,12 +179,12 @@ const Statistika = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                      {sorted.map((p, i) => (
+                      {sorted.map((p) => (
                         <tr
                           key={p.initials}
                           className="hover:bg-muted/30 transition-colors"
                         >
-                          <td className="px-4 py-3">
+                          <td className="px-2 sm:px-4 py-3">
                             {p.number != null ? (
                               <span className="inline-flex items-center justify-center w-8 h-6 rounded bg-primary/10 text-primary text-xs font-bold">
                                 {p.number}
@@ -188,15 +193,15 @@ const Statistika = () => {
                               <span className="text-muted-foreground text-xs">—</span>
                             )}
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-2 sm:px-4 py-3">
                             <span className="font-medium text-sm text-foreground">{p.name}</span>
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-2 sm:px-4 py-3">
                             <span className={`text-sm font-semibold ${sortKey === "appearances" ? "text-primary" : "text-foreground"}`}>
                               {p.appearances}
                             </span>
                           </td>
-                          <td className="px-4 py-3">
+                          <td className="px-2 sm:px-4 py-3">
                             <span className={`text-sm font-semibold ${sortKey === "goals" ? "text-primary" : p.goals > 0 ? "text-foreground" : "text-muted-foreground"}`}>
                               {p.goals > 0 ? p.goals : "—"}
                             </span>

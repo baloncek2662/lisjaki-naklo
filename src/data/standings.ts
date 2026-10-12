@@ -15,3 +15,5 @@ export interface StandingRow {
 import records from './content/standings.json';
 export const standingsData: StandingRow[] = records.rows;
 export const standingsMetadata = records;
+
+export const standingsBySeason = Object.fromEntries([records, ...(records.archives ?? [])].map(table => [table.season, table]));

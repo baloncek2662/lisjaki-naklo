@@ -2,14 +2,14 @@ import { useState } from "react";
 import { Calendar, MapPin, Clock, ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import logo from "@/assets/lisjaki-logo.jpg";
-import { playedMatches, upcomingMatches } from "@/data/matches";
+import { playedMatches, upcomingMatches, activeSeason } from "@/data/matches";
 import MatchTeamDetails from "@/components/MatchTeamDetails";
 
 const MatchCenter = () => {
   const [expanded, setExpanded] = useState(false);
 
-  const nextMatch = upcomingMatches[0];
-  const lastResult = playedMatches[0];
+  const nextMatch = upcomingMatches.find(match => match.season === activeSeason);
+  const lastResult = playedMatches.find(match => match.season === activeSeason);
   const isLisjakiHome = lastResult?.home === "Lisjaki Naklo";
 
   return (

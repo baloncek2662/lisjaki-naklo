@@ -40,3 +40,5 @@ Publishing requires a user request. `publish /tmp/publish.json` accepts explicit
 Builds emit `dist/deployment.json` with `CF_PAGES_COMMIT_SHA` (or local HEAD), served with no-store. `deployment check --commit <full-sha>` verifies the deployed SHA. Until this implementation is deployed the marker will be absent; a push alone is never reported as confirmed deployment.
 
 Tournament persistence/authentication is unchanged and does not go through this harness. No credentials or API write secrets are added.
+
+Standings retain previous seasons in `standings.json` under `archives`. Refreshing the active season preserves archives; a season rollover archives the previous live table. To import a configured historical table without switching the active season, use `npm run content -- standings sync --season 2025/26 --html <fresh-snapshot> --as-of <check-date>`. Historical fixture/league sync still requires activating that season. `/tekme` shares one season selector between matches and standings, with Liga A/B labels from settings. Statistics support all seasons or a single season; the homepage shows only the active season.

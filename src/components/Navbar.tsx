@@ -6,7 +6,7 @@ import logo from "@/assets/lisjaki-logo.jpg";
 
 const navLinks = [
   { name: "Domov", href: "/", isAnchor: true },
-  { name: "Tekme", href: "/tekme", isAnchor: false },
+  { name: "Tekme in lestvica", href: "/tekme", isAnchor: false },
   { name: "Statistika", href: "/statistika", isAnchor: false },
   { name: "Turnir", href: "/turnir", isAnchor: false },
   { name: "Novice", href: "/novice", isAnchor: false },
@@ -42,7 +42,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-5">
             {navLinks.map((link) => (
               link.isAnchor ? (
                 <a

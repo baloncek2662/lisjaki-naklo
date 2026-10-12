@@ -1,9 +1,13 @@
+import { useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import { Calendar, MapPin, Trophy, ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { playedMatches, upcomingMatches, pendingMatches, leagueSources, activeSeason, type PlayedMatch, type UpcomingMatch } from "@/data/matches";
+import StandingsTable from "@/components/StandingsTable";
+import SeasonSelect from "@/components/SeasonSelect";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import MatchTeamDetails from "@/components/MatchTeamDetails";
 
 const MatchCard = ({ match }: { match: PlayedMatch | UpcomingMatch }) => {
@@ -100,7 +104,15 @@ const MatchCard = ({ match }: { match: PlayedMatch | UpcomingMatch }) => {
 };
 
 const Tekme = () => {
-  const [season, setSeason] = useState<keyof typeof leagueSources>(activeSeason);
+  const [params, setParams] = useSearchParams();
+  const requestedSeason = params.get("season");
+  const season = requestedSeason && Object.prototype.hasOwnProperty.call(leagueSources, requestedSeason) ? requestedSeason : activeSeason;
+  const tab = params.get("view") === "standings" ? "standings" : "matches";
+  const setFilter = (key: string, value: string) => setParams(previous => {
+    const next = new URLSearchParams(previous);
+    next.set(key, value);
+    return next;
+  });
   const results = playedMatches.filter((match) => match.season === season);
   const fixtures = upcomingMatches.filter((match) => match.season === season);
   const pending = pendingMatches.filter((match) => match.season === season);
@@ -112,71 +124,81 @@ const Tekme = () => {
         <section className="bg-secondary py-12 md:py-16">
           <div className="container mx-auto px-4">
             <h1 className="text-3xl md:text-4xl font-bold text-secondary-foreground mb-4">
-              Tekme
+              Tekme in lestvica
             </h1>
             <p className="text-muted-foreground text-lg">
-              Pregled vseh tekem kluba Lisjaki Naklo
+              Liga malega nogometa
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-3">
-              <label htmlFor="season" className="font-medium">Sezona</label>
-              <select id="season" value={season} onChange={(event) => setSeason(event.target.value as keyof typeof leagueSources)} className="rounded-md border border-border bg-background px-3 py-2 text-foreground">
-                <option value="2026/27">2026/27</option>
-                <option value="2025/26">2025/26</option>
-              </select>
+              <SeasonSelect value={season} onChange={value => setFilter("season", value)} />
               <a href={leagueSources[season]} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline">Vir: Športna zveza Radovljica</a>
             </div>
           </div>
         </section>
 
-        <section className="py-12 md:py-16">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center gap-3 mb-8">
-              <Calendar className="text-primary" size={28} />
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                Prihajajoče Tekme
-              </h2>
-            </div>
-            {fixtures.length > 0 ? (
-              <div className="grid gap-4">
-                {fixtures.map((match) => (
-                  <MatchCard key={match.id} match={match} />
-                ))}
-              </div>
-            ) : (
-              <Card className="border-border">
-                <CardContent className="p-8 text-center text-muted-foreground">
-                  Trenutno ni načrtovanih tekem
-                </CardContent>
-              </Card>
+        <Tabs value={tab} onValueChange={value => setFilter("view", value)}>
+          <div className="container mx-auto px-4 pt-6">
+            <TabsList aria-label="Tekme in lestvica" className="h-12">
+              <TabsTrigger value="matches" className="px-6 py-2">Tekme</TabsTrigger>
+              <TabsTrigger value="standings" className="px-6 py-2">Lestvica</TabsTrigger>
+            </TabsList>
+          </div>
+          <TabsContent value="standings"><StandingsTable season={season} showSeasonLink={false} /></TabsContent>
+          <TabsContent value="matches">
+            {season === activeSeason && (
+              <section className="py-12 md:py-16">
+                <div className="container mx-auto px-4">
+                  <div className="flex items-center gap-3 mb-8">
+                    <Calendar className="text-primary" size={28} />
+                    <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                      Prihajajoče Tekme
+                    </h2>
+                  </div>
+                  {fixtures.length > 0 ? (
+                    <div className="grid gap-4">
+                      {fixtures.map((match) => (
+                        <MatchCard key={match.id} match={match} />
+                      ))}
+                    </div>
+                  ) : (
+                    <Card className="border-border">
+                      <CardContent className="p-8 text-center text-muted-foreground">
+                        Trenutno ni načrtovanih tekem
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              </section>
             )}
-          </div>
-        </section>
 
-        {pending.length > 0 && (
-          <section className="pb-12">
-            <div className="container mx-auto px-4">
-              <h2 className="mb-3 text-2xl font-bold">Čakamo na rezultat</h2>
-              <p className="mb-6 text-muted-foreground">Rezultat še ni objavljen pri organizatorju lige.</p>
-              <div className="grid gap-4">{pending.map((match) => <MatchCard key={match.id} match={match} />)}</div>
-            </div>
-          </section>
-        )}
+            {pending.length > 0 && (
+              <section className="pb-12">
+                <div className="container mx-auto px-4">
+                  <h2 className="mb-3 text-2xl font-bold">Čakamo na rezultat</h2>
+                  <p className="mb-6 text-muted-foreground">Rezultat še ni objavljen pri organizatorju lige.</p>
+                  <div className="grid gap-4">{pending.map((match) => <MatchCard key={match.id} match={match} />)}</div>
+                </div>
+              </section>
+            )}
 
-        <section className="py-12 md:py-16 bg-muted/30">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center gap-3 mb-8">
-              <Trophy className="text-primary" size={28} />
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground">
-                Odigrane Tekme
-              </h2>
-            </div>
-            <div className="grid gap-4">
-              {results.map((match) => (
-                <MatchCard key={match.id} match={match} />
-              ))}
-            </div>
-          </div>
-        </section>
+            <section className="py-12 md:py-16 bg-muted/30">
+              <div className="container mx-auto px-4">
+                <div className="flex items-center gap-3 mb-8">
+                  <Trophy className="text-primary" size={28} />
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+                    Odigrane Tekme
+                  </h2>
+                </div>
+                {results.length === 0 && <p className="text-muted-foreground">V tej sezoni še ni odigranih tekem.</p>}
+                <div className="grid gap-4">
+                  {results.map((match) => (
+                    <MatchCard key={match.id} match={match} />
+                  ))}
+                </div>
+              </div>
+            </section>
+          </TabsContent>
+        </Tabs>
       </main>
 
       <Footer />

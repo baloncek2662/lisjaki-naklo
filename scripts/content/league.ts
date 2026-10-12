@@ -15,7 +15,7 @@ export function parseLeague(html:string, config:Settings, season:string, asOf:st
   if (!league) throw new Error(`Unconfigured season ${season}`);
   const dom = parse(html) as unknown as Node;
   const groups = byClass(dom,'competition__group-title');
-  const group = groups.filter(n=>content(n).trim()===league.group);
+  const group = groups.filter(n=>[league.group,`Skupina ${league.group}`].includes(content(n).trim()));
   if (group.length !== 1) throw new Error(`Expected exactly one standings group ${league.group}`);
   // A group heading and its standing wrapper are siblings in the AnWP markup.
   const parent = all(dom,n=>(n.childNodes??[]).includes(group[0]))[0];

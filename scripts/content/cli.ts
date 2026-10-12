@@ -4,13 +4,13 @@ import os from 'node:os';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { z } from 'zod';
-import { article, displayDate, event, match, mergeLeague, normalize, player, resolvePlayer, settings, slug, upsertMatch } from './model';
+import { article, displayDate, event, match, mergeLeague, normalize, player, resolvePlayer, settings, slug, updateStandings, upsertMatch } from './model';
 import { parseLeague } from './league';
 import { audit, commit, load, publicPath, safePath, type Store } from './store';
 
 const help = `Lisjaki content harness (run from repository root)
   content match upsert input.json [--dry-run]
-  content standings sync [--html snapshot.html] [--as-of YYYY-MM-DD] [--dry-run]
+  content standings sync [--season YYYY/YY] [--html snapshot.html] [--as-of YYYY-MM-DD] [--dry-run]
   content fixtures sync [--html snapshot.html] [--dry-run]
   content league sync [--html snapshot.html] [--dry-run]
   content article add input.json [--dry-run]
@@ -27,7 +27,7 @@ JSON examples and source rules: .agents/skills/lisjaki-content/references/inputs
 const args=process.argv.slice(2);
 function flag(name:string) { const i=args.indexOf(name);if(i<0)return undefined;const value=args[i+1];if(!value || value.startsWith('--'))throw new Error(`Missing value for ${name}`);args.splice(i,2);return value; }
 const root=fs.realpathSync(path.resolve(flag('--root')??process.cwd()));
-const htmlFile=flag('--html'), asOf=flag('--as-of'), sha=flag('--commit');
+const htmlFile=flag('--html'), asOf=flag('--as-of'), sha=flag('--commit'), seasonFlag=flag('--season');
 const dryRun=args.includes('--dry-run');if(dryRun)args.splice(args.indexOf('--dry-run'),1);
 const unknown=args.find(a=>a.startsWith('--'));if(unknown)throw new Error(`Unknown option ${unknown}`);
 const today=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Ljubljana',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -54,9 +54,9 @@ function resolveDetails(details:unknown) {
   };
   return {home:side(d.home),away:side(d.away)};
 }
-async function leagueHTML(file?:string) {
+async function leagueHTML(file?:string, season=data.settings.activeSeason) {
   if(file)return fs.readFileSync(path.resolve(file),'utf8');
-  const url=data.settings.seasons[data.settings.activeSeason].source;
+  const url=data.settings.seasons[season].source;
   const response=await fetch(url,{signal:AbortSignal.timeout(30000)});
   if(!response.ok)throw new Error(`League returned HTTP ${response.status}; no files changed`);
   const text=await response.text();if(text.length>5_000_000)throw new Error('League response too large');return text;
@@ -81,13 +81,13 @@ async function apply(command:string,input:unknown) {
     data.matches=upsertMatch(data.matches,incoming);
   } else if(['standings sync','fixtures sync','league sync'].includes(command)) {
     const options=z.object({html:z.string().optional(),asOf:z.string().optional(),season:z.string().optional()}).strict().parse(input??{});
-    const season=options.season??data.settings.activeSeason;
-    if(season!==data.settings.activeSeason)throw new Error('Activate the season before syncing');
-    const names=data.standings.season===season?data.standings.rows.map(r=>r.team):[];
-    const imported=parseLeague(await leagueHTML(options.html??htmlFile),data.settings,season,options.asOf??asOf??today(),names);
+    const season=options.season??seasonFlag??data.settings.activeSeason;
+    if(season!==data.settings.activeSeason && command!=='standings sync')throw new Error('Activate the season before syncing');
+    const previous=[data.standings,...(data.standings.archives??[])].find(table=>table.season===season);
+    const names=previous?.rows.map(r=>r.team)??[];
+    const imported=parseLeague(await leagueHTML(options.html??htmlFile,season),data.settings,season,options.asOf??asOf??today(),names);
     if(command!=='fixtures sync') {
-      if(imported.standings.asOf<data.standings.asOf)throw new Error('Refusing an older standings date');
-      data.standings=imported.standings;
+      data.standings=updateStandings(data.standings,imported.standings,data.settings.activeSeason);
     }
     if(command!=='standings sync') {const merged=mergeLeague(data.matches,imported.matches,season,Date.now());data.matches=merged.data;notices.push(...merged.conflicts);}
   } else if(command==='roster upsert') {

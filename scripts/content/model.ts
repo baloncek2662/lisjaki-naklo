@@ -11,7 +11,18 @@ export const match = fixture.omit({time:true}).extend({ homeScore: integer, away
 export const matches = z.object({ played: z.array(match), upcoming: z.array(fixture), pending: z.array(fixture), confirmedResults: z.array(z.number().int()) }).strict();
 export const player = z.object({ initials: text, name: text, number: integer.optional(), opponent: z.boolean().optional() }).strict();
 const row = z.object({ pos: integer, team: text, played: integer, won: integer, draw: integer, lost: integer, goalsFor: integer, goalsAgainst: integer, goalDiff: z.number().int(), points: integer, isHighlighted: z.boolean().optional() }).strict();
-export const standings = z.object({ season: text, group: text, source: z.string().url(), asOf: day, rows: z.array(row).min(2) }).strict();
+export const seasonStandings = z.object({ season: text, group: text, source: z.string().url(), asOf: day, rows: z.array(row).min(2) }).strict();
+export const standings = seasonStandings.extend({ archives: z.array(seasonStandings).optional() }).strict();
+export function updateStandings(current: z.infer<typeof standings>, incoming: z.infer<typeof seasonStandings>, activeSeason: string): z.infer<typeof standings> {
+  const tables = [current, ...(current.archives ?? [])];
+  const previous = tables.find(table => table.season === incoming.season);
+  if (previous && incoming.asOf < previous.asOf) throw new Error('Refusing an older standings date');
+  const updated = [...tables.filter(table => table.season !== incoming.season), incoming];
+  const active = updated.find(table => table.season === activeSeason);
+  if (!active) throw new Error('Refresh standings for the active season first');
+  const plain = ({ season, group, source, asOf, rows }: z.infer<typeof standings>) => ({ season, group, source, asOf, rows });
+  return { ...plain(active), archives: updated.filter(table => table.season !== activeSeason).map(plain) };
+}
 const media = z.object({ id: text, src: text, alt: z.string(), caption: z.string().optional(), type: z.enum(['image','video']).optional() }).strict();
 export const event = z.object({ id: text, slug, title: text, date: day, coverImage: text, dateLabel: text.optional(), images: z.array(media).min(1) }).strict();
 export const gallery = z.object({ featured: z.array(media), events: z.array(event) }).strict();

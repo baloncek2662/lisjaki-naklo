@@ -45,3 +45,5 @@ export const playedMatches: PlayedMatch[] = records.played;
 export const upcomingMatches: UpcomingMatch[] = records.upcoming;
 export const pendingMatches: UpcomingMatch[] = records.pending;
 export const activeSeason = settings.activeSeason;
+
+export const leagueSeasons = Object.entries(settings.seasons).sort(([a], [b]) => b.localeCompare(a)).map(([season, league]) => ({ season, ...league }));

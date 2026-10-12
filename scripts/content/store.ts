@@ -32,10 +32,14 @@ export function audit(root:string,data:Store,files:Map<string,Buffer|string>=new
   unique(Object.keys(data.settings.playerAliases).map(normalize),'normalized player aliases');
   for(const [alias,id] of Object.entries(data.settings.playerAliases)) if(!data.players.some(p=>p.initials===id)) errors.push(`Unknown alias target ${alias}: ${id}`);
   if(!data.settings.seasons[data.settings.activeSeason]) errors.push('Active season is unconfigured');
-  try{validateStandings(data.standings);}catch(e){errors.push((e as Error).message);}
-  const league=data.settings.seasons[data.standings.season];
-  if(!league || league.group!==data.standings.group || league.source!==data.standings.source) errors.push('Standings source/group does not match season configuration');
-  if(data.standings.rows.filter(r=>r.isHighlighted).length!==1 || !data.standings.rows.some(r=>r.isHighlighted && normalize(r.team)===normalize(data.settings.club))) errors.push('Standings must highlight the club once');
+  const tables=[data.standings,...(data.standings.archives??[])];
+  unique(tables.map(table=>table.season),'standings seasons');
+  for(const table of tables) {
+    try{validateStandings(table);}catch(e){errors.push((e as Error).message);}
+    const league=data.settings.seasons[table.season];
+    if(!league || league.group!==table.group || league.source!==table.source) errors.push('Standings source/group does not match season configuration');
+    if(table.rows.filter(r=>r.isHighlighted).length!==1 || !table.rows.some(r=>r.isHighlighted && normalize(r.team)===normalize(data.settings.club))) errors.push('Standings must highlight the club once');
+  }
   for(const m of [...data.matches.played,...data.matches.upcoming,...data.matches.pending]) {
     if(!data.settings.seasons[m.season] && !m.season.toLowerCase().includes('prijatelj')) warnings.push(`Match ${m.id}: season ${m.season} has no league source`);
     if(normalize(m.home)!==normalize(data.settings.club) && normalize(m.away)!==normalize(data.settings.club)) errors.push(`Match ${m.id}: club absent`);

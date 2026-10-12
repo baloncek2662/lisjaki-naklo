@@ -4,7 +4,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
 import { parseLeague } from './league';
-import { displayTime, mergeLeague, resolvePlayer, validateStandings } from './model';
+import { displayTime, mergeLeague, updateStandings, resolvePlayer, validateStandings } from './model';
 import { audit, load } from './store';
 import { galleryImageURL } from '../../src/lib/gallery-images';
 
@@ -17,6 +17,16 @@ assert.equal(parsed.standings.rows.filter(r=>r.isHighlighted).length,1);
 assert.throws(()=>parseLeague('<html>Service unavailable</html>',data.settings,'2026/27','2026-10-03',[]));
 assert.throws(()=>parseLeague(html.replaceAll('standing-table__points','changed'),data.settings,'2026/27','2026-10-03',[]));
 assert.throws(()=>validateStandings({...parsed.standings,rows:parsed.standings.rows.map((r,i)=>i===0?{...r,points:123}:r)}));
+// Refreshes preserve other seasons, and rollover archives the prior live table.
+const historical={...parsed.standings,season:'2025/26',group:'A',source:data.settings.seasons['2025/26'].source};
+const archived=updateStandings(parsed.standings,historical,'2026/27');
+assert.equal(archived.season,'2026/27');
+assert.deepEqual(archived.archives,[historical]);
+assert.deepEqual(updateStandings(archived,parsed.standings,'2026/27'),archived);
+assert.throws(()=>updateStandings(archived,{...historical,asOf:'2025-01-01'},'2026/27'),/older/);
+const rollover=updateStandings(archived,{...parsed.standings,season:'2027/28'},'2027/28');
+assert.deepEqual(rollover.archives?.map(table=>table.season),['2026/27','2025/26']);
+assert.equal(parseLeague(html.replace('>B<','>Skupina B<'),data.settings,'2026/27','2026-10-03',[]).standings.group,'B');
 const merged=mergeLeague(data.matches,parsed.matches,'2026/27',Date.parse('2026-10-03T12:00Z'));
 assert.deepEqual(merged.data.played.find(m=>m.id===6612),data.matches.played.find(m=>m.id===6612));
 assert.deepEqual(merged.data.played.find(m=>m.id===6676)?.details,data.matches.played.find(m=>m.id===6676)?.details);

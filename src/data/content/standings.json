@@ -101,5 +101,112 @@
       "goalDiff": -17,
       "points": 3
     }
+  ],
+  "archives": [
+    {
+      "season": "2025/26",
+      "group": "A",
+      "source": "https://sport-radovljica.si/tekmovanje/liga-malega-nogometa-2025-26/",
+      "asOf": "2026-10-12",
+      "rows": [
+        {
+          "pos": 1,
+          "team": "NK SMOLA",
+          "played": 14,
+          "won": 11,
+          "draw": 3,
+          "lost": 0,
+          "goalsFor": 98,
+          "goalsAgainst": 38,
+          "goalDiff": 60,
+          "points": 36
+        },
+        {
+          "pos": 2,
+          "team": "ŠD PODNART",
+          "played": 14,
+          "won": 9,
+          "draw": 2,
+          "lost": 3,
+          "goalsFor": 68,
+          "goalsAgainst": 55,
+          "goalDiff": 13,
+          "points": 29
+        },
+        {
+          "pos": 3,
+          "team": "ELMONT BLED",
+          "played": 14,
+          "won": 7,
+          "draw": 1,
+          "lost": 6,
+          "goalsFor": 60,
+          "goalsAgainst": 64,
+          "goalDiff": -4,
+          "points": 22
+        },
+        {
+          "pos": 4,
+          "team": "VRBNJE",
+          "played": 14,
+          "won": 6,
+          "draw": 1,
+          "lost": 7,
+          "goalsFor": 44,
+          "goalsAgainst": 43,
+          "goalDiff": 1,
+          "points": 19
+        },
+        {
+          "pos": 5,
+          "team": "BAFFI BREZJE",
+          "played": 14,
+          "won": 6,
+          "draw": 1,
+          "lost": 7,
+          "goalsFor": 50,
+          "goalsAgainst": 55,
+          "goalDiff": -5,
+          "points": 19
+        },
+        {
+          "pos": 6,
+          "team": "KMN UTRIP",
+          "played": 14,
+          "won": 5,
+          "draw": 3,
+          "lost": 6,
+          "goalsFor": 56,
+          "goalsAgainst": 60,
+          "goalDiff": -4,
+          "points": 18
+        },
+        {
+          "pos": 7,
+          "team": "MST-ACTIVITY",
+          "played": 14,
+          "won": 5,
+          "draw": 0,
+          "lost": 9,
+          "goalsFor": 70,
+          "goalsAgainst": 86,
+          "goalDiff": -16,
+          "points": 15
+        },
+        {
+          "pos": 8,
+          "team": "LISJAKI NAKLO",
+          "played": 14,
+          "won": 1,
+          "draw": 1,
+          "lost": 12,
+          "goalsFor": 30,
+          "goalsAgainst": 75,
+          "goalDiff": -45,
+          "points": 4,
+          "isHighlighted": true
+        }
+      ]
+    }
   ]
 }
