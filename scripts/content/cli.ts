@@ -85,7 +85,7 @@ async function apply(command:string,input:unknown) {
     if(season!==data.settings.activeSeason && command!=='standings sync')throw new Error('Activate the season before syncing');
     const previous=[data.standings,...(data.standings.archives??[])].find(table=>table.season===season);
     const names=previous?.rows.map(r=>r.team)??[];
-    const imported=parseLeague(await leagueHTML(options.html??htmlFile,season),data.settings,season,options.asOf??asOf??today(),names);
+    const imported=parseLeague(await leagueHTML(options.html??htmlFile,season),data.settings,season,options.asOf??asOf??today(),names,data.matches.played.filter(game=>data.matches.confirmedResults.includes(game.id)));
     if(command!=='fixtures sync') {
       data.standings=updateStandings(data.standings,imported.standings,data.settings.activeSeason);
     }

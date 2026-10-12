@@ -1,0 +1,7 @@
+# REA runs locally as a Codex development tool.
+# Keep its version pinned independently of the website dependencies.
+[mcp_servers.rea]
+command = "npx"
+args = ["-y", "rea-agents@6.4.0", "mcp"]
+startup_timeout_sec = 30
+tool_timeout_sec = 120

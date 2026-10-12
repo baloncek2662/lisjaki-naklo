@@ -1,5 +1,5 @@
-import { useSearchParams } from "react-router-dom";
-import { useState } from "react";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Calendar, MapPin, Trophy, ChevronDown, ChevronUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
@@ -8,6 +8,7 @@ import { playedMatches, upcomingMatches, pendingMatches, leagueSources, activeSe
 import StandingsTable from "@/components/StandingsTable";
 import SeasonSelect from "@/components/SeasonSelect";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { isClubMatch, normalizeClub } from "@/lib/football-results";
 import MatchTeamDetails from "@/components/MatchTeamDetails";
 
 const MatchCard = ({ match }: { match: PlayedMatch | UpcomingMatch }) => {
@@ -22,7 +23,7 @@ const MatchCard = ({ match }: { match: PlayedMatch | UpcomingMatch }) => {
   const isDraw = isPlayed && match.homeScore === match.awayScore;
 
   return (
-    <Card className="border-border hover:shadow-elevated transition-all duration-300">
+    <Card id={`tekma-${match.id}`} className="scroll-mt-24 border-border hover:shadow-elevated transition-all duration-300">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2 text-muted-foreground text-sm">
@@ -105,6 +106,7 @@ const MatchCard = ({ match }: { match: PlayedMatch | UpcomingMatch }) => {
 
 const Tekme = () => {
   const [params, setParams] = useSearchParams();
+  const { hash } = useLocation();
   const requestedSeason = params.get("season");
   const season = requestedSeason && Object.prototype.hasOwnProperty.call(leagueSources, requestedSeason) ? requestedSeason : activeSeason;
   const tab = params.get("view") === "standings" ? "standings" : "matches";
@@ -113,9 +115,24 @@ const Tekme = () => {
     next.set(key, value);
     return next;
   });
-  const results = playedMatches.filter((match) => match.season === season);
-  const fixtures = upcomingMatches.filter((match) => match.season === season);
-  const pending = pendingMatches.filter((match) => match.season === season);
+  const requestedClub = params.get("club");
+  const seasonMatches = [...playedMatches, ...upcomingMatches, ...pendingMatches].filter(match => match.season === season);
+  const clubs = [...new Set(seasonMatches.flatMap(match => [match.home, match.away]))];
+  const club = requestedClub ? clubs.find(name => normalizeClub(name) === normalizeClub(requestedClub)) ?? requestedClub : undefined;
+  const matchesFilter = (match: PlayedMatch | UpcomingMatch) => match.season === season && (!club || isClubMatch(match, club));
+  const results = playedMatches.filter(matchesFilter);
+  const fixtures = upcomingMatches.filter(matchesFilter);
+  const pending = pendingMatches.filter(matchesFilter);
+  useEffect(() => {
+    if (tab !== "matches") return;
+    const target = /^#tekma-\d+$/.test(hash) ? hash.slice(1) : undefined;
+    if (!target) {
+      window.scrollTo(0, 0);
+      return;
+    }
+    const frame = requestAnimationFrame(() => document.getElementById(target)?.scrollIntoView({ block: "start" }));
+    return () => cancelAnimationFrame(frame);
+  }, [hash, tab, season, club]);
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -145,6 +162,12 @@ const Tekme = () => {
           </div>
           <TabsContent value="standings"><StandingsTable season={season} showSeasonLink={false} /></TabsContent>
           <TabsContent value="matches">
+            {club && <div id="club-matches" className="container mx-auto px-4 pt-6 scroll-mt-24">
+              <div className="flex flex-wrap items-center gap-3 rounded-md border border-border bg-secondary px-4 py-3">
+                <p className="font-medium">Tekme Lisjakov proti {club}</p>
+                <Link to={`?${new URLSearchParams({ season, view: "matches" })}`} className="text-sm text-primary underline">Vse tekme</Link>
+              </div>
+            </div>}
             {season === activeSeason && (
               <section className="py-12 md:py-16">
                 <div className="container mx-auto px-4">
@@ -189,7 +212,7 @@ const Tekme = () => {
                     Odigrane Tekme
                   </h2>
                 </div>
-                {results.length === 0 && <p className="text-muted-foreground">V tej sezoni še ni odigranih tekem.</p>}
+                {results.length === 0 && <p className="text-muted-foreground">{club ? "V tej sezoni ni zabeleženih tekem proti temu klubu." : "V tej sezoni še ni odigranih tekem."}</p>}
                 <div className="grid gap-4">
                   {results.map((match) => (
                     <MatchCard key={match.id} match={match} />

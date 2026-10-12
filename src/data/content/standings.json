@@ -14,7 +14,29 @@
       "goalsFor": 44,
       "goalsAgainst": 10,
       "goalDiff": 34,
-      "points": 15
+      "points": 15,
+      "form": [
+        {
+          "matchId": 6576,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6613,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6663,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6673,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6687,
+          "outcome": "win"
+        }
+      ]
     },
     {
       "pos": 2,
@@ -26,7 +48,29 @@
       "goalsFor": 16,
       "goalsAgainst": 11,
       "goalDiff": 5,
-      "points": 11
+      "points": 11,
+      "form": [
+        {
+          "matchId": 6577,
+          "outcome": "draw"
+        },
+        {
+          "matchId": 6612,
+          "outcome": "draw"
+        },
+        {
+          "matchId": 6668,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6674,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6688,
+          "outcome": "win"
+        }
+      ]
     },
     {
       "pos": 3,
@@ -39,7 +83,29 @@
       "goalsAgainst": 16,
       "goalDiff": 7,
       "points": 10,
-      "isHighlighted": true
+      "isHighlighted": true,
+      "form": [
+        {
+          "matchId": 6612,
+          "outcome": "draw"
+        },
+        {
+          "matchId": 6660,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6676,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6683,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6693,
+          "outcome": "win"
+        }
+      ]
     },
     {
       "pos": 4,
@@ -51,7 +117,29 @@
       "goalsFor": 16,
       "goalsAgainst": 15,
       "goalDiff": 1,
-      "points": 7
+      "points": 7,
+      "form": [
+        {
+          "matchId": 6577,
+          "outcome": "draw"
+        },
+        {
+          "matchId": 6610,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6665,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6680,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6683,
+          "outcome": "loss"
+        }
+      ]
     },
     {
       "pos": 5,
@@ -63,7 +151,29 @@
       "goalsFor": 19,
       "goalsAgainst": 20,
       "goalDiff": -1,
-      "points": 7
+      "points": 7,
+      "form": [
+        {
+          "matchId": 6572,
+          "outcome": "draw"
+        },
+        {
+          "matchId": 6613,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6665,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6676,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6686,
+          "outcome": "win"
+        }
+      ]
     },
     {
       "pos": 6,
@@ -75,7 +185,29 @@
       "goalsFor": 10,
       "goalsAgainst": 37,
       "goalDiff": -27,
-      "points": 4
+      "points": 4,
+      "form": [
+        {
+          "matchId": 6611,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6668,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6680,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6687,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6693,
+          "outcome": "loss"
+        }
+      ]
     },
     {
       "pos": 7,
@@ -87,7 +219,29 @@
       "goalsFor": 24,
       "goalsAgainst": 26,
       "goalDiff": -2,
-      "points": 3
+      "points": 3,
+      "form": [
+        {
+          "matchId": 6569,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6611,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6663,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6674,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6686,
+          "outcome": "loss"
+        }
+      ]
     },
     {
       "pos": 8,
@@ -99,7 +253,29 @@
       "goalsFor": 12,
       "goalsAgainst": 29,
       "goalDiff": -17,
-      "points": 3
+      "points": 3,
+      "form": [
+        {
+          "matchId": 6569,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6610,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6660,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6673,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6688,
+          "outcome": "loss"
+        }
+      ]
     }
   ],
   "archives": [
@@ -119,7 +295,29 @@
           "goalsFor": 98,
           "goalsAgainst": 38,
           "goalDiff": 60,
-          "points": 36
+          "points": 36,
+          "form": [
+            {
+              "matchId": 6414,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6430,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6447,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6452,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6476,
+              "outcome": "draw"
+            }
+          ]
         },
         {
           "pos": 2,
@@ -131,7 +329,29 @@
           "goalsFor": 68,
           "goalsAgainst": 55,
           "goalDiff": 13,
-          "points": 29
+          "points": 29,
+          "form": [
+            {
+              "matchId": 6420,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6438,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6443,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6460,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6475,
+              "outcome": "loss"
+            }
+          ]
         },
         {
           "pos": 3,
@@ -143,7 +363,29 @@
           "goalsFor": 60,
           "goalsAgainst": 64,
           "goalDiff": -4,
-          "points": 22
+          "points": 22,
+          "form": [
+            {
+              "matchId": 6416,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6434,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6448,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6452,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6471,
+              "outcome": "draw"
+            }
+          ]
         },
         {
           "pos": 4,
@@ -155,7 +397,29 @@
           "goalsFor": 44,
           "goalsAgainst": 43,
           "goalDiff": 1,
-          "points": 19
+          "points": 19,
+          "form": [
+            {
+              "matchId": 6420,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6432,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6447,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6458,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6471,
+              "outcome": "draw"
+            }
+          ]
         },
         {
           "pos": 5,
@@ -167,7 +431,29 @@
           "goalsFor": 50,
           "goalsAgainst": 55,
           "goalDiff": -5,
-          "points": 19
+          "points": 19,
+          "form": [
+            {
+              "matchId": 6414,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6434,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6446,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6457,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6475,
+              "outcome": "win"
+            }
+          ]
         },
         {
           "pos": 6,
@@ -179,7 +465,29 @@
           "goalsFor": 56,
           "goalsAgainst": 60,
           "goalDiff": -4,
-          "points": 18
+          "points": 18,
+          "form": [
+            {
+              "matchId": 6422,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6438,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6448,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6458,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6476,
+              "outcome": "draw"
+            }
+          ]
         },
         {
           "pos": 7,
@@ -191,7 +499,29 @@
           "goalsFor": 70,
           "goalsAgainst": 86,
           "goalDiff": -16,
-          "points": 15
+          "points": 15,
+          "form": [
+            {
+              "matchId": 6416,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6430,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6443,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6457,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6468,
+              "outcome": "win"
+            }
+          ]
         },
         {
           "pos": 8,
@@ -204,7 +534,29 @@
           "goalsAgainst": 75,
           "goalDiff": -45,
           "points": 4,
-          "isHighlighted": true
+          "isHighlighted": true,
+          "form": [
+            {
+              "matchId": 6422,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6432,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6446,
+              "outcome": "win"
+            },
+            {
+              "matchId": 6460,
+              "outcome": "loss"
+            },
+            {
+              "matchId": 6468,
+              "outcome": "loss"
+            }
+          ]
         }
       ]
     }

@@ -10,7 +10,7 @@ export const fixture = z.object({ id: z.number().int(), season: text, kickoff: z
 export const match = fixture.omit({time:true}).extend({ homeScore: integer, awayScore: integer, details: z.object({home:side,away:side}).strict().optional() }).strict();
 export const matches = z.object({ played: z.array(match), upcoming: z.array(fixture), pending: z.array(fixture), confirmedResults: z.array(z.number().int()) }).strict();
 export const player = z.object({ initials: text, name: text, number: integer.optional(), opponent: z.boolean().optional() }).strict();
-const row = z.object({ pos: integer, team: text, played: integer, won: integer, draw: integer, lost: integer, goalsFor: integer, goalsAgainst: integer, goalDiff: z.number().int(), points: integer, isHighlighted: z.boolean().optional() }).strict();
+const row = z.object({ pos: integer, team: text, played: integer, won: integer, draw: integer, lost: integer, goalsFor: integer, goalsAgainst: integer, goalDiff: z.number().int(), points: integer, isHighlighted: z.boolean().optional(), form: z.array(z.object({matchId: z.number().int().positive(), outcome: z.enum(['win','draw','loss'])}).strict()).max(5).optional() }).strict();
 export const seasonStandings = z.object({ season: text, group: text, source: z.string().url(), asOf: day, rows: z.array(row).min(2) }).strict();
 export const standings = seasonStandings.extend({ archives: z.array(seasonStandings).optional() }).strict();
 export function updateStandings(current: z.infer<typeof standings>, incoming: z.infer<typeof seasonStandings>, activeSeason: string): z.infer<typeof standings> {

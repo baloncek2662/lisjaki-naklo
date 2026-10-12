@@ -6,6 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { parseLeague } from './league';
 import { displayTime, mergeLeague, updateStandings, resolvePlayer, validateStandings } from './model';
 import { audit, load } from './store';
+import { matchOutcome, recentForm, normalizeClub, isClubMatch, matchesURL } from '../../src/lib/football-results';
 import { galleryImageURL } from '../../src/lib/gallery-images';
 
 const root=process.cwd(), data=load(root);
@@ -27,6 +28,10 @@ assert.throws(()=>updateStandings(archived,{...historical,asOf:'2025-01-01'},'20
 const rollover=updateStandings(archived,{...parsed.standings,season:'2027/28'},'2027/28');
 assert.deepEqual(rollover.archives?.map(table=>table.season),['2026/27','2025/26']);
 assert.equal(parseLeague(html.replace('>B<','>Skupina B<'),data.settings,'2026/27','2026-10-03',[]).standings.group,'B');
+const formMarkup='<span class="club-form__item-pro" data-match-id="100">z</span><span class="club-form__item-pro" data-match-id="101">n</span><span class="club-form__item-pro" data-match-id="102">p</span><span class="club-form__item-pro" data-match-id="103">&gt;</span>';
+const withForm=parseLeague(html.replace('</a>','</a>'+formMarkup),data.settings,'2026/27','2026-10-03',[]);
+assert.deepEqual(withForm.standings.rows[0].form,[{matchId:100,outcome:'win'},{matchId:101,outcome:'draw'},{matchId:102,outcome:'loss'}]);
+assert.throws(()=>parseLeague(html.replace('</a>','</a>'+formMarkup.replace('>z<','>unknown<')),data.settings,'2026/27','2026-10-03',[]),/Unknown form/);
 const merged=mergeLeague(data.matches,parsed.matches,'2026/27',Date.parse('2026-10-03T12:00Z'));
 assert.deepEqual(merged.data.played.find(m=>m.id===6612),data.matches.played.find(m=>m.id===6612));
 assert.deepEqual(merged.data.played.find(m=>m.id===6676)?.details,data.matches.played.find(m=>m.id===6676)?.details);
@@ -42,6 +47,26 @@ assert.equal(galleryImageURL('/images/a.jpg',640,'thumbnail',false),'/images/a.j
 assert.match(galleryImageURL('/images/a.jpg',640,'thumbnail',true),/fit=cover,width=640,height=640/);
 assert.equal(galleryImageURL('https://example.com/a.jpg',640,'thumbnail',true),'https://example.com/a.jpg');
 assert.equal(audit(root,data).errors.length,0);
+
+// Form uses kickoff order, the selected season and the club's perspective.
+const sample=data.matches.played.find(match=>match.home===data.settings.club)!;
+const confirmedForm=parseLeague(html,data.settings,sample.season,'2026-10-12',[],[sample]);
+assert(confirmedForm.standings.rows.find(row=>row.isHighlighted)?.form?.some(entry=>entry.matchId===sample.id));
+assert(confirmedForm.standings.rows.find(row=>normalizeClub(row.team)===normalizeClub(sample.away))?.form?.some(entry=>entry.matchId===sample.id));
+assert.equal(matchOutcome({...sample,homeScore:2,awayScore:1}),'win');
+assert.equal(matchOutcome({...sample,homeScore:1,awayScore:1}),'draw');
+assert.equal(matchOutcome({...sample,home:data.settings.club,homeScore:0,awayScore:1}),'loss');
+assert.equal(matchOutcome({...sample,home:'Other',away:data.settings.club,homeScore:1,awayScore:2}),'win');
+assert.equal(normalizeClub('LISJAKI NAKLO'),normalizeClub('Lisjaki Naklo'));
+assert(isClubMatch({...sample,away:'ŠD Gorje'},'SD GORJE'));
+const expectedForm=data.matches.played.filter(match=>match.season===data.settings.activeSeason).sort((a,b)=>b.kickoff.localeCompare(a.kickoff)||b.id-a.id).slice(0,5).reverse();
+assert.deepEqual(recentForm([...data.matches.played].reverse(),data.settings.activeSeason),expectedForm);
+assert.deepEqual(recentForm(data.matches.played,'unknown'),[]);
+const clubURL=new URL(matchesURL('2025/26','ŠD Podnart'),'https://example.com');
+assert.equal(clubURL.searchParams.get('club'),'ŠD Podnart');
+assert.equal(clubURL.searchParams.get('season'),'2025/26');
+assert(!new URL(matchesURL('2025/26','LISJAKI NAKLO'),'https://example.com').searchParams.has('club'));
+assert.equal(new URL(matchesURL('2026/27',undefined,123),'https://example.com').hash,'#tekma-123');
 
 const sandbox=fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(),'lisjaki-content-integration-')));
 try {
