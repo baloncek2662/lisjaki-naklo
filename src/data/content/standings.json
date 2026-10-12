@@ -30,6 +30,19 @@
     },
     {
       "pos": 3,
+      "team": "Lisjaki Naklo",
+      "played": 6,
+      "won": 3,
+      "draw": 1,
+      "lost": 2,
+      "goalsFor": 23,
+      "goalsAgainst": 16,
+      "goalDiff": 7,
+      "points": 10,
+      "isHighlighted": true
+    },
+    {
+      "pos": 4,
       "team": "Realj Madrid",
       "played": 5,
       "won": 2,
@@ -41,7 +54,7 @@
       "points": 7
     },
     {
-      "pos": 4,
+      "pos": 5,
       "team": "Čpinarji Ljubno",
       "played": 5,
       "won": 2,
@@ -53,28 +66,15 @@
       "points": 7
     },
     {
-      "pos": 5,
-      "team": "Lisjaki Naklo",
-      "played": 5,
-      "won": 2,
-      "draw": 1,
-      "lost": 2,
-      "goalsFor": 13,
-      "goalsAgainst": 16,
-      "goalDiff": -3,
-      "points": 7,
-      "isHighlighted": true
-    },
-    {
       "pos": 6,
       "team": "ŠD Gorje",
-      "played": 5,
+      "played": 6,
       "won": 1,
       "draw": 1,
-      "lost": 3,
+      "lost": 4,
       "goalsFor": 10,
-      "goalsAgainst": 27,
-      "goalDiff": -17,
+      "goalsAgainst": 37,
+      "goalDiff": -27,
       "points": 4
     },
     {

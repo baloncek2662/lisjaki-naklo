@@ -1,6 +1,66 @@
 {
   "played": [
     {
+      "id": 6693,
+      "season": "2026/27",
+      "kickoff": "2026-10-11T08:00:00+02:00",
+      "home": "Lisjaki Naklo",
+      "away": "ŠD Gorje",
+      "date": "11. okt. 2026",
+      "location": "Športni Park Radovljica",
+      "homeScore": 10,
+      "awayScore": 0,
+      "details": {
+        "home": {
+          "goalscorers": [
+            {
+              "player": "GP"
+            },
+            {
+              "player": "GP"
+            },
+            {
+              "player": "GP"
+            },
+            {
+              "player": "GP"
+            },
+            {
+              "player": "GP"
+            },
+            {
+              "player": "GP"
+            },
+            {
+              "player": "GP"
+            },
+            {
+              "player": "BL"
+            },
+            {
+              "player": "BL"
+            },
+            {
+              "player": "BL"
+            }
+          ],
+          "lineup": [
+            "BL",
+            "GP",
+            "TH",
+            "DP",
+            "MP",
+            "DN",
+            "EP"
+          ]
+        },
+        "away": {
+          "goalscorers": [],
+          "lineup": []
+        }
+      }
+    },
+    {
       "id": 6683,
       "season": "2026/27",
       "kickoff": "2026-10-04T12:00:00+02:00",
@@ -524,16 +584,6 @@
   ],
   "upcoming": [
     {
-      "id": 6693,
-      "season": "2026/27",
-      "kickoff": "2026-10-11T08:00:00+02:00",
-      "home": "Lisjaki Naklo",
-      "away": "ŠD Gorje",
-      "date": "11. okt. 2026",
-      "location": "Športni Park Radovljica",
-      "time": "08:00"
-    },
-    {
       "id": 6706,
       "season": "2026/27",
       "kickoff": "2026-10-18T09:15:00+02:00",
@@ -556,6 +606,7 @@
     6422,
     6382,
     8,
-    6683
+    6683,
+    6693
   ]
 }
