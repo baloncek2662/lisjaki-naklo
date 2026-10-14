@@ -168,7 +168,7 @@ const Tekme = () => {
                 <Link to={`?${new URLSearchParams({ season, view: "matches" })}`} className="text-sm text-primary underline">Vse tekme</Link>
               </div>
             </div>}
-            {season === activeSeason && (
+            {season === activeSeason && fixtures.length > 0 && (
               <section className="py-12 md:py-16">
                 <div className="container mx-auto px-4">
                   <div className="flex items-center gap-3 mb-8">
@@ -177,19 +177,11 @@ const Tekme = () => {
                       Prihajajoče Tekme
                     </h2>
                   </div>
-                  {fixtures.length > 0 ? (
-                    <div className="grid gap-4">
-                      {fixtures.map((match) => (
-                        <MatchCard key={match.id} match={match} />
-                      ))}
-                    </div>
-                  ) : (
-                    <Card className="border-border">
-                      <CardContent className="p-8 text-center text-muted-foreground">
-                        Trenutno ni načrtovanih tekem
-                      </CardContent>
-                    </Card>
-                  )}
+                  <div className="grid gap-4">
+                    {fixtures.map((match) => (
+                      <MatchCard key={match.id} match={match} />
+                    ))}
+                  </div>
                 </div>
               </section>
             )}
