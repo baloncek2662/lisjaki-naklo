@@ -2,7 +2,7 @@
   "season": "2026/27",
   "group": "B",
   "source": "https://sport-radovljica.si/tekmovanje/liga-malega-nogometa-26-27/",
-  "asOf": "2026-10-16",
+  "asOf": "2026-10-18",
   "rows": [
     {
       "pos": 1,
@@ -40,6 +40,41 @@
     },
     {
       "pos": 2,
+      "team": "Lisjaki Naklo",
+      "played": 7,
+      "won": 4,
+      "draw": 1,
+      "lost": 2,
+      "goalsFor": 32,
+      "goalsAgainst": 16,
+      "goalDiff": 16,
+      "points": 13,
+      "isHighlighted": true,
+      "form": [
+        {
+          "matchId": 6660,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6676,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6683,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6693,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6706,
+          "outcome": "win"
+        }
+      ]
+    },
+    {
+      "pos": 3,
       "team": "ŠD Dvorska vas",
       "played": 6,
       "won": 3,
@@ -69,41 +104,6 @@
         {
           "matchId": 6698,
           "outcome": "loss"
-        }
-      ]
-    },
-    {
-      "pos": 3,
-      "team": "Lisjaki Naklo",
-      "played": 6,
-      "won": 3,
-      "draw": 1,
-      "lost": 2,
-      "goalsFor": 23,
-      "goalsAgainst": 16,
-      "goalDiff": 7,
-      "points": 10,
-      "isHighlighted": true,
-      "form": [
-        {
-          "matchId": 6660,
-          "outcome": "win"
-        },
-        {
-          "matchId": 6676,
-          "outcome": "loss"
-        },
-        {
-          "matchId": 6683,
-          "outcome": "win"
-        },
-        {
-          "matchId": 6693,
-          "outcome": "win"
-        },
-        {
-          "matchId": 6706,
-          "outcome": "win"
         }
       ]
     },
@@ -212,13 +212,13 @@
     {
       "pos": 7,
       "team": "ŠD Lancovo",
-      "played": 6,
+      "played": 7,
       "won": 1,
       "draw": 0,
-      "lost": 5,
+      "lost": 6,
       "goalsFor": 27,
-      "goalsAgainst": 30,
-      "goalDiff": -3,
+      "goalsAgainst": 39,
+      "goalDiff": -12,
       "points": 3,
       "form": [
         {
