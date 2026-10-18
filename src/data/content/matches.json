@@ -1,6 +1,67 @@
 {
   "played": [
     {
+      "id": 6706,
+      "season": "2026/27",
+      "kickoff": "2026-10-18T09:15:00+02:00",
+      "home": "ŠD Lancovo",
+      "away": "Lisjaki Naklo",
+      "date": "18. okt. 2026",
+      "location": "Športni Park Vrbnje",
+      "homeScore": 0,
+      "awayScore": 9,
+      "details": {
+        "home": {
+          "goalscorers": [],
+          "lineup": []
+        },
+        "away": {
+          "goalscorers": [
+            {
+              "player": "UM"
+            },
+            {
+              "player": "UM"
+            },
+            {
+              "player": "BL"
+            },
+            {
+              "player": "BL"
+            },
+            {
+              "player": "BL"
+            },
+            {
+              "player": "GP"
+            },
+            {
+              "player": "GP"
+            },
+            {
+              "player": "GP"
+            },
+            {
+              "player": "DN"
+            }
+          ],
+          "lineup": [
+            "GM",
+            "BL",
+            "DN",
+            "DP",
+            "GP",
+            "JJES",
+            "MP",
+            "AR",
+            "TH",
+            "UM",
+            "GA"
+          ]
+        }
+      }
+    },
+    {
       "id": 6693,
       "season": "2026/27",
       "kickoff": "2026-10-11T08:00:00+02:00",
@@ -447,12 +508,14 @@
     },
     {
       "id": 8,
+      "season": "2025/26",
+      "kickoff": "2026-02-28T00:00:00+01:00",
       "home": "Lisjaki Naklo",
       "away": "Na'Klani",
-      "homeScore": 3,
-      "awayScore": 2,
       "date": "28. feb. 2026",
       "location": "Športni park Naklo",
+      "homeScore": 3,
+      "awayScore": 2,
       "details": {
         "home": {
           "goalscorers": [
@@ -500,9 +563,7 @@
           "lineup": [],
           "substitutions": []
         }
-      },
-      "season": "2025/26",
-      "kickoff": "2026-02-28T00:00:00+01:00"
+      }
     },
     {
       "id": 5983,
@@ -582,18 +643,7 @@
       "awayScore": 4
     }
   ],
-  "upcoming": [
-    {
-      "id": 6706,
-      "season": "2026/27",
-      "kickoff": "2026-10-18T09:15:00+02:00",
-      "home": "ŠD Lancovo",
-      "away": "Lisjaki Naklo",
-      "date": "18. okt. 2026",
-      "location": "Športni Park Vrbnje",
-      "time": "09:15"
-    }
-  ],
+  "upcoming": [],
   "pending": [],
   "confirmedResults": [
     6676,
@@ -607,6 +657,7 @@
     6382,
     8,
     6683,
-    6693
+    6693,
+    6706
   ]
 }

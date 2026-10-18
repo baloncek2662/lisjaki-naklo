@@ -78,7 +78,11 @@ try {
   const cli=process.argv[2];
   const run=(args:string[],success=true)=>{const r=spawnSync(process.execPath,[cli,...args,'--root',sandbox],{encoding:'utf8'});assert.equal(r.status,success?0:1,r.stdout+r.stderr);return r;};
   const input=(name:string,value:unknown)=>{const file=path.join(sandbox,name+'.json');fs.writeFileSync(file,JSON.stringify(value));return file;};
-  const fixture=data.matches.upcoming[0];
+  // Keep the result-transition test independent of the live fixture schedule.
+  const fixture={id:999999,season:data.settings.activeSeason,kickoff:'2026-10-18T09:15:00+02:00',home:'Test opponent',away:data.settings.club,date:'18. okt. 2026',time:'09:15',location:'Test venue'};
+  const sandboxMatches=load(sandbox).matches;
+  sandboxMatches.upcoming.push(fixture);
+  fs.writeFileSync(path.join(sandbox,'src/data/content/matches.json'),JSON.stringify(sandboxMatches,null,2)+'\n');
   const clubSide=fixture.home===data.settings.club?'home':'away';
   const clubDetails={lineup:['Gašper Martič','Blaž Logonder','Tomaž Hribernik'],goalscorers:[{player:'Blaž Logonder'}]};
   const opponentDetails={lineup:[],goalscorers:[]};

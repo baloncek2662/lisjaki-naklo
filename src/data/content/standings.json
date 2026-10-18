@@ -86,10 +86,6 @@
       "isHighlighted": true,
       "form": [
         {
-          "matchId": 6612,
-          "outcome": "draw"
-        },
-        {
           "matchId": 6660,
           "outcome": "win"
         },
@@ -103,6 +99,10 @@
         },
         {
           "matchId": 6693,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6706,
           "outcome": "win"
         }
       ]
@@ -222,10 +222,6 @@
       "points": 3,
       "form": [
         {
-          "matchId": 6611,
-          "outcome": "loss"
-        },
-        {
           "matchId": 6663,
           "outcome": "loss"
         },
@@ -239,6 +235,10 @@
         },
         {
           "matchId": 6694,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6706,
           "outcome": "loss"
         }
       ]
