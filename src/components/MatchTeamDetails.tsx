@@ -16,7 +16,16 @@ const PlayerBadge = ({ initials }: { initials: string }) => {
   );
 };
 
-const MatchTeamDetails = ({ name, details }: { name: string; details: TeamDetails }) => (
+const MatchTeamDetails = ({ name, details }: { name: string; details: TeamDetails }) => {
+  const scorers = new Map<string, { count: number; minutes: number[] }>();
+  for (const goal of details.goalscorers) {
+    const scorer = scorers.get(goal.player) ?? { count: 0, minutes: [] };
+    scorer.count += 1;
+    if (goal.minute != null) scorer.minutes.push(goal.minute);
+    scorers.set(goal.player, scorer);
+  }
+
+  return (
   <div className="flex-1 min-w-0">
     <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-3 truncate">
       {name}
@@ -28,11 +37,16 @@ const MatchTeamDetails = ({ name, details }: { name: string; details: TeamDetail
       </p>
       {details.goalscorers.length > 0 ? (
         <ul className="space-y-1">
-          {details.goalscorers.map((g, i) => (
-            <li key={i} className="flex items-center justify-between gap-2">
-              <PlayerBadge initials={g.player} />
-              {g.minute != null && (
-                <span className="text-muted-foreground text-xs shrink-0">{g.minute}&apos;</span>
+          {Array.from(scorers, ([player, scorer]) => (
+            <li key={player} className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 min-w-0">
+                <PlayerBadge initials={player} />
+                {scorer.count > 1 && (
+                  <span className="text-xs font-semibold text-foreground shrink-0">{scorer.count}x</span>
+                )}
+              </span>
+              {scorer.minutes.length > 0 && (
+                <span className="text-muted-foreground text-xs shrink-0">{scorer.minutes.map((minute) => `${minute}'`).join(", ")}</span>
               )}
             </li>
           ))}
@@ -74,6 +88,7 @@ const MatchTeamDetails = ({ name, details }: { name: string; details: TeamDetail
       </div>
     )}
   </div>
-);
+  );
+};
 
 export default MatchTeamDetails;
