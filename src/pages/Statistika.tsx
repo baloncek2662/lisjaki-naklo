@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import SeasonSelect from "@/components/SeasonSelect";
-import { playedMatches, leagueSeasons } from "@/data/matches";
+import { activeSeason, playedMatches, leagueSeasons } from "@/data/matches";
 import { playerMap } from "@/data/team";
 
 interface PlayerStat {
@@ -60,7 +60,7 @@ const SortIcon = ({ col, sortKey, sortDir }: { col: SortKey; sortKey: SortKey; s
 };
 
 const Statistika = () => {
-  const [season, setSeason] = useState("all");
+  const [season, setSeason] = useState(activeSeason);
   const [sortKey, setSortKey] = useState<SortKey>("appearances");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
