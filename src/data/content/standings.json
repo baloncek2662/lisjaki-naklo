@@ -2,24 +2,20 @@
   "season": "2026/27",
   "group": "B",
   "source": "https://sport-radovljica.si/tekmovanje/liga-malega-nogometa-26-27/",
-  "asOf": "2026-10-18",
+  "asOf": "2026-10-23",
   "rows": [
     {
       "pos": 1,
       "team": "ŠD Beli Gumb",
-      "played": 6,
-      "won": 6,
+      "played": 7,
+      "won": 7,
       "draw": 0,
       "lost": 0,
-      "goalsFor": 51,
-      "goalsAgainst": 12,
-      "goalDiff": 39,
-      "points": 18,
+      "goalsFor": 58,
+      "goalsAgainst": 17,
+      "goalDiff": 41,
+      "points": 21,
       "form": [
-        {
-          "matchId": 6613,
-          "outcome": "win"
-        },
         {
           "matchId": 6663,
           "outcome": "win"
@@ -35,11 +31,49 @@
         {
           "matchId": 6698,
           "outcome": "win"
+        },
+        {
+          "matchId": 6713,
+          "outcome": "win"
         }
       ]
     },
     {
       "pos": 2,
+      "team": "ŠD Dvorska vas",
+      "played": 7,
+      "won": 4,
+      "draw": 2,
+      "lost": 1,
+      "goalsFor": 21,
+      "goalsAgainst": 18,
+      "goalDiff": 3,
+      "points": 14,
+      "form": [
+        {
+          "matchId": 6668,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6674,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6688,
+          "outcome": "win"
+        },
+        {
+          "matchId": 6698,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6709,
+          "outcome": "win"
+        }
+      ]
+    },
+    {
+      "pos": 3,
       "team": "Lisjaki Naklo",
       "played": 7,
       "won": 4,
@@ -74,55 +108,17 @@
       ]
     },
     {
-      "pos": 3,
-      "team": "ŠD Dvorska vas",
-      "played": 6,
-      "won": 3,
-      "draw": 2,
-      "lost": 1,
-      "goalsFor": 18,
-      "goalsAgainst": 18,
-      "goalDiff": 0,
-      "points": 11,
-      "form": [
-        {
-          "matchId": 6612,
-          "outcome": "draw"
-        },
-        {
-          "matchId": 6668,
-          "outcome": "win"
-        },
-        {
-          "matchId": 6674,
-          "outcome": "win"
-        },
-        {
-          "matchId": 6688,
-          "outcome": "win"
-        },
-        {
-          "matchId": 6698,
-          "outcome": "loss"
-        }
-      ]
-    },
-    {
       "pos": 4,
       "team": "Čpinarji Ljubno",
-      "played": 6,
+      "played": 7,
       "won": 3,
       "draw": 1,
-      "lost": 2,
+      "lost": 3,
       "goalsFor": 26,
-      "goalsAgainst": 20,
-      "goalDiff": 6,
+      "goalsAgainst": 23,
+      "goalDiff": 3,
       "points": 10,
       "form": [
-        {
-          "matchId": 6613,
-          "outcome": "loss"
-        },
         {
           "matchId": 6665,
           "outcome": "loss"
@@ -138,25 +134,25 @@
         {
           "matchId": 6697,
           "outcome": "win"
+        },
+        {
+          "matchId": 6709,
+          "outcome": "loss"
         }
       ]
     },
     {
       "pos": 5,
       "team": "Realj Madrid",
-      "played": 6,
+      "played": 7,
       "won": 3,
       "draw": 1,
-      "lost": 2,
-      "goalsFor": 20,
-      "goalsAgainst": 18,
-      "goalDiff": 2,
+      "lost": 3,
+      "goalsFor": 25,
+      "goalsAgainst": 25,
+      "goalDiff": 0,
       "points": 10,
       "form": [
-        {
-          "matchId": 6610,
-          "outcome": "loss"
-        },
         {
           "matchId": 6665,
           "outcome": "win"
@@ -172,25 +168,25 @@
         {
           "matchId": 6694,
           "outcome": "win"
+        },
+        {
+          "matchId": 6713,
+          "outcome": "loss"
         }
       ]
     },
     {
       "pos": 6,
       "team": "ŠD Gorje",
-      "played": 6,
+      "played": 7,
       "won": 1,
-      "draw": 1,
+      "draw": 2,
       "lost": 4,
-      "goalsFor": 10,
-      "goalsAgainst": 37,
+      "goalsFor": 13,
+      "goalsAgainst": 40,
       "goalDiff": -27,
-      "points": 4,
+      "points": 5,
       "form": [
-        {
-          "matchId": 6611,
-          "outcome": "win"
-        },
         {
           "matchId": 6668,
           "outcome": "loss"
@@ -206,11 +202,49 @@
         {
           "matchId": 6693,
           "outcome": "loss"
+        },
+        {
+          "matchId": 6714,
+          "outcome": "draw"
         }
       ]
     },
     {
       "pos": 7,
+      "team": "NK Hom",
+      "played": 7,
+      "won": 1,
+      "draw": 1,
+      "lost": 5,
+      "goalsFor": 15,
+      "goalsAgainst": 39,
+      "goalDiff": -24,
+      "points": 4,
+      "form": [
+        {
+          "matchId": 6660,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6673,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6688,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6697,
+          "outcome": "loss"
+        },
+        {
+          "matchId": 6714,
+          "outcome": "draw"
+        }
+      ]
+    },
+    {
+      "pos": 8,
       "team": "ŠD Lancovo",
       "played": 7,
       "won": 1,
@@ -239,40 +273,6 @@
         },
         {
           "matchId": 6706,
-          "outcome": "loss"
-        }
-      ]
-    },
-    {
-      "pos": 8,
-      "team": "NK Hom",
-      "played": 6,
-      "won": 1,
-      "draw": 0,
-      "lost": 5,
-      "goalsFor": 12,
-      "goalsAgainst": 36,
-      "goalDiff": -24,
-      "points": 3,
-      "form": [
-        {
-          "matchId": 6610,
-          "outcome": "win"
-        },
-        {
-          "matchId": 6660,
-          "outcome": "loss"
-        },
-        {
-          "matchId": 6673,
-          "outcome": "loss"
-        },
-        {
-          "matchId": 6688,
-          "outcome": "loss"
-        },
-        {
-          "matchId": 6697,
           "outcome": "loss"
         }
       ]
